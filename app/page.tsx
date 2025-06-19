@@ -570,7 +570,7 @@ export default function Home() {
         {/* Research Section */}
         <section
           id="research"
-          className="py-8 md:py-12 text-[rgba(253,246,227,1)] bg-[rgba(253,246,227,1)]"
+          className="py-16 md:py-24 text-[rgba(253,246,227,1)] bg-[rgba(253,246,227,1)]"
           tabIndex={-1}
           aria-labelledby="research-heading"
         >
@@ -580,7 +580,7 @@ export default function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="text-center mb-6 md:mb-8"
+              className="text-center mb-12 md:mb-16"
             >
               <h2
                 id="research-heading"
@@ -601,9 +601,9 @@ export default function Home() {
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="flex justify-center mb-6 md:mb-8"
+              className="flex justify-center mb-12 md:mb-16"
             >
-              <div className="w-full max-w-2xl">
+              <div className="w-full max-w-3xl">
                 <Artwork55v1 />
               </div>
             </motion.div>
@@ -616,10 +616,10 @@ export default function Home() {
               viewport={{ once: true }}
               className="max-w-4xl mx-auto"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 <div>
                   <h3 className="text-lg md:text-xl mb-4 text-[#075056] dark:text-[#9ECFD6]">Key Research Areas</h3>
-                  <ul className="space-y-3 text-foreground" role="list">
+                  <ul className="space-y-4 text-foreground" role="list">
                     <li className="flex items-start" role="listitem">
                       <div className="w-2 h-2 bg-[#FF5B04] rounded-full mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
                       <div>
@@ -676,7 +676,7 @@ export default function Home() {
                 </div>
                 <div>
                   <h4 className="text-lg md:text-xl mb-4 text-[#075056] dark:text-[#9ECFD6]">Scientific Foundation</h4>
-                  <ul className="space-y-3 text-foreground" role="list">
+                  <ul className="space-y-4 text-foreground" role="list">
                     <li className="flex items-start" role="listitem">
                       <div className="w-2 h-2 bg-[#FF5B04] rounded-full mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
                       <div>

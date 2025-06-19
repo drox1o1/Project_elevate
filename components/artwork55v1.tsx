@@ -214,7 +214,7 @@ class FractalSystem {
 
   private initialize(): void {
     const count = 6
-    const scale = 2 // Restored to original scale
+    const scale = 1 // Changed from 2 to 1 (50% reduction)
 
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * Math.PI * 2
@@ -378,7 +378,7 @@ const Artwork55v1 = () => {
     }
   }, [])
 
-  return <div ref={containerRef} style={{ width: "100%", height: "400px" }} />
+  return <div ref={containerRef} style={{ width: "100%", height: "550px" }} />
 }
 ;(Artwork55v1 as any).metadata = metadata
 
