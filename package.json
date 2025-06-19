@@ -14,7 +14,8 @@
     "recharts": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "three": "latest"
+    "three": "latest",
+    "nodemailer": "^6.9.11"
   },
   "devDependencies": {
     "@types/node": "^22",

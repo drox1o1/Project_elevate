@@ -10,37 +10,50 @@ export interface WaitlistUser {
   createdAt?: Date
 }
 
-// Mock database function - replace with your actual database implementation
+// Simple JSON based storage for waitlist
+import { promises as fs } from 'fs'
+import { join } from 'path'
+
+const DATA_PATH = join(process.cwd(), 'data')
+const FILE_PATH = join(DATA_PATH, 'waitlist.json')
+
+// Ensure data directory exists
+async function ensureDataFile() {
+  try {
+    await fs.mkdir(DATA_PATH, { recursive: true })
+    await fs.access(FILE_PATH)
+  } catch {
+    await fs.writeFile(FILE_PATH, '[]')
+  }
+}
+
+// Save waitlist user to local JSON file
 export async function saveWaitlistUser(
   userData: Omit<WaitlistUser, "id" | "createdAt">,
 ): Promise<{ success: boolean; message: string }> {
   try {
-    // Simulate database save operation
-    // Replace this with your actual database call (e.g., Supabase, Neon, etc.)
+    await ensureDataFile()
+    const raw = await fs.readFile(FILE_PATH, 'utf8')
+    const existing: WaitlistUser[] = JSON.parse(raw)
 
-    console.log("Saving user to waitlist:", userData)
+    const newUser: WaitlistUser = {
+      ...userData,
+      id: Date.now().toString(),
+      createdAt: new Date(),
+    }
 
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-
-    // Here you would typically:
-    // 1. Connect to your database
-    // 2. Insert the user data
-    // 3. Handle any validation or duplicate checking
-
-    // Example for different databases:
-    // Supabase: const { data, error } = await supabase.from('waitlist').insert([userData])
-    // Neon: const result = await sql`INSERT INTO waitlist (name, age, mobile, email) VALUES (${userData.name}, ${userData.age}, ${userData.mobile}, ${userData.email})`
+    existing.push(newUser)
+    await fs.writeFile(FILE_PATH, JSON.stringify(existing, null, 2))
 
     return {
       success: true,
-      message: "User successfully added to waitlist",
+      message: 'User successfully added to waitlist',
     }
   } catch (error) {
-    console.error("Error saving user to waitlist:", error)
+    console.error('Error saving user to waitlist:', error)
     return {
       success: false,
-      message: "Failed to save user data",
+      message: 'Failed to save user data',
     }
   }
 }

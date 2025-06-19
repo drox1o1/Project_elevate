@@ -30,7 +30,7 @@ export default function Home() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ["hero", "why", "how", "what", "research"]
+      const sections = ["hero", "mission", "why", "how", "what", "research"]
       const scrollPosition = window.scrollY + 100
 
       for (const section of sections) {
@@ -63,6 +63,7 @@ export default function Home() {
 
   const navItems = [
     { id: "hero", label: "Home" },
+    { id: "mission", label: "Mission" },
     { id: "why", label: "Why" },
     { id: "how", label: "How" },
     { id: "what", label: "What" },
@@ -323,6 +324,26 @@ export default function Home() {
           >
             <ChevronDown size={32} className="text-white" />
           </motion.div>
+        </section>
+
+        {/* Mission Section */}
+        <section id="mission" className="py-16 md:py-24 bg-background" tabIndex={-1} aria-labelledby="mission-heading">
+          <div className="container mx-auto px-4 md:px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="text-center mb-12 md:mb-16"
+            >
+              <h2 id="mission-heading" className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-light mb-4 md:mb-6 text-[#075056] dark:text-[#9ECFD6] px-4">
+                Our Goal & Mission
+              </h2>
+              <p className="text-lg md:text-xl text-foreground max-w-4xl mx-auto leading-relaxed px-4">
+                Oriyali Aura is your science-backed neuro-hormonal strategist for women. It fuses wearable biometrics, cycle cues, and AI to forecast your brain-body rhythms, then delivers minute-perfect micro-rituals and supplement prompts that boost mood, focus and resilience. Track periods, log symptoms, sync Apple Health, and watch the Neuro-Hormonal Readiness ring guide your day. Private, compassionate, and built to grow with you from puberty to post-menopause.
+              </p>
+            </motion.div>
+          </div>
         </section>
 
         {/* Why Section */}
