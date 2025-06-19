@@ -1,6 +1,7 @@
 "use server"
 
 import { saveWaitlistUser } from "@/lib/database"
+import { sendWaitlistEmail } from "@/lib/email"
 
 export async function submitWaitlistForm(formData: FormData) {
   try {
@@ -35,12 +36,19 @@ export async function submitWaitlistForm(formData: FormData) {
     }
 
     // Save to database
-    const result = await saveWaitlistUser({
+    const cleanData = {
       name: name.trim(),
       age,
       mobile: mobile.trim(),
       email: email.trim().toLowerCase(),
-    })
+    }
+
+    const result = await saveWaitlistUser(cleanData)
+
+    if (result.success) {
+      // Fire and forget email notification
+      sendWaitlistEmail(cleanData)
+    }
 
     if (result.success) {
       return {
