@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-orange: #ff5b04;
+  --brand-green: #075056;
+  --brand-gunmetal: #233038;
+  --brand-cream: #fdf6e3;
+  --brand-yellow: #f4d47c;
+  --brand-silver: #d3dbdd;
+}
+
+body {
+  font-family: "Sorts Mill Goudy", serif;
+}
+
+@layer base {
+  :root {
+    --background: 60 30% 96%; /* Ivory cream background */
+    --foreground: 210 30% 18%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 30% 18%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 30% 18%;
+
+    --primary: 20 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 187 85% 18%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 60 30% 92%; /* Slightly darker ivory for muted elements */
+    --muted-foreground: 210 10% 40%;
+
+    --accent: 187 85% 18%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 10% 80%;
+    --input: 210 10% 80%;
+    --ring: 20 100% 50%;
+
+    --chart-1: 20 100% 50%;
+    --chart-2: 187 85% 18%;
+    --chart-3: 45 93% 47%;
+    --chart-4: 210 30% 18%;
+    --chart-5: 210 10% 80%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 210 30% 10%;
+    --foreground: 60 30% 94%;
+
+    --card: 210 30% 15%;
+    --card-foreground: 60 30% 94%;
+
+    --popover: 210 30% 15%;
+    --popover-foreground: 60 30% 94%;
+
+    --primary: 20 100% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 187 85% 18%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 30% 20%;
+    --muted-foreground: 210 10% 70%;
+
+    --accent: 187 85% 18%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 210 30% 25%;
+    --input: 210 30% 25%;
+    --ring: 20 100% 50%;
+
+    --chart-1: 20 100% 50%;
+    --chart-2: 158 64% 52%;
+    --chart-3: 45 93% 47%;
+    --chart-4: 210 10% 70%;
+    --chart-5: 210 30% 25%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-hero {
+    font-size: clamp(3rem, 8vw, 8rem);
+    line-height: 1.1;
+  }
+
+  .text-section-title {
+    font-size: clamp(2.5rem, 6vw, 7rem);
+    line-height: 1.2;
+  }
+}
