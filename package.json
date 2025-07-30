@@ -15,6 +15,7 @@
     "@sendgrid/mail": "^8.1.0",
     "@supabase/supabase-js": "latest",
     "@types/react": "latest",
+    "child_process": "latest",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "latest",
@@ -26,7 +27,8 @@
     "recharts": "latest",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
-    "three": "latest"
+    "three": "latest",
+    "util": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
