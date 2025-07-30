@@ -3,8 +3,10 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
+    "setup:supabase": "npx tsx scripts/setup-supabase-waitlist.ts",
     "start": "next start",
-    "test:email": "npx tsx scripts/verify-sendgrid-setup.ts"
+    "test:email": "npx tsx scripts/verify-sendgrid-setup.ts",
+    "test:waitlist": "npx tsx scripts/test-waitlist-form.ts"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",
