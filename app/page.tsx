@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { HormoneChart } from "@/components/hormone-chart"
 import { LifeStagesTimeline } from "@/components/life-stages-timeline"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { submitWaitlistForm } from "@/app/actions/waitlist"
+import { submitWaitlistFormFixed } from "@/app/actions/waitlist-fixed"
 import Artwork55v1 from "@/components/artwork55v1"
 // Add import for ErrorBoundary at the top
 import ErrorBoundary from "@/components/error-boundary"
@@ -93,7 +93,7 @@ export default function Home() {
     setSubmitMessage(null)
 
     try {
-      const result = await submitWaitlistForm(formData)
+      const result = await submitWaitlistFormFixed(formData)
 
       if (result.success) {
         setSubmitMessage({ type: "success", text: result.message })

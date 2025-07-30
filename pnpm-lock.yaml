@@ -18,8 +18,8 @@ importers:
         specifier: latest
         version: 1.2.3(@types/react@19.1.9)(react@19.0.0)
       '@sendgrid/mail':
-        specifier: ^8.1.0
-        version: 8.1.0
+        specifier: latest
+        version: 8.1.5
       '@supabase/supabase-js':
         specifier: latest
         version: 2.53.0
@@ -290,8 +290,8 @@ packages:
     resolution: {integrity: sha512-Ze7WuW2Xzy5GT5WRx+yEv89fsg/pgy3T1E3FS0QEx0/VvRmigMZ5qyVGhJz4SxomegDkzXv/i0aFPpHKN8qdAA==}
     engines: {node: '>= 12.0.0'}
 
-  '@sendgrid/mail@8.1.0':
-    resolution: {integrity: sha512-WkE0qwOrJMX9oQ+Xvtl3CdmucD6/iKw6go0VPoPieVlfXc43rbIf91wvtO6m7sKPnzxw3G+8rekBgXibmP4S8Q==}
+  '@sendgrid/mail@8.1.5':
+    resolution: {integrity: sha512-W+YuMnkVs4+HA/bgfto4VHKcPKLc7NiZ50/NH2pzO6UHCCFuq8/GNB98YJlLEr/ESDyzAaDr7lVE7hoBwFTT3Q==}
     engines: {node: '>=12.*'}
 
   '@standard-schema/spec@1.0.0':
@@ -1040,7 +1040,7 @@ snapshots:
     dependencies:
       deepmerge: 4.3.1
 
-  '@sendgrid/mail@8.1.0':
+  '@sendgrid/mail@8.1.5':
     dependencies:
       '@sendgrid/client': 8.1.5
       '@sendgrid/helpers': 8.0.0

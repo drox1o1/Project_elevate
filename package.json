@@ -12,7 +12,7 @@
     "@emotion/is-prop-valid": "latest",
     "@neondatabase/serverless": "latest",
     "@radix-ui/react-slot": "latest",
-    "@sendgrid/mail": "^8.1.0",
+    "@sendgrid/mail": "latest",
     "@supabase/supabase-js": "latest",
     "@types/react": "latest",
     "child_process": "latest",
