@@ -63,7 +63,7 @@ export async function submitWaitlistForm(formData: FormData) {
       }
     }
 
-    console.log("✅ User saved successfully:", saveResult.userId)
+    console.log("✅ User saved successfully to Supabase:", saveResult.userId)
 
     // Send welcome email (don't fail if email fails)
     try {

@@ -1,6 +1,7 @@
 // Database utility functions
-// This implementation can be adapted to your specific database (Supabase, Neon, etc.)
+// This implementation is adapted to use Supabase for database operations
 
+import { supabaseAdmin } from "./supabase-server"
 import { createEmailService } from "./email-service"
 
 export interface WaitlistUser {
@@ -12,30 +13,24 @@ export interface WaitlistUser {
   createdAt?: Date
 }
 
-// Email service configuration
-interface EmailConfig {
-  apiKey: string
-  fromEmail: string
-  fromName: string
-}
-
-// Mock database function - replace with your actual database implementation
+// Save waitlist user to Supabase
 export async function saveWaitlistUser(
   userData: Omit<WaitlistUser, "id" | "createdAt">,
 ): Promise<{ success: boolean; message: string; userId?: string }> {
   try {
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(userData.email)) {
-      return {
-        success: false,
-        message: "Please enter a valid email address.",
-      }
+    console.log("💾 Saving user to Supabase waitlist:", userData.email)
+
+    // Check for existing user
+    const { data: existingUser, error: checkError } = await supabaseAdmin
+      .from("waitlist")
+      .select("email")
+      .eq("email", userData.email)
+      .maybeSingle()
+
+    if (checkError) {
+      console.error("Error checking for existing user:", checkError)
     }
 
-    // Check for duplicate email (mock implementation)
-    // In a real implementation, you would check your database
-    const existingUser = await checkExistingUser(userData.email)
     if (existingUser) {
       return {
         success: false,
@@ -43,38 +38,43 @@ export async function saveWaitlistUser(
       }
     }
 
-    // Simulate database save operation
-    console.log("Saving user to waitlist:", userData)
+    // Collect additional metadata
+    const metadata = {
+      signup_timestamp: new Date().toISOString(),
+      signup_source: "website",
+    }
 
-    // Generate a mock user ID
-    const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    // Insert new user
+    const { data, error } = await supabaseAdmin
+      .from("waitlist")
+      .insert([
+        {
+          name: userData.name,
+          age: userData.age,
+          mobile: userData.mobile,
+          email: userData.email,
+          created_at: new Date().toISOString(),
+          email_sent: false,
+          metadata: metadata,
+        },
+      ])
+      .select()
+      .single()
 
-    // Here you would typically:
-    // 1. Connect to your database
-    // 2. Insert the user data
-    // 3. Handle any validation or duplicate checking
+    if (error) {
+      console.error("Supabase error saving user:", error)
+      return {
+        success: false,
+        message: "Failed to save user data. Please try again.",
+      }
+    }
 
-    // Example for different databases:
-    // Supabase:
-    // const { data, error } = await supabase
-    //   .from('waitlist')
-    //   .insert([{ ...userData, created_at: new Date().toISOString() }])
-    //   .select()
-
-    // Neon:
-    // const result = await sql`
-    //   INSERT INTO waitlist (name, age, mobile, email, created_at)
-    //   VALUES (${userData.name}, ${userData.age}, ${userData.mobile}, ${userData.email}, ${new Date().toISOString()})
-    //   RETURNING id
-    // `
-
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    console.log("✅ User saved to Supabase successfully:", data.id)
 
     return {
       success: true,
       message: "User successfully added to waitlist",
-      userId: userId,
+      userId: data.id,
     }
   } catch (error) {
     console.error("Error saving user to waitlist:", error)
@@ -85,22 +85,15 @@ export async function saveWaitlistUser(
   }
 }
 
-// Mock function to check existing users
-async function checkExistingUser(email: string): Promise<boolean> {
-  // In a real implementation, query your database
-  // For now, return false (no duplicates)
-  return false
-}
-
-// Email sending function
+// Send welcome email and update status in database
 export async function sendWelcomeEmail(userData: WaitlistUser): Promise<{ success: boolean; message: string }> {
   try {
     const emailService = createEmailService()
 
     const emailContent = {
       to: userData.email,
-      from: process.env.FROM_EMAIL || "hello@oriyali.com",
-      fromName: process.env.FROM_NAME || "Oriyali Team",
+      from: process.env.FROM_EMAIL || "people@oriyali.com",
+      fromName: process.env.FROM_NAME || "Oriyali",
       subject: "Welcome to the Oriyali Family! 🌟",
       html: generateWelcomeEmailHTML(userData),
       text: generateWelcomeEmailText(userData),
@@ -108,25 +101,73 @@ export async function sendWelcomeEmail(userData: WaitlistUser): Promise<{ succes
 
     const result = await emailService.sendEmail(emailContent)
 
-    if (result.success) {
-      console.log("Welcome email sent successfully to:", userData.email)
-      return {
-        success: true,
-        message: "Welcome email sent successfully",
-      }
-    } else {
-      console.error("Failed to send welcome email:", result.error)
-      return {
-        success: false,
-        message: result.error || "Failed to send welcome email",
-      }
+    if (result.success && userData.id) {
+      // Update email sent status in database
+      await supabaseAdmin
+        .from("waitlist")
+        .update({
+          email_sent: true,
+          email_sent_at: new Date().toISOString(),
+        })
+        .eq("id", userData.id)
+
+      console.log("✅ Email status updated for user:", userData.id)
     }
+
+    return result
   } catch (error) {
     console.error("Error sending welcome email:", error)
     return {
       success: false,
       message: "Failed to send welcome email",
     }
+  }
+}
+
+// Get waitlist statistics
+export async function getWaitlistStats(): Promise<{
+  total: number
+  today: number
+  emailsSent: number
+}> {
+  try {
+    const today = new Date().toISOString().split("T")[0]
+
+    const [totalResult, todayResult, emailsResult] = await Promise.all([
+      supabaseAdmin.from("waitlist").select("id", { count: "exact" }),
+      supabaseAdmin.from("waitlist").select("id", { count: "exact" }).gte("created_at", today),
+      supabaseAdmin.from("waitlist").select("id", { count: "exact" }).eq("email_sent", true),
+    ])
+
+    return {
+      total: totalResult.count || 0,
+      today: todayResult.count || 0,
+      emailsSent: emailsResult.count || 0,
+    }
+  } catch (error) {
+    console.error("Error getting waitlist stats:", error)
+    return { total: 0, today: 0, emailsSent: 0 }
+  }
+}
+
+// Analytics function to track waitlist signups
+export async function trackWaitlistSignup(userData: Omit<WaitlistUser, "id" | "createdAt">): Promise<void> {
+  try {
+    console.log("📊 Tracking waitlist signup:", {
+      event: "waitlist_signup",
+      user_age: userData.age,
+      email_domain: userData.email.split("@")[1],
+      timestamp: new Date().toISOString(),
+    })
+
+    // You can add additional analytics tracking here
+    // Example with Google Analytics 4:
+    // gtag('event', 'waitlist_signup', {
+    //   'user_age': userData.age,
+    //   'email_domain': userData.email.split('@')[1]
+    // })
+  } catch (error) {
+    console.error("Error tracking waitlist signup:", error)
   }
 }
 
@@ -310,30 +351,4 @@ Terramedici Lifesciences LLP
 You're receiving this email because you joined our waitlist at oriyali.com
 If you no longer wish to receive these emails, please contact us at hello@oriyali.com
   `.trim()
-}
-
-// Analytics function to track waitlist signups
-export async function trackWaitlistSignup(userData: Omit<WaitlistUser, "id" | "createdAt">): Promise<void> {
-  try {
-    console.log("Tracking waitlist signup:", {
-      event: "waitlist_signup",
-      user_age: userData.age,
-      timestamp: new Date().toISOString(),
-    })
-
-    // TODO: Add your analytics tracking here
-    // Example with Google Analytics 4:
-    // gtag('event', 'waitlist_signup', {
-    //   'user_age': userData.age,
-    //   'email_domain': userData.email.split('@')[1]
-    // })
-
-    // Example with Mixpanel:
-    // mixpanel.track('Waitlist Signup', {
-    //   'Age': userData.age,
-    //   'Email Domain': userData.email.split('@')[1]
-    // })
-  } catch (error) {
-    console.error("Error tracking waitlist signup:", error)
-  }
 }
