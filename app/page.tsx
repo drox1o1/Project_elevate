@@ -12,7 +12,6 @@ import { LifeStagesTimeline } from "@/components/life-stages-timeline"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { submitWaitlistFormFixed } from "@/app/actions/waitlist-fixed"
 import Artwork55v1 from "@/components/artwork55v1"
-// Add import for ErrorBoundary at the top
 import ErrorBoundary from "@/components/error-boundary"
 
 export default function Home() {
@@ -75,7 +74,6 @@ export default function Home() {
     const element = document.getElementById(sectionId)
     if (element) {
       element.scrollIntoView({ behavior: "smooth" })
-      // Focus the section for screen readers
       element.focus()
     }
     setIsMenuOpen(false)
@@ -93,7 +91,9 @@ export default function Home() {
     setSubmitMessage(null)
 
     try {
+      console.log("🚀 Client: Starting form submission")
       const result = await submitWaitlistFormFixed(formData)
+      console.log("📥 Client: Received result:", result)
 
       if (result.success) {
         setSubmitMessage({ type: "success", text: result.message })
@@ -108,6 +108,7 @@ export default function Home() {
         setSubmitMessage({ type: "error", text: result.message })
       }
     } catch (error) {
+      console.error("❌ Client: Form submission error:", error)
       setSubmitMessage({
         type: "error",
         text: "An unexpected error occurred. Please try again.",
