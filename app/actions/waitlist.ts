@@ -1,6 +1,6 @@
 "use server"
 
-import { saveWaitlistUser } from "@/lib/database"
+import { saveWaitlistUser, sendWelcomeEmail, trackWaitlistSignup } from "@/lib/database"
 
 export async function submitWaitlistForm(formData: FormData) {
   try {
@@ -34,31 +34,62 @@ export async function submitWaitlistForm(formData: FormData) {
       }
     }
 
-    // Save to database
-    const result = await saveWaitlistUser({
+    // Phone validation (basic)
+    const phoneRegex = /^[+]?[1-9][\d]{0,15}$/
+    if (!phoneRegex.test(mobile.replace(/[\s\-$$$$]/g, ""))) {
+      return {
+        success: false,
+        message: "Please enter a valid mobile number.",
+      }
+    }
+
+    const userData = {
       name: name.trim(),
       age,
       mobile: mobile.trim(),
       email: email.trim().toLowerCase(),
-    })
+    }
 
-    if (result.success) {
-      return {
-        success: true,
-        message:
-          "Welcome to the Oriyali family! 🌟 Thank you for joining our exclusive waitlist. We're putting the finishing touches on something truly revolutionary for women's wellness. You'll be among the first to experience the future of personalized biorhythm insights. Keep an eye on your inbox – we'll be in touch soon with exciting updates!",
-      }
-    } else {
+    // Save to database
+    const saveResult = await saveWaitlistUser(userData)
+
+    if (!saveResult.success) {
       return {
         success: false,
-        message: "We encountered an issue saving your information. Please try again or contact us directly.",
+        message: saveResult.message,
       }
+    }
+
+    // Send welcome email (don't fail if email fails)
+    try {
+      await sendWelcomeEmail({
+        ...userData,
+        id: saveResult.userId,
+        createdAt: new Date(),
+      })
+    } catch (emailError) {
+      console.error("Email sending failed, but user was saved:", emailError)
+      // Continue with success response even if email fails
+    }
+
+    // Track analytics (don't fail if tracking fails)
+    try {
+      await trackWaitlistSignup(userData)
+    } catch (trackingError) {
+      console.error("Analytics tracking failed:", trackingError)
+      // Continue with success response even if tracking fails
+    }
+
+    return {
+      success: true,
+      message:
+        "Welcome to the Oriyali family! 🌟 Thank you for joining our exclusive waitlist. We're putting the finishing touches on something truly revolutionary for women's wellness. You'll be among the first to experience the future of personalized biorhythm insights. Keep an eye on your inbox – we'll be in touch soon with exciting updates!",
     }
   } catch (error) {
     console.error("Waitlist submission error:", error)
     return {
       success: false,
-      message: "Something went wrong. Please try again later.",
+      message: "We encountered an unexpected error. Please try again or contact us directly at hello@oriyali.com.",
     }
   }
 }

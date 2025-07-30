@@ -12,6 +12,8 @@ import { LifeStagesTimeline } from "@/components/life-stages-timeline"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { submitWaitlistForm } from "@/app/actions/waitlist"
 import Artwork55v1 from "@/components/artwork55v1"
+// Add import for ErrorBoundary at the top
+import ErrorBoundary from "@/components/error-boundary"
 
 export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -595,7 +597,7 @@ export default function Home() {
               </p>
             </motion.div>
 
-            {/* Fractal Animation */}
+            {/* Fractal Animation with Error Boundary */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -604,7 +606,26 @@ export default function Home() {
               className="flex justify-center mb-6 md:mb-8"
             >
               <div className="w-full max-w-3xl">
-                <Artwork55v1 />
+                <ErrorBoundary>
+                  <Artwork55v1
+                    onLoad={() => {
+                      // Announce to screen readers when animation loads
+                      const announcement = "Fractal animation loaded successfully"
+                      const announcer = document.createElement("div")
+                      announcer.setAttribute("aria-live", "polite")
+                      announcer.setAttribute("aria-atomic", "true")
+                      announcer.className = "sr-only"
+                      announcer.textContent = announcement
+                      document.body.appendChild(announcer)
+                      setTimeout(() => {
+                        document.body.removeChild(announcer)
+                      }, 1000)
+                    }}
+                    onError={(error) => {
+                      console.error("Fractal animation error:", error)
+                    }}
+                  />
+                </ErrorBoundary>
               </div>
             </motion.div>
 
@@ -774,56 +795,97 @@ export default function Home() {
                 action={handleFormSubmit}
                 className="bg-white/10 backdrop-blur-lg p-6 md:p-8 max-w-md mx-auto rounded-2xl"
                 aria-label="Waitlist signup form"
+                noValidate
               >
                 {!formSubmitted ? (
                   <div className="space-y-4">
-                    <Input
-                      name="name"
-                      placeholder="Your Name"
-                      className="bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 rounded-full focus:ring-2 focus:ring-white"
-                      aria-label="Enter your full name"
-                      required
-                      disabled={isSubmitting}
-                    />
-                    <Input
-                      name="age"
-                      type="number"
-                      placeholder="Your Age"
-                      className="bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 rounded-full focus:ring-2 focus:ring-white"
-                      aria-label="Enter your age"
-                      min="13"
-                      max="120"
-                      required
-                      disabled={isSubmitting}
-                    />
-                    <Input
-                      name="mobile"
-                      type="tel"
-                      placeholder="Mobile Number"
-                      className="bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 rounded-full focus:ring-2 focus:ring-white"
-                      aria-label="Enter your mobile phone number"
-                      required
-                      disabled={isSubmitting}
-                    />
-                    <Input
-                      name="email"
-                      type="email"
-                      placeholder="Your Email"
-                      className="bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 rounded-full focus:ring-2 focus:ring-white"
-                      aria-label="Enter your email address"
-                      required
-                      disabled={isSubmitting}
-                    />
+                    <div>
+                      <label htmlFor="name" className="sr-only">
+                        Full Name
+                      </label>
+                      <Input
+                        id="name"
+                        name="name"
+                        placeholder="Your Name"
+                        className="bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 rounded-full focus:ring-2 focus:ring-white"
+                        aria-label="Enter your full name"
+                        aria-required="true"
+                        aria-describedby="name-error"
+                        required
+                        disabled={isSubmitting}
+                        autoComplete="name"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="age" className="sr-only">
+                        Age
+                      </label>
+                      <Input
+                        id="age"
+                        name="age"
+                        type="number"
+                        placeholder="Your Age"
+                        className="bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 rounded-full focus:ring-2 focus:ring-white"
+                        aria-label="Enter your age"
+                        aria-required="true"
+                        aria-describedby="age-error"
+                        min="13"
+                        max="120"
+                        required
+                        disabled={isSubmitting}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="mobile" className="sr-only">
+                        Mobile Number
+                      </label>
+                      <Input
+                        id="mobile"
+                        name="mobile"
+                        type="tel"
+                        placeholder="Mobile Number"
+                        className="bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 rounded-full focus:ring-2 focus:ring-white"
+                        aria-label="Enter your mobile phone number"
+                        aria-required="true"
+                        aria-describedby="mobile-error"
+                        required
+                        disabled={isSubmitting}
+                        autoComplete="tel"
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="email" className="sr-only">
+                        Email Address
+                      </label>
+                      <Input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="Your Email"
+                        className="bg-white/20 border-white/30 text-white placeholder:text-white/70 focus:bg-white/30 rounded-full focus:ring-2 focus:ring-white"
+                        aria-label="Enter your email address"
+                        aria-required="true"
+                        aria-describedby="email-error"
+                        required
+                        disabled={isSubmitting}
+                        autoComplete="email"
+                      />
+                    </div>
                     <Button
                       type="submit"
                       className="w-full bg-[#FF5B04] hover:bg-[#FF5B04]/90 text-white font-bold py-3 focus:ring-2 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Submit form to know your biorhythm"
+                      aria-label="Submit form to join waitlist and know your biorhythm"
                       disabled={isSubmitting}
+                      aria-describedby={submitMessage ? "submit-message" : undefined}
                     >
                       {isSubmitting ? (
                         <div className="flex items-center justify-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Joining...
+                          <div
+                            className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"
+                            aria-hidden="true"
+                          />
+                          <span>Joining...</span>
+                          <span className="sr-only">Please wait while we process your request</span>
                         </div>
                       ) : (
                         "Know My Biorhythm"
@@ -831,8 +893,10 @@ export default function Home() {
                     </Button>
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <div className="text-4xl mb-4">🌟</div>
+                  <div className="text-center py-8" role="status" aria-live="polite">
+                    <div className="text-4xl mb-4" aria-hidden="true">
+                      🌟
+                    </div>
                     <h3 className="text-xl font-medium text-white mb-4">You're In!</h3>
                     <p className="text-white/90 text-sm">
                       Check your email for confirmation and stay tuned for updates.
@@ -842,6 +906,7 @@ export default function Home() {
 
                 {submitMessage && (
                   <div
+                    id="submit-message"
                     className={`mt-4 p-4 rounded-lg text-center ${
                       submitMessage.type === "success"
                         ? "bg-green-500/20 border border-green-500/30 text-white"
@@ -849,6 +914,7 @@ export default function Home() {
                     }`}
                     role="alert"
                     aria-live="polite"
+                    aria-atomic="true"
                   >
                     <p className="text-sm leading-relaxed">{submitMessage.text}</p>
                   </div>
