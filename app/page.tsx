@@ -570,17 +570,17 @@ export default function Home() {
         {/* Research Section */}
         <section
           id="research"
-          className="py-16 md:py-24 text-[rgba(253,246,227,1)] bg-[rgba(253,246,227,1)]"
+          className="py-8 md:py-12 text-[rgba(253,246,227,1)] bg-[rgba(253,246,227,1)]"
           tabIndex={-1}
           aria-labelledby="research-heading"
         >
-          <div className="container mx-auto px-4 md:px-6 text-[rgba(253,246,227,1)] bg-[rgba(253,246,227,1)]">
+          <div className="container mx-auto px-2 md:px-4">
             <motion.div
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="text-center mb-12 md:mb-16"
+              className="text-center mb-6 md:mb-8"
             >
               <h2
                 id="research-heading"
@@ -601,7 +601,7 @@ export default function Home() {
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="flex justify-center mb-12 md:mb-16"
+              className="flex justify-center mb-6 md:mb-8"
             >
               <div className="w-full max-w-3xl">
                 <Artwork55v1 />
@@ -621,7 +621,7 @@ export default function Home() {
                   <h3 className="text-lg md:text-xl mb-4 text-[#075056] dark:text-[#9ECFD6]">Key Research Areas</h3>
                   <ul className="space-y-4 text-foreground" role="list">
                     <li className="flex items-start" role="listitem">
-                      <div className="w-2 h-2 bg-[#FF5B04] rounded-full mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
+                      <div className="w-2 h-2 bg-[#FF5B04] mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
                       <div>
                         <a
                           href="https://www.nature.com/articles/s41598-021-89372-9"
@@ -634,7 +634,7 @@ export default function Home() {
                       </div>
                     </li>
                     <li className="flex items-start" role="listitem">
-                      <div className="w-2 h-2 bg-[#FF5B04] rounded-full mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
+                      <div className="w-2 h-2 bg-[#FF5B04] mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
                       <div>
                         <a
                           href="https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0249725"
@@ -647,7 +647,7 @@ export default function Home() {
                       </div>
                     </li>
                     <li className="flex items-start" role="listitem">
-                      <div className="w-2 h-2 bg-[#FF5B04] rounded-full mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
+                      <div className="w-2 h-2 bg-[#FF5B04] mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
                       <div>
                         <a
                           href="https://www.frontiersin.org/articles/10.3389/fpsyg.2020.00895/full"
@@ -660,7 +660,7 @@ export default function Home() {
                       </div>
                     </li>
                     <li className="flex items-start" role="listitem">
-                      <div className="w-2 h-2 bg-[#FF5B04] rounded-full mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
+                      <div className="w-2 h-2 bg-[#FF5B04] mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
                       <div>
                         <a
                           href="https://www.sciencedirect.com/science/article/pii/S0306453020301402"
@@ -678,7 +678,7 @@ export default function Home() {
                   <h4 className="text-lg md:text-xl mb-4 text-[#075056] dark:text-[#9ECFD6]">Scientific Foundation</h4>
                   <ul className="space-y-4 text-foreground" role="list">
                     <li className="flex items-start" role="listitem">
-                      <div className="w-2 h-2 bg-[#FF5B04] rounded-full mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
+                      <div className="w-2 h-2 bg-[#FF5B04] mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
                       <div>
                         <a
                           href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7916045/"
@@ -691,7 +691,7 @@ export default function Home() {
                       </div>
                     </li>
                     <li className="flex items-start" role="listitem">
-                      <div className="w-2 h-2 bg-[#FF5B04] rounded-full mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
+                      <div className="w-2 h-2 bg-[#FF5B04] mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
                       <div>
                         <a
                           href="https://www.nature.com/articles/s41380-021-01068-w"
@@ -704,7 +704,7 @@ export default function Home() {
                       </div>
                     </li>
                     <li className="flex items-start" role="listitem">
-                      <div className="w-2 h-2 bg-[#FF5B04] rounded-full mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
+                      <div className="w-2 h-2 bg-[#FF5B04] mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
                       <div>
                         <a
                           href="https://ieeexplore.ieee.org/document/9204849"
@@ -717,7 +717,7 @@ export default function Home() {
                       </div>
                     </li>
                     <li className="flex items-start" role="listitem">
-                      <div className="w-2 h-2 bg-[#FF5B04] rounded-full mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
+                      <div className="w-2 h-2 bg-[#FF5B04] mt-2 mr-3 flex-shrink-0" aria-hidden="true" />
                       <div>
                         <a
                           href="https://www.frontiersin.org/articles/10.3389/fendo.2021.719490/full"

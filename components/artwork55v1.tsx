@@ -214,7 +214,7 @@ class FractalSystem {
 
   private initialize(): void {
     const count = 6
-    const scale = 1 // Changed from 2 to 1 (50% reduction)
+    const scale = 2 // Reverted back to original scale
 
     for (let i = 0; i < count; i++) {
       const angle = (i / count) * Math.PI * 2
