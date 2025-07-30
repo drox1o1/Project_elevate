@@ -1,14 +1,11 @@
 {
   "scripts": {
-    "auto-setup": "npx tsx scripts/auto-setup-supabase.ts",
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "setup:complete": "bash run-auto-setup.sh",
     "setup:supabase": "npx tsx scripts/setup-supabase-waitlist.ts",
     "start": "next start",
     "test:email": "npx tsx scripts/verify-sendgrid-setup.ts",
-    "test:integration": "npx tsx scripts/test-waitlist-integration.ts",
     "test:waitlist": "npx tsx scripts/test-waitlist-form.ts"
   },
   "dependencies": {
