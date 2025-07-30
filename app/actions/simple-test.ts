@@ -22,6 +22,8 @@ export async function simpleTest() {
         details: {
           supabaseUrl: !!supabaseUrl,
           supabaseKey: !!supabaseKey,
+          supabaseUrlValue: supabaseUrl ? `${supabaseUrl.slice(0, 20)}...` : "undefined",
+          supabaseKeyValue: supabaseKey ? `${supabaseKey.slice(0, 20)}...` : "undefined",
         },
       }
     }
@@ -35,31 +37,44 @@ export async function simpleTest() {
       const supabase = createClient(supabaseUrl, supabaseKey)
       console.log("✅ Supabase client created")
 
-      // Test 5: Simple query
-      const { data, error } = await supabase.from("waitlist").select("count", { count: "exact", head: true })
+      // Test 5: Simple query to check table existence
+      try {
+        const { data, error, count } = await supabase.from("waitlist").select("*", { count: "exact", head: true })
 
-      if (error) {
-        console.error("❌ Database query error:", error)
+        if (error) {
+          console.error("❌ Database query error:", error)
+          return {
+            success: false,
+            message: "Database query failed",
+            error: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint,
+          }
+        }
+
+        console.log("✅ Database query successful")
+
+        return {
+          success: true,
+          message: "All tests passed!",
+          details: {
+            environment: "✅ Environment variables found",
+            supabaseImport: "✅ Supabase package imported",
+            clientCreation: "✅ Supabase client created",
+            databaseQuery: "✅ Database connection successful",
+            recordCount: count || 0,
+            timestamp: new Date().toISOString(),
+          },
+        }
+      } catch (queryError) {
+        console.error("❌ Database query exception:", queryError)
         return {
           success: false,
-          message: "Database query failed",
-          error: error.message,
-          code: error.code,
+          message: "Database query exception",
+          error: queryError.message,
+          stack: queryError.stack,
         }
-      }
-
-      console.log("✅ Database query successful")
-
-      return {
-        success: true,
-        message: "All tests passed!",
-        details: {
-          environment: "✅",
-          supabaseImport: "✅",
-          clientCreation: "✅",
-          databaseQuery: "✅",
-          recordCount: data || 0,
-        },
       }
     } catch (importError) {
       console.error("❌ Supabase import failed:", importError)
@@ -67,6 +82,7 @@ export async function simpleTest() {
         success: false,
         message: "Supabase import failed",
         error: importError.message,
+        stack: importError.stack,
       }
     }
   } catch (error) {
