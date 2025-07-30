@@ -1,6 +1,8 @@
 // Database utility functions
 // This implementation can be adapted to your specific database (Supabase, Neon, etc.)
 
+import { createEmailService } from "./email-service"
+
 export interface WaitlistUser {
   id?: string
   name: string
@@ -91,42 +93,33 @@ async function checkExistingUser(email: string): Promise<boolean> {
 }
 
 // Email sending function
-export async function sendWelcomeEmail(
-  userData: WaitlistUser,
-  config?: EmailConfig,
-): Promise<{ success: boolean; message: string }> {
+export async function sendWelcomeEmail(userData: WaitlistUser): Promise<{ success: boolean; message: string }> {
   try {
-    // This is a mock implementation
-    // Replace with your actual email service (Resend, SendGrid, etc.)
-
-    console.log("Sending welcome email to:", userData.email)
+    const emailService = createEmailService()
 
     const emailContent = {
       to: userData.email,
-      from: config?.fromEmail || "hello@oriyali.com",
-      fromName: config?.fromName || "Oriyali Team",
+      from: process.env.FROM_EMAIL || "hello@oriyali.com",
+      fromName: process.env.FROM_NAME || "Oriyali Team",
       subject: "Welcome to the Oriyali Family! 🌟",
       html: generateWelcomeEmailHTML(userData),
       text: generateWelcomeEmailText(userData),
     }
 
-    // Example with Resend (uncomment and configure):
-    // const resend = new Resend(config?.apiKey || process.env.RESEND_API_KEY)
-    // const result = await resend.emails.send(emailContent)
+    const result = await emailService.sendEmail(emailContent)
 
-    // Example with SendGrid (uncomment and configure):
-    // const sgMail = require('@sendgrid/mail')
-    // sgMail.setApiKey(config?.apiKey || process.env.SENDGRID_API_KEY)
-    // const result = await sgMail.send(emailContent)
-
-    // Simulate email sending delay
-    await new Promise((resolve) => setTimeout(resolve, 500))
-
-    console.log("Welcome email sent successfully")
-
-    return {
-      success: true,
-      message: "Welcome email sent successfully",
+    if (result.success) {
+      console.log("Welcome email sent successfully to:", userData.email)
+      return {
+        success: true,
+        message: "Welcome email sent successfully",
+      }
+    } else {
+      console.error("Failed to send welcome email:", result.error)
+      return {
+        success: false,
+        message: result.error || "Failed to send welcome email",
+      }
     }
   } catch (error) {
     console.error("Error sending welcome email:", error)
@@ -147,37 +140,112 @@ function generateWelcomeEmailHTML(userData: WaitlistUser): string {
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>Welcome to Oriyali</title>
       <style>
-        body { font-family: 'Sorts Mill Goudy', serif; line-height: 1.6; color: #233038; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { text-align: center; margin-bottom: 30px; }
-        .logo { font-size: 32px; font-weight: bold; color: #FF5B04; margin-bottom: 10px; }
-        .content { background: #FDF6E3; padding: 30px; border-radius: 12px; margin-bottom: 20px; }
-        .highlight { color: #FF5B04; font-weight: bold; }
-        .footer { text-align: center; font-size: 14px; color: #666; }
-        .button { display: inline-block; background: #FF5B04; color: white; padding: 12px 24px; text-decoration: none; border-radius: 25px; margin: 20px 0; }
+        body { 
+          font-family: 'Sorts Mill Goudy', serif; 
+          line-height: 1.6; 
+          color: #233038; 
+          margin: 0; 
+          padding: 0; 
+          background-color: #FDF6E3;
+        }
+        .container { 
+          max-width: 600px; 
+          margin: 0 auto; 
+          padding: 20px; 
+          background-color: white;
+          border-radius: 12px;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header { 
+          text-align: center; 
+          margin-bottom: 30px; 
+          padding: 20px 0;
+          border-bottom: 2px solid #FF5B04;
+        }
+        .logo { 
+          font-size: 32px; 
+          font-weight: bold; 
+          color: #FF5B04; 
+          margin-bottom: 10px; 
+        }
+        .content { 
+          padding: 20px 0; 
+        }
+        .highlight { 
+          color: #FF5B04; 
+          font-weight: bold; 
+        }
+        .features {
+          background: #FDF6E3;
+          padding: 20px;
+          border-radius: 8px;
+          margin: 20px 0;
+        }
+        .features ul {
+          margin: 0;
+          padding-left: 20px;
+        }
+        .features li {
+          margin: 10px 0;
+        }
+        .button { 
+          display: inline-block; 
+          background: #FF5B04; 
+          color: white; 
+          padding: 12px 24px; 
+          text-decoration: none; 
+          border-radius: 25px; 
+          margin: 20px 0;
+          font-weight: bold;
+        }
+        .footer { 
+          text-align: center; 
+          font-size: 14px; 
+          color: #666; 
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 1px solid #D3DBDD;
+        }
+        .social-links {
+          margin: 20px 0;
+        }
+        .social-links a {
+          color: #FF5B04;
+          text-decoration: none;
+          margin: 0 10px;
+        }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
           <div class="logo">✨ Oriyali</div>
-          <h1 style="color: #075056; margin: 0;">Welcome to the Future of Women's Wellness!</h1>
+          <h1 style="color: #075056; margin: 0; font-size: 28px;">Welcome to the Future of Women's Wellness!</h1>
         </div>
         
         <div class="content">
-          <p>Dear ${userData.name},</p>
+          <p style="font-size: 18px;">Dear ${userData.name},</p>
           
           <p>🌟 <strong>Welcome to the Oriyali family!</strong> Thank you for joining our exclusive waitlist. We're putting the finishing touches on something truly revolutionary for women's wellness.</p>
           
           <p>You'll be among the first to experience the future of personalized biorhythm insights. Our AI-powered platform will help you:</p>
           
-          <ul>
-            <li><span class="highlight">Predict</span> hormonal shifts before they happen</li>
-            <li><span class="highlight">Optimize</span> your daily routines based on your unique patterns</li>
-            <li><span class="highlight">Harmonize</span> your mood, energy, and focus every day</li>
-          </ul>
+          <div class="features">
+            <ul>
+              <li><span class="highlight">Predict</span> hormonal shifts before they happen</li>
+              <li><span class="highlight">Optimize</span> your daily routines based on your unique patterns</li>
+              <li><span class="highlight">Harmonize</span> your mood, energy, and focus every day</li>
+              <li><span class="highlight">Understand</span> your body's natural rhythms throughout all life stages</li>
+            </ul>
+          </div>
           
-          <p>Keep an eye on your inbox – we'll be in touch soon with exciting updates, early access opportunities, and exclusive content just for our waitlist members.</p>
+          <p>Keep an eye on your inbox – we'll be in touch soon with:</p>
+          <ul>
+            <li>🎯 Exclusive early access opportunities</li>
+            <li>📚 Educational content about biorhythms</li>
+            <li>🔬 Latest research insights</li>
+            <li>💡 Personalized wellness tips</li>
+          </ul>
           
           <div style="text-align: center;">
             <a href="https://oriyali.com" class="button">Learn More About Oriyali</a>
@@ -185,14 +253,21 @@ function generateWelcomeEmailHTML(userData: WaitlistUser): string {
           
           <p>Thank you for believing in the future of proactive women's wellness. Together, we're creating something extraordinary.</p>
           
-          <p>With gratitude,<br>
+          <p style="margin-top: 30px;">With gratitude,<br>
           <strong>The Oriyali Team</strong><br>
-          Terramedici Lifesciences LLP</p>
+          <em>Terramedici Lifesciences LLP</em></p>
         </div>
         
         <div class="footer">
+          <div class="social-links">
+            <a href="https://oriyali.com">Website</a> |
+            <a href="mailto:hello@oriyali.com">Contact Us</a>
+          </div>
           <p>© 2025 Oriyali by Terramedici Lifesciences LLP. All Rights Reserved.</p>
-          <p>You're receiving this email because you joined our waitlist at oriyali.com</p>
+          <p style="font-size: 12px; color: #999;">
+            You're receiving this email because you joined our waitlist at oriyali.com<br>
+            If you no longer wish to receive these emails, please contact us at hello@oriyali.com
+          </p>
         </div>
       </div>
     </body>
@@ -214,8 +289,15 @@ You'll be among the first to experience the future of personalized biorhythm ins
 • Predict hormonal shifts before they happen
 • Optimize your daily routines based on your unique patterns  
 • Harmonize your mood, energy, and focus every day
+• Understand your body's natural rhythms throughout all life stages
 
-Keep an eye on your inbox – we'll be in touch soon with exciting updates, early access opportunities, and exclusive content just for our waitlist members.
+Keep an eye on your inbox – we'll be in touch soon with:
+🎯 Exclusive early access opportunities
+📚 Educational content about biorhythms
+🔬 Latest research insights
+💡 Personalized wellness tips
+
+Visit us at: https://oriyali.com
 
 Thank you for believing in the future of proactive women's wellness. Together, we're creating something extraordinary.
 
@@ -226,23 +308,24 @@ Terramedici Lifesciences LLP
 ---
 © 2025 Oriyali by Terramedici Lifesciences LLP. All Rights Reserved.
 You're receiving this email because you joined our waitlist at oriyali.com
+If you no longer wish to receive these emails, please contact us at hello@oriyali.com
   `.trim()
 }
 
 // Analytics function to track waitlist signups
 export async function trackWaitlistSignup(userData: Omit<WaitlistUser, "id" | "createdAt">): Promise<void> {
   try {
-    // Track signup event for analytics
-    // Example with Google Analytics, Mixpanel, etc.
     console.log("Tracking waitlist signup:", {
       event: "waitlist_signup",
       user_age: userData.age,
       timestamp: new Date().toISOString(),
     })
 
+    // TODO: Add your analytics tracking here
     // Example with Google Analytics 4:
     // gtag('event', 'waitlist_signup', {
-    //   'custom_parameter': 'value'
+    //   'user_age': userData.age,
+    //   'email_domain': userData.email.split('@')[1]
     // })
 
     // Example with Mixpanel:
@@ -252,6 +335,5 @@ export async function trackWaitlistSignup(userData: Omit<WaitlistUser, "id" | "c
     // })
   } catch (error) {
     console.error("Error tracking waitlist signup:", error)
-    // Don't throw error - analytics failure shouldn't break the flow
   }
 }
