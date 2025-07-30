@@ -11,7 +11,7 @@ export class SendGridEmailService implements EmailProvider {
     try {
       this.sgMail = require("@sendgrid/mail")
       this.sgMail.setApiKey(apiKey)
-      console.log("✅ SendGrid initialized with API key: SG.o-wul6T...")
+      console.log("✅ SendGrid initialized successfully")
     } catch (error) {
       console.error("❌ SendGrid package not installed. Run: npm install @sendgrid/mail")
       throw new Error("SendGrid package not found")
@@ -28,10 +28,7 @@ export class SendGridEmailService implements EmailProvider {
 
       const msg = {
         to: params.to,
-        from: {
-          email: params.from,
-          name: params.fromName,
-        },
+        from: params.from, // Use simple string format for verified sender
         subject: params.subject,
         text: params.text,
         html: params.html,
@@ -58,16 +55,15 @@ export class SendGridEmailService implements EmailProvider {
       const result = await this.sgMail.send(msg)
 
       console.log(`✅ Email sent successfully via SendGrid`)
-      console.log(`   Message ID: ${result[0].headers["x-message-id"]}`)
 
       return {
         success: true,
-        messageId: result[0].headers["x-message-id"],
+        messageId: result[0].headers["x-message-id"] || "sent",
       }
     } catch (error: any) {
       console.error("❌ SendGrid email error:", error)
 
-      let errorMessage = "Unknown error occurred"
+      let errorMessage = "Failed to send email"
       if (error.response?.body?.errors) {
         errorMessage = error.response.body.errors.map((e: any) => e.message).join(", ")
         console.error("SendGrid API errors:", error.response.body.errors)
@@ -82,24 +78,20 @@ export class SendGridEmailService implements EmailProvider {
     }
   }
 
-  // Test email functionality
   async testConnection(): Promise<boolean> {
     try {
       console.log("🧪 Testing SendGrid connection...")
 
-      // Test with sandbox mode to avoid sending actual email
+      // Test with sandbox mode
       const result = await this.sgMail.send({
         to: "test@example.com",
-        from: {
-          email: "people@oriyali.com",
-          name: "Oriyali",
-        },
+        from: process.env.FROM_EMAIL || "people@oriyali.com",
         subject: "Connection Test",
         text: "This is a connection test",
         html: "<p>This is a connection test</p>",
         mailSettings: {
           sandboxMode: {
-            enable: true, // This prevents actual email sending
+            enable: true,
           },
         },
       })
@@ -108,11 +100,6 @@ export class SendGridEmailService implements EmailProvider {
       return true
     } catch (error: any) {
       console.error("❌ SendGrid connection test failed:", error)
-
-      if (error.response?.body?.errors) {
-        console.error("API errors:", error.response.body.errors)
-      }
-
       return false
     }
   }
