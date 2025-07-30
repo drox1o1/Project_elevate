@@ -4,6 +4,8 @@ import { saveWaitlistUser, sendWelcomeEmail, trackWaitlistSignup } from "@/lib/d
 
 export async function submitWaitlistForm(formData: FormData) {
   try {
+    console.log("🚀 Processing waitlist submission...")
+
     // Extract form data
     const name = formData.get("name") as string
     const age = Number.parseInt(formData.get("age") as string)
@@ -50,7 +52,7 @@ export async function submitWaitlistForm(formData: FormData) {
       email: email.trim().toLowerCase(),
     }
 
-    console.log("🔄 Processing waitlist submission for:", userData.email)
+    console.log("💾 Saving user to database...")
 
     // Save to database
     const saveResult = await saveWaitlistUser(userData)
@@ -63,7 +65,7 @@ export async function submitWaitlistForm(formData: FormData) {
       }
     }
 
-    console.log("✅ User saved successfully to Supabase:", saveResult.userId)
+    console.log("✅ User saved successfully:", saveResult.userId)
 
     // Send welcome email (don't fail if email fails)
     try {

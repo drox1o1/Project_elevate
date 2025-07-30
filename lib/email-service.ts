@@ -1,4 +1,4 @@
-// Updated Email service with provider factory
+// Production Email service with provider factory
 import { ResendEmailService } from "./email-providers/resend"
 import { SendGridEmailService } from "./email-providers/sendgrid"
 
@@ -24,9 +24,9 @@ export interface EmailResult {
 
 // Factory function to create email service
 export function createEmailService(): EmailProvider {
-  const provider = process.env.EMAIL_PROVIDER || "resend"
+  const provider = process.env.EMAIL_PROVIDER || "sendgrid"
 
-  console.log(`🔧 Initializing ${provider} email service...`)
+  console.log(`📧 Initializing ${provider} email service...`)
 
   switch (provider.toLowerCase()) {
     case "resend":
@@ -52,7 +52,7 @@ export function createEmailService(): EmailProvider {
 export async function testEmailService(): Promise<{ success: boolean; provider: string; error?: string }> {
   try {
     const emailService = createEmailService()
-    const provider = process.env.EMAIL_PROVIDER || "resend"
+    const provider = process.env.EMAIL_PROVIDER || "sendgrid"
 
     if (emailService.testConnection) {
       const isConnected = await emailService.testConnection()

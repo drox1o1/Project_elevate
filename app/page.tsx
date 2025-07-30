@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { HormoneChart } from "@/components/hormone-chart"
 import { LifeStagesTimeline } from "@/components/life-stages-timeline"
 import { ThemeToggle } from "@/components/theme-toggle"
-import { submitWaitlistFormFixed } from "@/app/actions/waitlist-fixed"
+import { submitWaitlistForm } from "@/app/actions/waitlist"
 import Artwork55v1 from "@/components/artwork55v1"
 import ErrorBoundary from "@/components/error-boundary"
 
@@ -91,9 +91,9 @@ export default function Home() {
     setSubmitMessage(null)
 
     try {
-      console.log("🚀 Client: Starting form submission")
-      const result = await submitWaitlistFormFixed(formData)
-      console.log("📥 Client: Received result:", result)
+      console.log("🚀 Submitting waitlist form...")
+      const result = await submitWaitlistForm(formData)
+      console.log("📥 Form result:", result)
 
       if (result.success) {
         setSubmitMessage({ type: "success", text: result.message })
@@ -108,10 +108,10 @@ export default function Home() {
         setSubmitMessage({ type: "error", text: result.message })
       }
     } catch (error) {
-      console.error("❌ Client: Form submission error:", error)
+      console.error("❌ Form submission error:", error)
       setSubmitMessage({
         type: "error",
-        text: "An unexpected error occurred. Please try again.",
+        text: "An unexpected error occurred. Please try again or contact us at people@oriyali.com.",
       })
     } finally {
       setIsSubmitting(false)

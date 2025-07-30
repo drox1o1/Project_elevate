@@ -1,19 +1,5 @@
 // Supabase client for server-side usage (Server Components and Server Actions)
 import { createClient } from "@supabase/supabase-js"
-import { cookies } from "next/headers"
-
-// This creates a Supabase client with the user's session if available
-export function createServerClient() {
-  const cookieStore = cookies()
-
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value
-      },
-    },
-  })
-}
 
 // For direct server usage without cookies (like in Server Actions)
 export const supabaseAdmin = createClient(

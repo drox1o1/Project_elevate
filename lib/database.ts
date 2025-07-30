@@ -1,5 +1,4 @@
-// Database utility functions
-// This implementation is adapted to use Supabase for database operations
+"use server"
 
 import { supabaseAdmin } from "./supabase-server"
 import { createEmailService } from "./email-service"
@@ -27,8 +26,12 @@ export async function saveWaitlistUser(
       .eq("email", userData.email)
       .maybeSingle()
 
-    if (checkError) {
+    if (checkError && checkError.code !== "PGRST116") {
       console.error("Error checking for existing user:", checkError)
+      return {
+        success: false,
+        message: "Database error. Please try again later.",
+      }
     }
 
     if (existingUser) {
@@ -42,6 +45,7 @@ export async function saveWaitlistUser(
     const metadata = {
       signup_timestamp: new Date().toISOString(),
       signup_source: "website",
+      user_agent: "web_form",
     }
 
     // Insert new user
@@ -55,6 +59,7 @@ export async function saveWaitlistUser(
           email: userData.email,
           created_at: new Date().toISOString(),
           email_sent: false,
+          source: "website",
           metadata: metadata,
         },
       ])
@@ -63,6 +68,22 @@ export async function saveWaitlistUser(
 
     if (error) {
       console.error("Supabase error saving user:", error)
+
+      // Handle specific error codes
+      if (error.code === "23505") {
+        return {
+          success: false,
+          message: "This email is already registered on our waitlist.",
+        }
+      }
+
+      if (error.code === "PGRST116") {
+        return {
+          success: false,
+          message: "Database table not found. Please contact support at people@oriyali.com.",
+        }
+      }
+
       return {
         success: false,
         message: "Failed to save user data. Please try again.",
@@ -302,12 +323,12 @@ function generateWelcomeEmailHTML(userData: WaitlistUser): string {
         <div class="footer">
           <div class="social-links">
             <a href="https://oriyali.com">Website</a> |
-            <a href="mailto:hello@oriyali.com">Contact Us</a>
+            <a href="mailto:people@oriyali.com">Contact Us</a>
           </div>
           <p>© 2025 Oriyali by Terramedici Lifesciences LLP. All Rights Reserved.</p>
           <p style="font-size: 12px; color: #999;">
             You're receiving this email because you joined our waitlist at oriyali.com<br>
-            If you no longer wish to receive these emails, please contact us at hello@oriyali.com
+            If you no longer wish to receive these emails, please contact us at people@oriyali.com
           </p>
         </div>
       </div>
@@ -349,6 +370,6 @@ Terramedici Lifesciences LLP
 ---
 © 2025 Oriyali by Terramedici Lifesciences LLP. All Rights Reserved.
 You're receiving this email because you joined our waitlist at oriyali.com
-If you no longer wish to receive these emails, please contact us at hello@oriyali.com
+If you no longer wish to receive these emails, please contact us at people@oriyali.com
   `.trim()
 }
