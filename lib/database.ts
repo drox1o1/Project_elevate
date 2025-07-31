@@ -1,5 +1,3 @@
-"use server"
-
 import { supabaseAdmin } from "./supabase-server"
 import { createEmailService } from "./email-service"
 
@@ -19,6 +17,48 @@ export async function saveWaitlistUser(
   try {
     console.log("💾 Saving user to Supabase waitlist:", userData.email)
 
+    // Check environment variables
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      console.error("❌ Missing NEXT_PUBLIC_SUPABASE_URL")
+      return {
+        success: false,
+        message: "Database configuration error. Please contact support.",
+      }
+    }
+
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY && !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      console.error("❌ Missing Supabase keys")
+      return {
+        success: false,
+        message: "Database configuration error. Please contact support.",
+      }
+    }
+
+    // Test database connection
+    console.log("🔍 Testing database connection...")
+    const { data: testData, error: testError } = await supabaseAdmin
+      .from("waitlist")
+      .select("count", { count: "exact" })
+      .limit(1)
+
+    if (testError) {
+      console.error("❌ Database connection test failed:", testError)
+
+      if (testError.code === "PGRST116") {
+        return {
+          success: false,
+          message: "Database table not found. Please contact support at people@oriyali.com.",
+        }
+      }
+
+      return {
+        success: false,
+        message: "Database connection failed. Please try again later.",
+      }
+    }
+
+    console.log("✅ Database connection successful")
+
     // Check for existing user
     const { data: existingUser, error: checkError } = await supabaseAdmin
       .from("waitlist")
@@ -35,6 +75,7 @@ export async function saveWaitlistUser(
     }
 
     if (existingUser) {
+      console.log("⚠️ User already exists:", userData.email)
       return {
         success: false,
         message: "This email is already registered on our waitlist.",
@@ -49,6 +90,7 @@ export async function saveWaitlistUser(
     }
 
     // Insert new user
+    console.log("💾 Inserting new user...")
     const { data, error } = await supabaseAdmin
       .from("waitlist")
       .insert([
@@ -99,6 +141,14 @@ export async function saveWaitlistUser(
     }
   } catch (error) {
     console.error("Error saving user to waitlist:", error)
+
+    // Log more details about the error
+    if (error instanceof Error) {
+      console.error("Error name:", error.name)
+      console.error("Error message:", error.message)
+      console.error("Error stack:", error.stack)
+    }
+
     return {
       success: false,
       message: "Failed to save user data. Please try again.",
@@ -109,6 +159,28 @@ export async function saveWaitlistUser(
 // Send welcome email and update status in database
 export async function sendWelcomeEmail(userData: WaitlistUser): Promise<{ success: boolean; message: string }> {
   try {
+    console.log("📧 Initializing email service...")
+
+    // Check if email is configured
+    const emailProvider = process.env.EMAIL_PROVIDER || "sendgrid"
+    console.log("📧 Using email provider:", emailProvider)
+
+    if (emailProvider === "sendgrid" && !process.env.SENDGRID_API_KEY) {
+      console.error("❌ Missing SENDGRID_API_KEY")
+      return {
+        success: false,
+        message: "Email service not configured",
+      }
+    }
+
+    if (emailProvider === "resend" && !process.env.RESEND_API_KEY) {
+      console.error("❌ Missing RESEND_API_KEY")
+      return {
+        success: false,
+        message: "Email service not configured",
+      }
+    }
+
     const emailService = createEmailService()
 
     const emailContent = {
@@ -120,6 +192,7 @@ export async function sendWelcomeEmail(userData: WaitlistUser): Promise<{ succes
       text: generateWelcomeEmailText(userData),
     }
 
+    console.log("📧 Sending email to:", userData.email)
     const result = await emailService.sendEmail(emailContent)
 
     if (result.success && userData.id) {
@@ -138,6 +211,14 @@ export async function sendWelcomeEmail(userData: WaitlistUser): Promise<{ succes
     return result
   } catch (error) {
     console.error("Error sending welcome email:", error)
+
+    // Log more details about the error
+    if (error instanceof Error) {
+      console.error("Error name:", error.name)
+      console.error("Error message:", error.message)
+      console.error("Error stack:", error.stack)
+    }
+
     return {
       success: false,
       message: "Failed to send welcome email",

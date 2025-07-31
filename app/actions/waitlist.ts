@@ -12,8 +12,11 @@ export async function submitWaitlistForm(formData: FormData) {
     const mobile = formData.get("mobile") as string
     const email = formData.get("email") as string
 
+    console.log("📝 Form data received:", { name, age, mobile, email: email ? "***@***.***" : "missing" })
+
     // Basic validation
     if (!name || !age || !mobile || !email) {
+      console.log("❌ Validation failed: Missing required fields")
       return {
         success: false,
         message: "Please fill in all required fields.",
@@ -21,6 +24,7 @@ export async function submitWaitlistForm(formData: FormData) {
     }
 
     if (age < 13 || age > 120) {
+      console.log("❌ Validation failed: Invalid age")
       return {
         success: false,
         message: "Please enter a valid age between 13 and 120.",
@@ -30,6 +34,7 @@ export async function submitWaitlistForm(formData: FormData) {
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
+      console.log("❌ Validation failed: Invalid email format")
       return {
         success: false,
         message: "Please enter a valid email address.",
@@ -39,6 +44,7 @@ export async function submitWaitlistForm(formData: FormData) {
     // Phone validation (basic)
     const phoneRegex = /^[+]?[1-9][\d\s\-()]{7,15}$/
     if (!phoneRegex.test(mobile.replace(/[\s\-()]/g, ""))) {
+      console.log("❌ Validation failed: Invalid phone format")
       return {
         success: false,
         message: "Please enter a valid mobile number.",
@@ -52,7 +58,7 @@ export async function submitWaitlistForm(formData: FormData) {
       email: email.trim().toLowerCase(),
     }
 
-    console.log("💾 Saving user to database...")
+    console.log("✅ Validation passed, saving user...")
 
     // Save to database
     const saveResult = await saveWaitlistUser(userData)
@@ -102,6 +108,14 @@ export async function submitWaitlistForm(formData: FormData) {
     }
   } catch (error) {
     console.error("❌ Waitlist submission error:", error)
+
+    // Log more details about the error
+    if (error instanceof Error) {
+      console.error("Error name:", error.name)
+      console.error("Error message:", error.message)
+      console.error("Error stack:", error.stack)
+    }
+
     return {
       success: false,
       message: "We encountered an unexpected error. Please try again or contact us directly at people@oriyali.com.",
