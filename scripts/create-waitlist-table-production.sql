@@ -1,56 +1,50 @@
 -- Create waitlist table for production
--- Run this in your Supabase SQL Editor
-
--- Create the waitlist table
 CREATE TABLE IF NOT EXISTS waitlist (
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    name TEXT NOT NULL,
-    age INTEGER NOT NULL CHECK (age >= 13 AND age <= 120),
-    mobile TEXT NOT NULL,
-    email TEXT NOT NULL UNIQUE,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    email_sent BOOLEAN DEFAULT FALSE,
-    email_sent_at TIMESTAMPTZ,
-    source TEXT DEFAULT 'website',
-    metadata JSONB DEFAULT '{}'::jsonb
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  age INTEGER NOT NULL CHECK (age >= 13 AND age <= 120),
+  mobile TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create indexes for better performance
+-- Create index for faster email lookups
 CREATE INDEX IF NOT EXISTS idx_waitlist_email ON waitlist(email);
-CREATE INDEX IF NOT EXISTS idx_waitlist_created_at ON waitlist(created_at);
-CREATE INDEX IF NOT EXISTS idx_waitlist_email_sent ON waitlist(email_sent);
 
--- Enable Row Level Security (RLS)
+-- Create index for created_at for analytics
+CREATE INDEX IF NOT EXISTS idx_waitlist_created_at ON waitlist(created_at);
+
+-- Enable Row Level Security
 ALTER TABLE waitlist ENABLE ROW LEVEL SECURITY;
 
--- Create policy to allow service role to do everything
-CREATE POLICY "Service role can manage waitlist" ON waitlist
-    FOR ALL USING (auth.role() = 'service_role');
+-- Create policy to allow inserts (for new signups)
+CREATE POLICY "Allow public inserts" ON waitlist
+  FOR INSERT 
+  TO public 
+  WITH CHECK (true);
 
--- Create policy to allow anon users to insert only
-CREATE POLICY "Allow anonymous inserts" ON waitlist
-    FOR INSERT WITH CHECK (true);
+-- Create policy to allow reads for authenticated users only (for admin)
+CREATE POLICY "Allow authenticated reads" ON waitlist
+  FOR SELECT 
+  TO authenticated 
+  USING (true);
 
--- Grant permissions
-GRANT ALL ON waitlist TO service_role;
+-- Add updated_at trigger
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+CREATE TRIGGER update_waitlist_updated_at 
+  BEFORE UPDATE ON waitlist 
+  FOR EACH ROW 
+  EXECUTE FUNCTION update_updated_at_column();
+
+-- Grant necessary permissions
+GRANT USAGE ON SCHEMA public TO anon;
 GRANT INSERT ON waitlist TO anon;
-
--- Verify the table was created
-SELECT 
-    table_name,
-    column_name,
-    data_type,
-    is_nullable
-FROM information_schema.columns 
-WHERE table_name = 'waitlist' 
-ORDER BY ordinal_position;
-
--- Check if RLS is enabled
-SELECT schemaname, tablename, rowsecurity 
-FROM pg_tables 
-WHERE tablename = 'waitlist';
-
--- Show policies
-SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual 
-FROM pg_policies 
-WHERE tablename = 'waitlist';
+GRANT SELECT ON waitlist TO authenticated;

@@ -1,21 +1,33 @@
 "use server"
 
-import { saveWaitlistUser, sendWelcomeEmail, trackWaitlistSignup } from "@/lib/database"
+import { saveWaitlistEntry } from "@/lib/database"
+import { sendWelcomeEmail } from "@/lib/email-service"
 
-export async function submitWaitlistForm(formData: FormData) {
+export interface WaitlistFormResult {
+  success: boolean
+  message: string
+  data?: any
+}
+
+export async function submitWaitlistForm(formData: FormData): Promise<WaitlistFormResult> {
   try {
-    console.log("🚀 Processing waitlist submission...")
+    console.log("🚀 Server Action: Starting waitlist form submission")
 
-    // Extract form data
+    // Extract and validate form data
     const name = formData.get("name") as string
-    const age = Number.parseInt(formData.get("age") as string)
-    const mobile = formData.get("mobile") as string
     const email = formData.get("email") as string
+    const age = formData.get("age") as string
+    const mobile = formData.get("mobile") as string
 
-    console.log("📝 Form data received:", { name, age, mobile, email: email ? "***@***.***" : "missing" })
+    console.log("📋 Form data received:", {
+      name: name?.substring(0, 10) + "...",
+      email: email?.substring(0, 5) + "***@***",
+      age,
+      mobile: mobile?.substring(0, 3) + "***",
+    })
 
-    // Basic validation
-    if (!name || !age || !mobile || !email) {
+    // Validate required fields
+    if (!name || !email || !age || !mobile) {
       console.log("❌ Validation failed: Missing required fields")
       return {
         success: false,
@@ -23,15 +35,7 @@ export async function submitWaitlistForm(formData: FormData) {
       }
     }
 
-    if (age < 13 || age > 120) {
-      console.log("❌ Validation failed: Invalid age")
-      return {
-        success: false,
-        message: "Please enter a valid age between 13 and 120.",
-      }
-    }
-
-    // Email validation
+    // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       console.log("❌ Validation failed: Invalid email format")
@@ -41,84 +45,72 @@ export async function submitWaitlistForm(formData: FormData) {
       }
     }
 
-    // Phone validation (basic)
-    const phoneRegex = /^[+]?[1-9][\d\s\-()]{7,15}$/
-    if (!phoneRegex.test(mobile.replace(/[\s\-()]/g, ""))) {
-      console.log("❌ Validation failed: Invalid phone format")
+    // Validate age
+    const ageNum = Number.parseInt(age)
+    if (isNaN(ageNum) || ageNum < 13 || ageNum > 120) {
+      console.log("❌ Validation failed: Invalid age")
+      return {
+        success: false,
+        message: "Please enter a valid age between 13 and 120.",
+      }
+    }
+
+    // Validate mobile (basic check)
+    if (mobile.length < 10) {
+      console.log("❌ Validation failed: Invalid mobile number")
       return {
         success: false,
         message: "Please enter a valid mobile number.",
       }
     }
 
-    const userData = {
-      name: name.trim(),
-      age,
-      mobile: mobile.trim(),
-      email: email.trim().toLowerCase(),
-    }
-
-    console.log("✅ Validation passed, saving user...")
+    console.log("✅ Validation passed, saving to database...")
 
     // Save to database
-    const saveResult = await saveWaitlistUser(userData)
-
-    if (!saveResult.success) {
-      console.error("❌ Failed to save user:", saveResult.message)
-      return {
-        success: false,
-        message: saveResult.message,
-      }
+    const entry = {
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      age: ageNum,
+      mobile: mobile.trim(),
     }
 
-    console.log("✅ User saved successfully:", saveResult.userId)
+    const savedEntry = await saveWaitlistEntry(entry)
+    console.log("✅ Database save successful:", savedEntry?.id)
 
     // Send welcome email (don't fail if email fails)
     try {
       console.log("📧 Sending welcome email...")
-      const emailResult = await sendWelcomeEmail({
-        ...userData,
-        id: saveResult.userId,
-        createdAt: new Date(),
-      })
-
-      if (emailResult.success) {
-        console.log("✅ Welcome email sent successfully")
-      } else {
-        console.error("⚠️ Email sending failed:", emailResult.message)
-      }
+      await sendWelcomeEmail(entry.email, entry.name)
+      console.log("✅ Welcome email sent successfully")
     } catch (emailError) {
-      console.error("⚠️ Email sending failed, but user was saved:", emailError)
-      // Continue with success response even if email fails
-    }
-
-    // Track analytics (don't fail if tracking fails)
-    try {
-      await trackWaitlistSignup(userData)
-      console.log("📊 Analytics tracked successfully")
-    } catch (trackingError) {
-      console.error("⚠️ Analytics tracking failed:", trackingError)
-      // Continue with success response even if tracking fails
+      console.error("⚠️ Email sending failed (non-critical):", emailError)
+      // Don't fail the entire operation if email fails
     }
 
     return {
       success: true,
-      message:
-        "🌟 Welcome to the Oriyali family! Thank you for joining our exclusive waitlist. We're putting the finishing touches on something truly revolutionary for women's wellness. You'll be among the first to experience the future of personalized biorhythm insights. Keep an eye on your inbox – we'll be in touch soon with exciting updates!",
+      message: `Welcome to Oriyali, ${name}! 🌟 You're now on our exclusive waitlist. Check your email for confirmation and stay tuned for updates about your personalized bio-rhythm journey.`,
+      data: { id: savedEntry?.id },
     }
   } catch (error) {
-    console.error("❌ Waitlist submission error:", error)
+    console.error("❌ Server Action Error:", error)
 
-    // Log more details about the error
+    // Provide user-friendly error messages
+    let errorMessage = "Something went wrong. Please try again."
+
     if (error instanceof Error) {
-      console.error("Error name:", error.name)
-      console.error("Error message:", error.message)
-      console.error("Error stack:", error.stack)
+      if (error.message.includes("duplicate key") || error.message.includes("already exists")) {
+        errorMessage = "This email is already registered. Thank you for your interest!"
+      } else if (error.message.includes("connection") || error.message.includes("network")) {
+        errorMessage = "Connection issue. Please check your internet and try again."
+      } else if (error.message.includes("Database error")) {
+        errorMessage = "Database temporarily unavailable. Please try again in a moment."
+      }
     }
 
     return {
       success: false,
-      message: "We encountered an unexpected error. Please try again or contact us directly at people@oriyali.com.",
+      message: errorMessage,
     }
   }
 }

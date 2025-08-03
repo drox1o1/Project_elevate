@@ -1,163 +1,59 @@
-import { supabaseAdmin } from "./supabase-server"
+import { createClient } from "@/utils/supabase/server"
 import { createEmailService } from "./email-service"
 
-export interface WaitlistUser {
+export interface WaitlistEntry {
   id?: string
   name: string
+  email: string
   age: number
   mobile: string
-  email: string
-  createdAt?: Date
+  created_at?: string
+  updated_at?: string
 }
 
-// Save waitlist user to Supabase
-export async function saveWaitlistUser(
-  userData: Omit<WaitlistUser, "id" | "createdAt">,
-): Promise<{ success: boolean; message: string; userId?: string }> {
+// Save waitlist entry to Supabase
+export async function saveWaitlistEntry(entry: Omit<WaitlistEntry, "id" | "created_at" | "updated_at">) {
   try {
-    console.log("💾 Saving user to Supabase waitlist:", userData.email)
+    console.log("🔄 Creating Supabase client...")
+    const supabase = await createClient()
 
-    // Check environment variables
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      console.error("❌ Missing NEXT_PUBLIC_SUPABASE_URL")
-      return {
-        success: false,
-        message: "Database configuration error. Please contact support.",
-      }
-    }
+    console.log("📝 Inserting waitlist entry:", {
+      name: entry.name,
+      email: entry.email,
+      age: entry.age,
+      mobile: entry.mobile?.substring(0, 3) + "***", // Log partial mobile for privacy
+    })
 
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY && !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      console.error("❌ Missing Supabase keys")
-      return {
-        success: false,
-        message: "Database configuration error. Please contact support.",
-      }
-    }
-
-    // Test database connection
-    console.log("🔍 Testing database connection...")
-    const { data: testData, error: testError } = await supabaseAdmin
-      .from("waitlist")
-      .select("count", { count: "exact" })
-      .limit(1)
-
-    if (testError) {
-      console.error("❌ Database connection test failed:", testError)
-
-      if (testError.code === "PGRST116") {
-        return {
-          success: false,
-          message: "Database table not found. Please contact support at people@oriyali.com.",
-        }
-      }
-
-      return {
-        success: false,
-        message: "Database connection failed. Please try again later.",
-      }
-    }
-
-    console.log("✅ Database connection successful")
-
-    // Check for existing user
-    const { data: existingUser, error: checkError } = await supabaseAdmin
-      .from("waitlist")
-      .select("email")
-      .eq("email", userData.email)
-      .maybeSingle()
-
-    if (checkError && checkError.code !== "PGRST116") {
-      console.error("Error checking for existing user:", checkError)
-      return {
-        success: false,
-        message: "Database error. Please try again later.",
-      }
-    }
-
-    if (existingUser) {
-      console.log("⚠️ User already exists:", userData.email)
-      return {
-        success: false,
-        message: "This email is already registered on our waitlist.",
-      }
-    }
-
-    // Collect additional metadata
-    const metadata = {
-      signup_timestamp: new Date().toISOString(),
-      signup_source: "website",
-      user_agent: "web_form",
-    }
-
-    // Insert new user
-    console.log("💾 Inserting new user...")
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from("waitlist")
       .insert([
         {
-          name: userData.name,
-          age: userData.age,
-          mobile: userData.mobile,
-          email: userData.email,
+          name: entry.name,
+          email: entry.email,
+          age: entry.age,
+          mobile: entry.mobile,
           created_at: new Date().toISOString(),
-          email_sent: false,
-          source: "website",
-          metadata: metadata,
+          updated_at: new Date().toISOString(),
         },
       ])
       .select()
       .single()
 
     if (error) {
-      console.error("Supabase error saving user:", error)
-
-      // Handle specific error codes
-      if (error.code === "23505") {
-        return {
-          success: false,
-          message: "This email is already registered on our waitlist.",
-        }
-      }
-
-      if (error.code === "PGRST116") {
-        return {
-          success: false,
-          message: "Database table not found. Please contact support at people@oriyali.com.",
-        }
-      }
-
-      return {
-        success: false,
-        message: "Failed to save user data. Please try again.",
-      }
+      console.error("❌ Database error:", error)
+      throw new Error(`Database error: ${error.message}`)
     }
 
-    console.log("✅ User saved to Supabase successfully:", data.id)
-
-    return {
-      success: true,
-      message: "User successfully added to waitlist",
-      userId: data.id,
-    }
+    console.log("✅ Successfully saved to database:", data?.id)
+    return data
   } catch (error) {
-    console.error("Error saving user to waitlist:", error)
-
-    // Log more details about the error
-    if (error instanceof Error) {
-      console.error("Error name:", error.name)
-      console.error("Error message:", error.message)
-      console.error("Error stack:", error.stack)
-    }
-
-    return {
-      success: false,
-      message: "Failed to save user data. Please try again.",
-    }
+    console.error("❌ Failed to save waitlist entry:", error)
+    throw error
   }
 }
 
 // Send welcome email and update status in database
-export async function sendWelcomeEmail(userData: WaitlistUser): Promise<{ success: boolean; message: string }> {
+export async function sendWelcomeEmail(userData: WaitlistEntry): Promise<{ success: boolean; message: string }> {
   try {
     console.log("📧 Initializing email service...")
 
@@ -197,7 +93,8 @@ export async function sendWelcomeEmail(userData: WaitlistUser): Promise<{ succes
 
     if (result.success && userData.id) {
       // Update email sent status in database
-      await supabaseAdmin
+      const supabase = await createClient()
+      await supabase
         .from("waitlist")
         .update({
           email_sent: true,
@@ -234,11 +131,12 @@ export async function getWaitlistStats(): Promise<{
 }> {
   try {
     const today = new Date().toISOString().split("T")[0]
+    const supabase = await createClient()
 
     const [totalResult, todayResult, emailsResult] = await Promise.all([
-      supabaseAdmin.from("waitlist").select("id", { count: "exact" }),
-      supabaseAdmin.from("waitlist").select("id", { count: "exact" }).gte("created_at", today),
-      supabaseAdmin.from("waitlist").select("id", { count: "exact" }).eq("email_sent", true),
+      supabase.from("waitlist").select("id", { count: "exact" }),
+      supabase.from("waitlist").select("id", { count: "exact" }).gte("created_at", today),
+      supabase.from("waitlist").select("id", { count: "exact" }).eq("email_sent", true),
     ])
 
     return {
@@ -253,7 +151,9 @@ export async function getWaitlistStats(): Promise<{
 }
 
 // Analytics function to track waitlist signups
-export async function trackWaitlistSignup(userData: Omit<WaitlistUser, "id" | "createdAt">): Promise<void> {
+export async function trackWaitlistSignup(
+  userData: Omit<WaitlistEntry, "id" | "created_at" | "updated_at">,
+): Promise<void> {
   try {
     console.log("📊 Tracking waitlist signup:", {
       event: "waitlist_signup",
@@ -274,7 +174,7 @@ export async function trackWaitlistSignup(userData: Omit<WaitlistUser, "id" | "c
 }
 
 // Generate HTML email content
-function generateWelcomeEmailHTML(userData: WaitlistUser): string {
+function generateWelcomeEmailHTML(userData: WaitlistEntry): string {
   return `
     <!DOCTYPE html>
     <html>
@@ -419,7 +319,7 @@ function generateWelcomeEmailHTML(userData: WaitlistUser): string {
 }
 
 // Generate plain text email content
-function generateWelcomeEmailText(userData: WaitlistUser): string {
+function generateWelcomeEmailText(userData: WaitlistEntry): string {
   return `
 Welcome to the Oriyali Family! 🌟
 
@@ -453,4 +353,26 @@ Terramedici Lifesciences LLP
 You're receiving this email because you joined our waitlist at oriyali.com
 If you no longer wish to receive these emails, please contact us at people@oriyali.com
   `.trim()
+}
+
+// Check database connection
+export async function checkDatabaseConnection() {
+  try {
+    console.log("🔄 Testing database connection...")
+    const supabase = await createClient()
+
+    // Test basic connection
+    const { data, error } = await supabase.from("waitlist").select("count").limit(1)
+
+    if (error) {
+      console.error("❌ Database connection failed:", error)
+      return { success: false, error: error.message }
+    }
+
+    console.log("✅ Database connection successful")
+    return { success: true, data }
+  } catch (error) {
+    console.error("❌ Database connection error:", error)
+    return { success: false, error: error instanceof Error ? error.message : "Unknown error" }
+  }
 }
