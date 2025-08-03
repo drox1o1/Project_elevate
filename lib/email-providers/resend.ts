@@ -1,4 +1,3 @@
-import { Resend } from "resend"
 import type { EmailData } from "../email-service"
 
 export async function sendEmailWithResend(emailData: EmailData) {
@@ -8,6 +7,16 @@ export async function sendEmailWithResend(emailData: EmailData) {
 
   if (!apiKey) {
     throw new Error("RESEND_API_KEY is not configured")
+  }
+
+  // Dynamic import to avoid issues if resend is not installed
+  let Resend: any
+  try {
+    const resendModule = await import("resend")
+    Resend = resendModule.Resend
+  } catch (error) {
+    console.error("❌ Resend package not found. Install with: npm install resend")
+    throw new Error("Resend package not installed")
   }
 
   const resend = new Resend(apiKey)
@@ -20,6 +29,10 @@ export async function sendEmailWithResend(emailData: EmailData) {
       subject: emailData.subject,
       text: emailData.text,
       html: emailData.html,
+      tags: [
+        { name: "category", value: "waitlist" },
+        { name: "source", value: "oriyali-website" },
+      ],
     })
 
     console.log("✅ Resend email sent successfully:", response.data?.id)

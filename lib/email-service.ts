@@ -1,6 +1,26 @@
 import { sendEmailWithSendGrid } from "./email-providers/sendgrid"
 import { sendEmailWithResend } from "./email-providers/resend"
 
+export interface EmailProvider {
+  sendEmail(params: EmailParams): Promise<EmailResult>
+  testConnection?(): Promise<boolean>
+}
+
+export interface EmailParams {
+  to: string
+  from: string
+  fromName: string
+  subject: string
+  html: string
+  text: string
+}
+
+export interface EmailResult {
+  success: boolean
+  messageId?: string
+  error?: string
+}
+
 export interface EmailData {
   to: string
   subject: string
@@ -119,4 +139,89 @@ export async function sendWelcomeEmail(email: string, name: string) {
     html,
     text,
   })
+}
+
+// Factory function to create email service
+export function createEmailService(): EmailProvider {
+  const provider = process.env.EMAIL_PROVIDER || "sendgrid"
+
+  console.log(`📧 Initializing ${provider} email service...`)
+
+  switch (provider.toLowerCase()) {
+    case "resend":
+      const resendKey = process.env.RESEND_API_KEY
+      if (!resendKey) {
+        throw new Error("RESEND_API_KEY environment variable is required when using Resend")
+      }
+      return {
+        sendEmail: async (params: EmailParams) => {
+          try {
+            await sendEmailWithResend({
+              to: params.to,
+              subject: params.subject,
+              html: params.html,
+              text: params.text,
+            })
+            return { success: true }
+          } catch (error) {
+            return {
+              success: false,
+              error: error instanceof Error ? error.message : "Unknown error",
+            }
+          }
+        },
+      }
+
+    case "sendgrid":
+      const sendgridKey = process.env.SENDGRID_API_KEY
+      if (!sendgridKey) {
+        throw new Error("SENDGRID_API_KEY environment variable is required when using SendGrid")
+      }
+      return {
+        sendEmail: async (params: EmailParams) => {
+          try {
+            await sendEmailWithSendGrid({
+              to: params.to,
+              subject: params.subject,
+              html: params.html,
+              text: params.text,
+            })
+            return { success: true }
+          } catch (error) {
+            return {
+              success: false,
+              error: error instanceof Error ? error.message : "Unknown error",
+            }
+          }
+        },
+      }
+
+    default:
+      throw new Error(`Unsupported email provider: ${provider}. Supported providers: resend, sendgrid`)
+  }
+}
+
+// Test email service configuration
+export async function testEmailService(): Promise<{ success: boolean; provider: string; error?: string }> {
+  try {
+    const emailService = createEmailService()
+    const provider = process.env.EMAIL_PROVIDER || "sendgrid"
+
+    if (emailService.testConnection) {
+      const isConnected = await emailService.testConnection()
+      return {
+        success: isConnected,
+        provider,
+        error: isConnected ? undefined : "Connection test failed",
+      }
+    }
+
+    return { success: true, provider }
+  } catch (error) {
+    return {
+      success: false,
+      provider: process.env.EMAIL_PROVIDER || "unknown",
+      error: error instanceof Error ? error.message : "Unknown error",
+    }
+  }
 }
