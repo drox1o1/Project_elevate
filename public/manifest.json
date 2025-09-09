@@ -1,0 +1,27 @@
+{
+  "name": "Oriyali - Your Biorhythm Story",
+  "short_name": "Oriyali",
+  "description": "Decode your unique neuro-hormonal patterns with personalized, proactive insights",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FDF6E3",
+  "theme_color": "#FF5B04",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["health", "wellness", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr"
+}
