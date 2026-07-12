@@ -10,7 +10,8 @@ export default function PricingPage() {
         Simple pricing
       </h1>
       <p className="mt-3 text-center text-sm text-muted-foreground">
-        Three components free forever. Everything else with a license key.
+        Fifteen components free forever. The full catalog one-time, monthly or
+        as a team licence.
       </p>
       <PricingContent />
     </main>

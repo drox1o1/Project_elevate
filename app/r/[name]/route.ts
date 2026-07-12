@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import registry from "@/registry.json";
 import fileContents from "@/registry/generated/file-contents.json";
 
-/** Items served without a license key. */
-const FREE_ITEMS = new Set(["kinetic-heading", "magnetic-button", "button"]);
-
-const PURCHASE_URL = "https://duku.design/pricing";
+const PURCHASE_URL = "https://labs.duku.design/pricing";
 
 interface RegistryFile {
   path: string;
@@ -21,6 +18,7 @@ interface RegistryItem {
   registryDependencies: string[];
   files: RegistryFile[];
   css?: Record<string, unknown>;
+  meta?: { tier?: string };
 }
 
 function isAuthorized(req: NextRequest): boolean {
@@ -56,7 +54,7 @@ export async function GET(
     );
   }
 
-  if (!FREE_ITEMS.has(name) && !isAuthorized(req)) {
+  if (item.meta?.tier !== "free" && !isAuthorized(req)) {
     return NextResponse.json(
       {
         error: "A DUKU license key is required for this component.",
@@ -86,6 +84,7 @@ export async function GET(
       registryDependencies: item.registryDependencies,
       files,
       ...(item.css ? { css: item.css } : {}),
+      ...(item.meta ? { meta: item.meta } : {}),
     },
     {
       headers: { "Cache-Control": "public, max-age=300" },

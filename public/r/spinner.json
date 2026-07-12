@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "spinner",
+  "type": "registry:ui",
+  "title": "Spinner",
+  "description": "The house spinner as a standalone.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/default/ui/spinner.tsx",
+      "type": "registry:ui",
+      "content": "import * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface SpinnerProps extends React.SVGAttributes<SVGSVGElement> {\n  /** Diameter in px: sm 16, default 20, lg 24. */\n  size?: \"sm\" | \"default\" | \"lg\";\n  ref?: React.Ref<SVGSVGElement>;\n}\n\nconst SIZES = { sm: 16, default: 20, lg: 24 } as const;\n\nexport function Spinner({\n  size = \"default\",\n  className,\n  ref,\n  ...rest\n}: SpinnerProps) {\n  const px = SIZES[size];\n  return (\n    <span role=\"status\" className=\"inline-flex\">\n      <svg\n        ref={ref}\n        data-slot=\"spinner\"\n        width={px}\n        height={px}\n        viewBox=\"0 0 24 24\"\n        fill=\"none\"\n        aria-hidden=\"true\"\n        className={cn(\n          \"animate-spin [animation-duration:0.8s] text-muted-foreground\",\n          className\n        )}\n        {...rest}\n      >\n        <circle\n          cx=\"12\"\n          cy=\"12\"\n          r=\"10\"\n          stroke=\"currentColor\"\n          strokeWidth=\"2.5\"\n          strokeLinecap=\"round\"\n          strokeDasharray=\"60 200\"\n        />\n      </svg>\n      <span className=\"sr-only\">Loading</span>\n    </span>\n  );\n}\n"
+    }
+  ],
+  "meta": {
+    "tier": "free"
+  }
+}

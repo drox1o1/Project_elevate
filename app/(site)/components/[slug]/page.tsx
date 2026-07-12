@@ -2,7 +2,9 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { DOCS, getDoc } from "@/lib/docs-data";
+import { installCommand } from "@/lib/agent-manifest";
 import { PreviewPanel } from "@/components/site/preview";
 import { CopyButton } from "@/registry/default/ui/kbd";
 import { Badge } from "@/registry/default/ui/badge";
@@ -30,7 +32,8 @@ export default async function ComponentPage({
   const doc = getDoc(slug);
   if (!doc) notFound();
 
-  const install = `npx shadcn@latest add https://duku.design/r/${doc.slug}.json`;
+  const install = installCommand(doc.slug);
+  const agentPrompt = `Use the DUKU Labs MCP server to install the ${doc.title} component (get_component "${doc.slug}", then its install command). Adapt it to my existing design tokens, preserve all accessibility and reduced-motion behavior, and keep every interaction state working.`;
   let source = "";
   try {
     source = await readFile(path.join(process.cwd(), doc.sourceFile), "utf8");
@@ -62,6 +65,27 @@ export default async function ComponentPage({
             {install}
           </code>
           <CopyButton value={install} />
+        </div>
+      </section>
+
+      <section>
+        <h2 className="text-sm font-medium text-foreground">
+          Ask your agent to use this
+        </h2>
+        <p className="mt-1 text-[13px] text-muted-foreground">
+          <Link
+            href="/connect"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            Connect DUKU Labs to MCP
+          </Link>
+          , then hand your coding agent this prompt:
+        </p>
+        <div className="mt-2 flex items-start justify-between gap-2 rounded-lg border border-border bg-muted/50 py-2.5 pl-4 pr-1.5">
+          <p className="text-[13px] leading-6 text-foreground">
+            {agentPrompt}
+          </p>
+          <CopyButton value={agentPrompt} />
         </div>
       </section>
 

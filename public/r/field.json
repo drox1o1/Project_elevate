@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "field",
+  "type": "registry:ui",
+  "title": "Field",
+  "description": "Label + control + FieldMessage wiring with error shake.",
+  "dependencies": [
+    "gsap",
+    "@gsap/react"
+  ],
+  "registryDependencies": [
+    "https://labs.duku.design/r/field-message.json"
+  ],
+  "files": [
+    {
+      "path": "registry/default/ui/field.tsx",
+      "type": "registry:ui",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport gsap from \"gsap\";\nimport { useGSAP } from \"@gsap/react\";\nimport { cn } from \"@/lib/utils\";\nimport { useReducedMotion } from \"@/registry/default/lib/use-reduced-motion\";\nimport { FieldMessage } from \"@/registry/default/ui/field-message\";\n\nexport interface LabelProps\n  extends React.LabelHTMLAttributes<HTMLLabelElement> {\n  ref?: React.Ref<HTMLLabelElement>;\n}\n\nexport function Label({ className, ref, ...rest }: LabelProps) {\n  return (\n    <label\n      ref={ref}\n      data-slot=\"label\"\n      className={cn(\n        \"text-sm font-medium text-foreground select-none\",\n        \"peer-disabled:opacity-50\",\n        className\n      )}\n      {...rest}\n    />\n  );\n}\n\nexport interface FieldProps\n  extends Omit<React.HTMLAttributes<HTMLDivElement>, \"children\"> {\n  label?: React.ReactNode;\n  /** Feedback state rendered in the FieldMessage below the control. */\n  state?: \"error\" | \"success\" | \"hint\" | null;\n  message?: React.ReactNode;\n  /** The control element. Receives id / aria-describedby / aria-invalid. */\n  children: React.ReactElement<Record<string, unknown>>;\n}\n\nexport function Field({\n  label,\n  state = null,\n  message,\n  children,\n  className,\n  ...rest\n}: FieldProps) {\n  const autoId = React.useId();\n  const controlId = `duku-field-${autoId}`;\n  const messageId = `duku-field-msg-${autoId}`;\n  const controlWrapRef = React.useRef<HTMLDivElement>(null);\n  const reduced = useReducedMotion();\n  const prevState = React.useRef(state);\n\n  // Shake the control when an error appears.\n  useGSAP(\n    () => {\n      const appeared = state === \"error\" && prevState.current !== \"error\";\n      prevState.current = state;\n      if (!appeared || reduced || !controlWrapRef.current) return;\n      gsap.fromTo(\n        controlWrapRef.current,\n        { x: 0 },\n        {\n          x: 0,\n          duration: 0.4,\n          ease: \"none\",\n          keyframes: { x: [-6, 6, -4, 4, -2, 0] },\n        }\n      );\n    },\n    { dependencies: [state, reduced], scope: controlWrapRef }\n  );\n\n  const control = React.cloneElement(children, {\n    id: (children.props.id as string | undefined) ?? controlId,\n    \"aria-describedby\": message != null ? messageId : undefined,\n    \"aria-invalid\": state === \"error\" ? true : undefined,\n  });\n\n  return (\n    <div\n      data-slot=\"field\"\n      className={cn(\"flex flex-col gap-1.5\", className)}\n      {...rest}\n    >\n      {label != null ? (\n        <Label htmlFor={(children.props.id as string | undefined) ?? controlId}>\n          {label}\n        </Label>\n      ) : null}\n      <div data-slot=\"field-control\" ref={controlWrapRef}>\n        {control}\n      </div>\n      <FieldMessage id={messageId} state={state}>\n        {message}\n      </FieldMessage>\n    </div>\n  );\n}\n"
+    },
+    {
+      "path": "registry/default/lib/use-reduced-motion.ts",
+      "type": "registry:lib",
+      "content": "\"use client\";\nimport { useSyncExternalStore } from \"react\";\n\nconst query = \"(prefers-reduced-motion: reduce)\";\nconst subscribe = (cb: () => void) => {\n  const mq = window.matchMedia(query);\n  mq.addEventListener(\"change\", cb);\n  return () => mq.removeEventListener(\"change\", cb);\n};\n\nexport function useReducedMotion() {\n  return useSyncExternalStore(\n    subscribe,\n    () => window.matchMedia(query).matches,\n    () => false\n  );\n}\n"
+    }
+  ],
+  "meta": {
+    "tier": "free"
+  }
+}

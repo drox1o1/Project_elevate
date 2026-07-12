@@ -57,6 +57,7 @@ export const DOCS: DocEntry[] = [
     description:
       "Wrapper-carried focus ring, invalid/valid feedback and prefix/suffix adornment slots.",
     phase: P1,
+    free: true,
     sourceFile: "registry/default/ui/input.tsx",
     interactions: [
       { action: "Focus the input", result: "Border and ring fade in via CSS transition — no JS" },
@@ -73,6 +74,7 @@ export const DOCS: DocEntry[] = [
     title: "Textarea",
     description: "Input styling with instant auto-grow capped at maxRows.",
     phase: P1,
+    free: true,
     sourceFile: "registry/default/ui/textarea.tsx",
     interactions: [
       { action: "Type multiple lines", result: "Grows instantly per keystroke (no tween) until maxRows, then scrolls" },
@@ -89,6 +91,7 @@ export const DOCS: DocEntry[] = [
     description:
       "Label + control + FieldMessage with aria wiring; shakes the control when an error appears.",
     phase: P1,
+    free: true,
     sourceFile: "registry/default/ui/field.tsx",
     interactions: [
       { action: "Trigger the error state", result: "Message height-autos in, control shakes, role=alert announces" },
@@ -104,6 +107,7 @@ export const DOCS: DocEntry[] = [
     title: "Checkbox",
     description: "Radix checkbox; primary fill scales from center, then the check draws.",
     phase: P1,
+    free: true,
     sourceFile: "registry/default/ui/checkbox.tsx",
     interactions: [
       { action: "Click the box", result: "Fill scales 0→1 from center in 180ms, check draws 50ms later" },
@@ -119,6 +123,7 @@ export const DOCS: DocEntry[] = [
     title: "Switch",
     description: "Spring-positioned thumb that squishes to 22px while pressed.",
     phase: P1,
+    free: true,
     sourceFile: "registry/default/ui/switch.tsx",
     interactions: [
       { action: "Toggle it", result: "Thumb springs across (stiffness 380, damping 32)" },
@@ -134,6 +139,7 @@ export const DOCS: DocEntry[] = [
     title: "Select",
     description: "Radix select with origin-aware pop-in, item cascade and check-draw indicator.",
     phase: P1,
+    free: true,
     sourceFile: "registry/default/ui/select.tsx",
     interactions: [
       { action: "Open the select", result: "Content pops from the trigger side, first 10 items cascade at 0.02s" },
@@ -149,6 +155,7 @@ export const DOCS: DocEntry[] = [
     title: "Radio Group",
     description: "Radix radio group; the dot pops with a back.out(1.7) overshoot.",
     phase: P1,
+    free: true,
     sourceFile: "registry/default/ui/radio-group.tsx",
     interactions: [
       { action: "Select an option", result: "Dot scales 0→1 with overshoot in 200ms" },
@@ -164,6 +171,7 @@ export const DOCS: DocEntry[] = [
     title: "Badge",
     description: "Quiet status badge; optional ping ring for live statuses.",
     phase: P1,
+    free: true,
     sourceFile: "registry/default/ui/badge.tsx",
     interactions: [
       { action: "Watch the pulse variant", result: "A ring scales 1→1.8 and fades every 1.8s" },
@@ -178,6 +186,7 @@ export const DOCS: DocEntry[] = [
     title: "Avatar",
     description: "Image with shimmer while loading and fallback initials; groups spread on hover.",
     phase: P1,
+    free: true,
     sourceFile: "registry/default/ui/avatar.tsx",
     interactions: [
       { action: "Hover the group", result: "Overlap relaxes from -8px to -2px over 250ms" },
@@ -193,6 +202,7 @@ export const DOCS: DocEntry[] = [
     title: "Spinner",
     description: "The Button spinner as a standalone, with a visually-hidden loading label.",
     phase: P1,
+    free: true,
     sourceFile: "registry/default/ui/spinner.tsx",
     interactions: [
       { action: "Observe", result: "0.8s linear rotation, dasharray 60/200 arc" },
@@ -206,6 +216,7 @@ export const DOCS: DocEntry[] = [
     title: "Skeleton",
     description: "Muted placeholder with the house shimmer. Deterministic widths only.",
     phase: P1,
+    free: true,
     sourceFile: "registry/default/ui/skeleton.tsx",
     interactions: [
       { action: "Observe", result: "Gradient sweeps left→right every 1.6s (CSS keyframes, not JS)" },
@@ -219,6 +230,7 @@ export const DOCS: DocEntry[] = [
     title: "Field Message",
     description: "The inline validation feedback used by every form: height-auto in/out, crossfade between messages.",
     phase: P2,
+    free: true,
     sourceFile: "registry/default/ui/field-message.tsx",
     interactions: [
       { action: "Cycle states", result: "null↔message animates height; message↔message crossfades in 150ms" },

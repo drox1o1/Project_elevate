@@ -606,7 +606,7 @@ function RevealAccordionDemo() {
           value: "install",
           question: "How do I install a component?",
           answer:
-            "npx shadcn@latest add https://duku.design/r/<name>.json — you own the source afterwards.",
+            "npx shadcn@latest add https://labs.duku.design/r/<name>.json — you own the source afterwards.",
         },
         {
           value: "motion",
@@ -618,7 +618,7 @@ function RevealAccordionDemo() {
           value: "license",
           question: "What does the license cover?",
           answer:
-            "Unlimited projects. The free tier includes kinetic-heading, magnetic-button and button.",
+            "Unlimited projects. The free tier includes the core primitives plus kinetic-heading and magnetic-button.",
         },
       ]}
     />

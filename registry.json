@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
-  "name": "duku-ui",
-  "homepage": "https://duku.design",
+  "name": "duku-labs",
+  "homepage": "https://labs.duku.design",
   "items": [
     {
       "name": "button",
@@ -22,7 +22,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "input",
@@ -40,7 +43,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "textarea",
@@ -54,7 +60,10 @@
           "path": "registry/default/ui/textarea.tsx",
           "type": "registry:ui"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "field",
@@ -66,7 +75,7 @@
         "@gsap/react"
       ],
       "registryDependencies": [
-        "https://duku.design/r/field-message.json"
+        "https://labs.duku.design/r/field-message.json"
       ],
       "files": [
         {
@@ -77,7 +86,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "checkbox",
@@ -97,7 +109,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "switch",
@@ -122,7 +137,10 @@
           "path": "registry/default/lib/use-controllable-state.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "select",
@@ -144,7 +162,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "radio-group",
@@ -160,7 +181,10 @@
           "path": "registry/default/ui/radio-group.tsx",
           "type": "registry:ui"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "badge",
@@ -180,7 +204,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "avatar",
@@ -212,6 +239,9 @@
             "opacity": "1"
           }
         }
+      },
+      "meta": {
+        "tier": "free"
       }
     },
     {
@@ -226,7 +256,10 @@
           "path": "registry/default/ui/spinner.tsx",
           "type": "registry:ui"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "skeleton",
@@ -250,6 +283,9 @@
             "transform": "translateX(100%)"
           }
         }
+      },
+      "meta": {
+        "tier": "free"
       }
     },
     {
@@ -271,7 +307,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "alert",
@@ -292,7 +331,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "toast",
@@ -322,6 +364,9 @@
             "transform": "scaleX(0)"
           }
         }
+      },
+      "meta": {
+        "tier": "pro"
       }
     },
     {
@@ -343,7 +388,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "kbd",
@@ -357,7 +405,10 @@
           "path": "registry/default/ui/kbd.tsx",
           "type": "registry:ui"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "dialog",
@@ -383,7 +434,10 @@
           "path": "registry/default/lib/use-controllable-state.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "drawer",
@@ -408,7 +462,10 @@
           "path": "registry/default/lib/use-controllable-state.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "dropdown-menu",
@@ -430,7 +487,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "slide-tabs",
@@ -452,7 +512,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "navbar",
@@ -474,7 +537,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "reveal-accordion",
@@ -495,7 +561,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "stat-counter",
@@ -516,7 +585,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "number-flow",
@@ -547,6 +619,9 @@
             "opacity": "1"
           }
         }
+      },
+      "meta": {
+        "tier": "pro"
       }
     },
     {
@@ -576,7 +651,10 @@
           "path": "registry/default/lib/format-number.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "sparkline-card",
@@ -597,7 +675,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "otp-input",
@@ -642,6 +723,9 @@
             "opacity": "0"
           }
         }
+      },
+      "meta": {
+        "tier": "pro"
       }
     },
     {
@@ -681,6 +765,9 @@
             "opacity": "1"
           }
         }
+      },
+      "meta": {
+        "tier": "pro"
       }
     },
     {
@@ -702,7 +789,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "thinking-indicator",
@@ -733,6 +823,9 @@
             "transform": "translateX(100%)"
           }
         }
+      },
+      "meta": {
+        "tier": "pro"
       }
     },
     {
@@ -745,7 +838,7 @@
         "@gsap/react"
       ],
       "registryDependencies": [
-        "https://duku.design/r/stream-text.json"
+        "https://labs.duku.design/r/stream-text.json"
       ],
       "files": [
         {
@@ -756,7 +849,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "ai-prompt-input",
@@ -781,7 +877,10 @@
           "path": "registry/default/lib/use-controllable-state.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "skills-card",
@@ -806,7 +905,10 @@
           "path": "registry/default/lib/use-controllable-state.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "kinetic-heading",
@@ -827,7 +929,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "magnetic-button",
@@ -848,7 +953,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "free"
+      }
     },
     {
       "name": "marquee",
@@ -869,7 +977,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "text-roll-link",
@@ -890,7 +1001,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "scroll-reveal-grid",
@@ -911,7 +1025,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "signup-card",
@@ -923,12 +1040,12 @@
         "@gsap/react"
       ],
       "registryDependencies": [
-        "https://duku.design/r/button.json",
-        "https://duku.design/r/input.json",
-        "https://duku.design/r/field.json",
-        "https://duku.design/r/field-message.json",
-        "https://duku.design/r/checkbox.json",
-        "https://duku.design/r/alert.json"
+        "https://labs.duku.design/r/button.json",
+        "https://labs.duku.design/r/input.json",
+        "https://labs.duku.design/r/field.json",
+        "https://labs.duku.design/r/field-message.json",
+        "https://labs.duku.design/r/checkbox.json",
+        "https://labs.duku.design/r/alert.json"
       ],
       "files": [
         {
@@ -949,6 +1066,9 @@
             "opacity": "1"
           }
         }
+      },
+      "meta": {
+        "tier": "pro"
       }
     },
     {
@@ -961,12 +1081,12 @@
         "@gsap/react"
       ],
       "registryDependencies": [
-        "https://duku.design/r/button.json",
-        "https://duku.design/r/input.json",
-        "https://duku.design/r/field.json",
-        "https://duku.design/r/field-message.json",
-        "https://duku.design/r/checkbox.json",
-        "https://duku.design/r/alert.json"
+        "https://labs.duku.design/r/button.json",
+        "https://labs.duku.design/r/input.json",
+        "https://labs.duku.design/r/field.json",
+        "https://labs.duku.design/r/field-message.json",
+        "https://labs.duku.design/r/checkbox.json",
+        "https://labs.duku.design/r/alert.json"
       ],
       "files": [
         {
@@ -977,7 +1097,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "pricing-card",
@@ -990,9 +1113,9 @@
         "motion"
       ],
       "registryDependencies": [
-        "https://duku.design/r/button.json",
-        "https://duku.design/r/badge.json",
-        "https://duku.design/r/number-flow.json"
+        "https://labs.duku.design/r/button.json",
+        "https://labs.duku.design/r/badge.json",
+        "https://labs.duku.design/r/number-flow.json"
       ],
       "files": [
         {
@@ -1003,7 +1126,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     },
     {
       "name": "newsletter-input",
@@ -1015,8 +1141,8 @@
         "@gsap/react"
       ],
       "registryDependencies": [
-        "https://duku.design/r/button.json",
-        "https://duku.design/r/field-message.json"
+        "https://labs.duku.design/r/button.json",
+        "https://labs.duku.design/r/field-message.json"
       ],
       "files": [
         {
@@ -1027,7 +1153,10 @@
           "path": "registry/default/lib/use-reduced-motion.ts",
           "type": "registry:lib"
         }
-      ]
+      ],
+      "meta": {
+        "tier": "pro"
+      }
     }
   ]
 }

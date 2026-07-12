@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "skeleton",
+  "type": "registry:ui",
+  "title": "Skeleton",
+  "description": "Shimmering loading placeholder.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/default/ui/skeleton.tsx",
+      "type": "registry:ui",
+      "content": "import * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {\n  ref?: React.Ref<HTMLDivElement>;\n}\n\n/**\n * Loading placeholder with the house shimmer. Widths must be deterministic\n * (className / style) — never Math.random in render (SSR hydration safety).\n */\nexport function Skeleton({ className, ref, ...rest }: SkeletonProps) {\n  return (\n    <div\n      ref={ref}\n      data-slot=\"skeleton\"\n      aria-hidden=\"true\"\n      className={cn(\n        \"relative overflow-hidden rounded-md bg-muted\",\n        className\n      )}\n      {...rest}\n    >\n      <span className=\"absolute inset-0 animate-[duku-shimmer_1.6s_linear_infinite] bg-gradient-to-r from-transparent via-foreground/[0.06] to-transparent\" />\n    </div>\n  );\n}\n"
+    }
+  ],
+  "css": {
+    "@keyframes duku-shimmer": {
+      "from": {
+        "transform": "translateX(-100%)"
+      },
+      "to": {
+        "transform": "translateX(100%)"
+      }
+    }
+  },
+  "meta": {
+    "tier": "free"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "textarea",
+  "type": "registry:ui",
+  "title": "Textarea",
+  "description": "Auto-growing textarea capped at maxRows.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/default/ui/textarea.tsx",
+      "type": "registry:ui",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface TextareaProps\n  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {\n  invalid?: boolean;\n  valid?: boolean;\n  /** Max rows before scrolling. Default 8. */\n  maxRows?: number;\n  ref?: React.Ref<HTMLTextAreaElement>;\n}\n\nexport function Textarea({\n  className,\n  invalid = false,\n  valid = false,\n  maxRows = 8,\n  rows = 3,\n  onInput,\n  ref,\n  ...rest\n}: TextareaProps) {\n  const innerRef = React.useRef<HTMLTextAreaElement>(null);\n  React.useImperativeHandle(ref, () => innerRef.current as HTMLTextAreaElement);\n\n  const resize = React.useCallback(() => {\n    const el = innerRef.current;\n    if (!el) return;\n    const styles = window.getComputedStyle(el);\n    const lineHeight = parseFloat(styles.lineHeight) || 20;\n    const vPad =\n      parseFloat(styles.paddingTop) + parseFloat(styles.paddingBottom);\n    const max = lineHeight * maxRows + vPad;\n    // Instant per keystroke — no transition on height while typing.\n    el.style.height = \"auto\";\n    el.style.height = `${Math.min(el.scrollHeight, max)}px`;\n    el.style.overflowY = el.scrollHeight > max ? \"auto\" : \"hidden\";\n  }, [maxRows]);\n\n  React.useLayoutEffect(() => {\n    resize();\n  }, [resize, rest.value, rest.defaultValue]);\n\n  return (\n    <textarea\n      ref={innerRef}\n      data-slot=\"textarea\"\n      rows={rows}\n      onInput={(e) => {\n        resize();\n        onInput?.(e);\n      }}\n      aria-invalid={invalid || undefined}\n      className={cn(\n        \"w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground\",\n        \"transition-[color,border-color,box-shadow] duration-200 [transition-property:color,border-color,box-shadow]\",\n        \"placeholder:text-muted-foreground outline-none\",\n        \"focus:border-ring focus:ring-2 focus:ring-ring/25\",\n        \"disabled:opacity-50 disabled:pointer-events-none\",\n        invalid &&\n          \"border-destructive focus:border-destructive focus:ring-destructive/25\",\n        valid && \"border-emerald-600 dark:border-emerald-400\",\n        className\n      )}\n      {...rest}\n    />\n  );\n}\n"
+    }
+  ],
+  "meta": {
+    "tier": "free"
+  }
+}
