@@ -79,6 +79,9 @@ export const TOKEN_LAYERS: TokenLayer[] = [
       { name: "spring-stiffness", cssVar: "--motion-spring-stiffness", value: "380", description: "The standard spring (stiffness 380, damping 32) used by switch, drawer, toast, tabs." },
       { name: "spring-damping", cssVar: "--motion-spring-damping", value: "32", description: "Damping for the standard spring." },
       { name: "stagger", cssVar: "--motion-stagger", value: "50ms", description: "Default cascade interval for list/grid entrances." },
+      { name: "blur-sm", cssVar: "--motion-blur-sm", value: "4px", description: "Motion blur for subtle fades (proof lines, small rows)." },
+      { name: "blur-md", cssVar: "--motion-blur-md", value: "8px", description: "Standard entrance motion blur; resolves to 0 as the element settles, then the filter is cleared." },
+      { name: "blur-lg", cssVar: "--motion-blur-lg", value: "10px", description: "Motion blur for large surfaces arriving (cards, composed interfaces)." },
     ],
   },
 ];

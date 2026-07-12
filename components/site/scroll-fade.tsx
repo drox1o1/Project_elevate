@@ -45,11 +45,16 @@ export function ScrollFade({
       if (items.length === 0) return;
 
       if (reduced) {
-        gsap.set(items, { y: 0, scale: 1, opacity: 1 });
+        gsap.set(items, { y: 0, scale: 1, opacity: 1, clearProps: "filter" });
         return;
       }
 
-      gsap.set(items, pop ? { scale: 0.8, opacity: 0 } : { y, opacity: 0 });
+      gsap.set(
+        items,
+        pop
+          ? { scale: 0.8, opacity: 0, filter: "blur(6px)" }
+          : { y, opacity: 0, filter: "blur(8px)" }
+      );
       ScrollTrigger.batch(items, {
         start: "top 88%",
         once: true,
@@ -58,11 +63,13 @@ export function ScrollFade({
             y: 0,
             scale: 1,
             opacity: 1,
+            filter: "blur(0px)",
             duration: pop ? 0.45 : 0.5,
             ease: pop ? "back.out(1.7)" : "power3.out",
             stagger,
             delay,
             overwrite: true,
+            clearProps: "filter",
           }),
       });
     },

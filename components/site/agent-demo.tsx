@@ -42,19 +42,28 @@ function Rise({
     () => {
       if (!ref.current) return;
       if (reduced) {
-        gsap.set(ref.current, { y: 0, scale: 1, opacity: 1 });
+        gsap.set(ref.current, {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          clearProps: "filter",
+        });
         return;
       }
       gsap.fromTo(
         ref.current,
-        pop ? { scale: 0.7, opacity: 0 } : { y, opacity: 0 },
+        pop
+          ? { scale: 0.7, opacity: 0, filter: "blur(5px)" }
+          : { y, opacity: 0, filter: "blur(6px)" },
         {
           y: 0,
           scale: 1,
           opacity: 1,
+          filter: "blur(0px)",
           duration: pop ? 0.45 : 0.4,
           ease: pop ? "back.out(2)" : "power3.out",
           delay,
+          clearProps: "filter",
         }
       );
     },
@@ -138,13 +147,26 @@ export function AgentDemo() {
     () => {
       if (step < 5 || !cardRef.current) return;
       if (reduced) {
-        gsap.set(cardRef.current, { y: 0, scale: 1, opacity: 1 });
+        gsap.set(cardRef.current, {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          clearProps: "filter",
+        });
         return;
       }
       gsap.fromTo(
         cardRef.current,
-        { y: 24, scale: 0.97, opacity: 0 },
-        { y: 0, scale: 1, opacity: 1, duration: 0.6, ease: "power3.out" }
+        { y: 24, scale: 0.97, opacity: 0, filter: "blur(10px)" },
+        {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          filter: "blur(0px)",
+          duration: 0.6,
+          ease: "power3.out",
+          clearProps: "filter",
+        }
       );
     },
     { dependencies: [step, reduced] }

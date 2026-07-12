@@ -116,25 +116,35 @@ function TierCard({ tier, index }: { tier: Tier; index: number }) {
       );
 
       if (reduced) {
-        gsap.set(root, { y: 0, scale: 1, opacity: 1 });
-        gsap.set(rows, { y: 0, opacity: 1 });
+        gsap.set(root, { y: 0, scale: 1, opacity: 1, clearProps: "filter" });
+        gsap.set(rows, { y: 0, opacity: 1, clearProps: "filter" });
         return;
       }
 
       const tl = gsap.timeline({ delay: index * 0.1 });
       tl.fromTo(
         root,
-        { y: 24, scale: 0.98, opacity: 0 },
-        { y: 0, scale: 1, opacity: 1, duration: 0.55, ease: "power3.out" }
+        { y: 24, scale: 0.98, opacity: 0, filter: "blur(10px)" },
+        {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          filter: "blur(0px)",
+          duration: 0.55,
+          ease: "power3.out",
+          clearProps: "filter",
+        }
       ).fromTo(
         rows,
-        { y: 12, opacity: 0 },
+        { y: 12, opacity: 0, filter: "blur(5px)" },
         {
           y: 0,
           opacity: 1,
+          filter: "blur(0px)",
           duration: 0.35,
           ease: "power2.out",
           stagger: 0.05,
+          clearProps: "filter",
         },
         0.25
       );

@@ -27,34 +27,36 @@ export function HeroIntro() {
       );
 
       if (reduced) {
-        gsap.set(items, { y: 0, opacity: 1 });
+        gsap.set(items, { y: 0, opacity: 1, clearProps: "filter" });
         return;
       }
 
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+      const tl = gsap.timeline({
+        defaults: { ease: "power3.out", clearProps: "filter" },
+      });
       tl.fromTo(
         '[data-hero="badge"]',
-        { y: -12, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.5 }
+        { y: -12, opacity: 0, filter: "blur(6px)" },
+        { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.5 }
       )
         // the headline's own char reveal starts via its delay prop (0.35s);
         // copy and CTAs rise while the last chars are still settling
         .fromTo(
           '[data-hero="copy"]',
-          { y: 18, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.55 },
+          { y: 18, opacity: 0, filter: "blur(8px)" },
+          { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.55 },
           1.05
         )
         .fromTo(
           '[data-hero="cta"]',
-          { y: 18, opacity: 0 },
-          { y: 0, opacity: 1, duration: 0.55 },
+          { y: 18, opacity: 0, filter: "blur(8px)" },
+          { y: 0, opacity: 1, filter: "blur(0px)", duration: 0.55 },
           1.2
         )
         .fromTo(
           '[data-hero="proof"]',
-          { opacity: 0 },
-          { opacity: 1, duration: 0.6 },
+          { opacity: 0, filter: "blur(4px)" },
+          { opacity: 1, filter: "blur(0px)", duration: 0.6 },
           1.45
         );
     },
