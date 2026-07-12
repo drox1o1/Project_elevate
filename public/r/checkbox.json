@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "checkbox",
+  "type": "registry:ui",
+  "title": "Checkbox",
+  "description": "Radix checkbox with center-scale fill and check-draw.",
+  "dependencies": [
+    "@radix-ui/react-checkbox"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/default/ui/checkbox.tsx",
+      "type": "registry:ui",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport * as CheckboxPrimitive from \"@radix-ui/react-checkbox\";\nimport { cn } from \"@/lib/utils\";\nimport { useReducedMotion } from \"@/registry/default/lib/use-reduced-motion\";\n\nexport interface CheckboxProps\n  extends React.ComponentProps<typeof CheckboxPrimitive.Root> {\n  ref?: React.Ref<HTMLButtonElement>;\n}\n\nfunction IndicatorCheck() {\n  const reduced = useReducedMotion();\n  const [drawn, setDrawn] = React.useState(false);\n  React.useEffect(() => {\n    if (reduced) {\n      setDrawn(true);\n      return;\n    }\n    // check-draw starts 0.05s after the fill begins\n    const t = setTimeout(() => setDrawn(true), 50);\n    return () => clearTimeout(t);\n  }, [reduced]);\n  return (\n    <svg\n      viewBox=\"0 0 24 24\"\n      fill=\"none\"\n      stroke=\"currentColor\"\n      strokeWidth={3}\n      strokeLinecap=\"round\"\n      strokeLinejoin=\"round\"\n      className=\"size-3\"\n      aria-hidden=\"true\"\n    >\n      <path\n        d=\"M5 13l4 4L19 7\"\n        pathLength={1}\n        strokeDasharray={1}\n        strokeDashoffset={drawn ? 0 : 1}\n        className=\"transition-[stroke-dashoffset] duration-300 ease-out\"\n      />\n    </svg>\n  );\n}\n\nexport function Checkbox({ className, ref, ...rest }: CheckboxProps) {\n  return (\n    <CheckboxPrimitive.Root\n      ref={ref}\n      data-slot=\"checkbox\"\n      className={cn(\n        \"group relative inline-flex size-[18px] shrink-0 items-center justify-center overflow-hidden rounded-[5px] border border-input bg-background\",\n        \"transition-colors duration-200\",\n        \"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background\",\n        \"disabled:opacity-50 disabled:pointer-events-none\",\n        \"data-[state=checked]:border-primary data-[state=indeterminate]:border-primary\",\n        className\n      )}\n      {...rest}\n    >\n      {/* primary fill scales from center on check */}\n      <span\n        data-slot=\"fill\"\n        aria-hidden=\"true\"\n        className={cn(\n          \"absolute inset-0 scale-0 rounded-[4px] bg-primary\",\n          \"transition-transform duration-[180ms] ease-[cubic-bezier(0.33,1,0.68,1)]\",\n          \"group-data-[state=checked]:scale-100 group-data-[state=indeterminate]:scale-100\"\n        )}\n      />\n      <CheckboxPrimitive.Indicator\n        data-slot=\"indicator\"\n        className=\"relative z-10 flex items-center justify-center text-primary-foreground\"\n      >\n        <CheckboxIndicatorContent />\n      </CheckboxPrimitive.Indicator>\n    </CheckboxPrimitive.Root>\n  );\n}\n\nfunction CheckboxIndicatorContent() {\n  // Render the bar for indeterminate, the drawn check otherwise; the\n  // indeterminate bar pops via a scale transition driven by group state.\n  return (\n    <>\n      <span\n        className={cn(\n          \"hidden group-data-[state=indeterminate]:block\",\n          \"h-[1.5px] w-2 rounded-full bg-primary-foreground\",\n          \"scale-0 transition-transform duration-[180ms] ease-[cubic-bezier(0.33,1,0.68,1)]\",\n          \"group-data-[state=indeterminate]:scale-100\"\n        )}\n      />\n      <span className=\"hidden group-data-[state=checked]:block\">\n        <IndicatorCheck />\n      </span>\n    </>\n  );\n}\n"
+    },
+    {
+      "path": "registry/default/lib/use-reduced-motion.ts",
+      "type": "registry:lib",
+      "content": "\"use client\";\nimport { useSyncExternalStore } from \"react\";\n\nconst query = \"(prefers-reduced-motion: reduce)\";\nconst subscribe = (cb: () => void) => {\n  const mq = window.matchMedia(query);\n  mq.addEventListener(\"change\", cb);\n  return () => mq.removeEventListener(\"change\", cb);\n};\n\nexport function useReducedMotion() {\n  return useSyncExternalStore(\n    subscribe,\n    () => window.matchMedia(query).matches,\n    () => false\n  );\n}\n"
+    }
+  ],
+  "meta": {
+    "tier": "free"
+  }
+}

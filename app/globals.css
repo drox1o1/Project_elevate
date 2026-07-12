@@ -23,6 +23,33 @@
   --input: hsl(240 5.9% 90%);
   --ring: hsl(240 5.9% 10%);
   --radius: 0.625rem;
+
+  /* Semantic tokens */
+  --success: hsl(161 94% 30%);
+  --warning: hsl(32 95% 44%);
+  --info: hsl(217 91% 60%);
+
+  /* Domain tokens */
+  --market-up: hsl(161 94% 30%);
+  --market-down: hsl(0 84.2% 60.2%);
+  --bid: hsl(217 91% 60%);
+  --ask: hsl(32 95% 44%);
+  --risk-low: hsl(161 94% 30%);
+  --risk-medium: hsl(32 95% 44%);
+  --risk-high: hsl(0 84.2% 60.2%);
+  --agent-active: hsl(217 91% 60%);
+  --agent-waiting: hsl(32 95% 44%);
+  --agent-error: hsl(0 84.2% 60.2%);
+
+  /* Motion tokens */
+  --motion-duration-fast: 150ms;
+  --motion-duration-base: 300ms;
+  --motion-duration-slow: 500ms;
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --motion-spring-stiffness: 380;
+  --motion-spring-damping: 32;
+  --motion-stagger: 50ms;
 }
 
 .dark {
@@ -45,6 +72,23 @@
   --border: hsl(240 3.7% 15.9%);
   --input: hsl(240 3.7% 15.9%);
   --ring: hsl(240 4.9% 83.9%);
+
+  /* Semantic tokens */
+  --success: hsl(158 64% 52%);
+  --warning: hsl(38 92% 50%);
+  --info: hsl(213 94% 68%);
+
+  /* Domain tokens */
+  --market-up: hsl(158 64% 52%);
+  --market-down: hsl(0 62.8% 50.6%);
+  --bid: hsl(213 94% 68%);
+  --ask: hsl(38 92% 50%);
+  --risk-low: hsl(158 64% 52%);
+  --risk-medium: hsl(38 92% 50%);
+  --risk-high: hsl(0 62.8% 50.6%);
+  --agent-active: hsl(213 94% 68%);
+  --agent-waiting: hsl(38 92% 50%);
+  --agent-error: hsl(0 62.8% 50.6%);
 }
 
 @theme inline {
@@ -67,6 +111,19 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-market-up: var(--market-up);
+  --color-market-down: var(--market-down);
+  --color-bid: var(--bid);
+  --color-ask: var(--ask);
+  --color-risk-low: var(--risk-low);
+  --color-risk-medium: var(--risk-medium);
+  --color-risk-high: var(--risk-high);
+  --color-agent-active: var(--agent-active);
+  --color-agent-waiting: var(--agent-waiting);
+  --color-agent-error: var(--agent-error);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "badge",
+  "type": "registry:ui",
+  "title": "Badge",
+  "description": "Status badge with optional live ping ring.",
+  "dependencies": [
+    "motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/default/ui/badge.tsx",
+      "type": "registry:ui",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport { motion } from \"motion/react\";\nimport { cva, type VariantProps } from \"class-variance-authority\";\nimport { cn } from \"@/lib/utils\";\nimport { useReducedMotion } from \"@/registry/default/lib/use-reduced-motion\";\n\nconst badgeVariants = cva(\n  \"relative inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors duration-200\",\n  {\n    variants: {\n      variant: {\n        default: \"bg-primary text-primary-foreground\",\n        secondary: \"bg-muted text-foreground\",\n        outline: \"border border-border text-foreground\",\n        success:\n          \"bg-emerald-600/10 text-emerald-600 dark:text-emerald-400\",\n        destructive: \"bg-destructive/10 text-destructive\",\n      },\n    },\n    defaultVariants: { variant: \"default\" },\n  }\n);\n\nexport interface BadgeProps\n  extends React.HTMLAttributes<HTMLSpanElement>,\n    VariantProps<typeof badgeVariants> {\n  /** Renders a live-status ping ring behind a leading dot. */\n  pulse?: boolean;\n  ref?: React.Ref<HTMLSpanElement>;\n}\n\nexport function Badge({\n  className,\n  variant,\n  pulse = false,\n  children,\n  ref,\n  ...rest\n}: BadgeProps) {\n  const reduced = useReducedMotion();\n  return (\n    <span\n      ref={ref}\n      data-slot=\"badge\"\n      className={cn(badgeVariants({ variant }), className)}\n      {...rest}\n    >\n      {pulse ? (\n        <span\n          data-slot=\"pulse\"\n          className=\"relative flex size-1.5\"\n          aria-hidden=\"true\"\n        >\n          {!reduced ? (\n            <motion.span\n              className=\"absolute inset-0 rounded-full bg-current\"\n              initial={{ scale: 1, opacity: 0.4 }}\n              animate={{ scale: 1.8, opacity: 0 }}\n              transition={{\n                duration: 1.8,\n                repeat: Infinity,\n                ease: \"easeOut\",\n              }}\n            />\n          ) : null}\n          <span className=\"relative size-1.5 rounded-full bg-current\" />\n        </span>\n      ) : null}\n      {children}\n    </span>\n  );\n}\n\nexport { badgeVariants };\n"
+    },
+    {
+      "path": "registry/default/lib/use-reduced-motion.ts",
+      "type": "registry:lib",
+      "content": "\"use client\";\nimport { useSyncExternalStore } from \"react\";\n\nconst query = \"(prefers-reduced-motion: reduce)\";\nconst subscribe = (cb: () => void) => {\n  const mq = window.matchMedia(query);\n  mq.addEventListener(\"change\", cb);\n  return () => mq.removeEventListener(\"change\", cb);\n};\n\nexport function useReducedMotion() {\n  return useSyncExternalStore(\n    subscribe,\n    () => window.matchMedia(query).matches,\n    () => false\n  );\n}\n"
+    }
+  ],
+  "meta": {
+    "tier": "free"
+  }
+}

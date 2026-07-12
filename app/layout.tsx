@@ -4,12 +4,13 @@ import { Toaster } from "@/registry/default/ui/toast";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://labs.duku.design"),
   title: {
-    default: "DUKU UI — motion-forward React components",
-    template: "%s · DUKU UI",
+    default: "DUKU Labs — design engineering for AI-built products",
+    template: "%s · DUKU Labs",
   },
   description:
-    "A complete React component library where every component ships with production-grade motion and full interaction states.",
+    "An agent-ready design engineering system: production React components, engineered motion and complete interaction states — browsable by humans, discoverable by Claude Code, Codex and other MCP-compatible coding agents.",
 };
 
 export default function RootLayout({

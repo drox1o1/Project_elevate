@@ -1,11 +1,32 @@
 // Generates registry.json from the component table below, plus a
 // file-contents map so the /r/[name] route never touches the filesystem
 // at request time (required for edge/Workers runtimes with no disk access).
+// Also emits public/r/registry.json and static public/r/<name>.json for
+// every free-tier item so they can be served without the route handler.
 // Run: node scripts/gen-registry.mjs
 import { writeFileSync, readFileSync, mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 
-const HOME = "https://duku.design";
+const HOME = "https://labs.duku.design";
+
+// Open tier: core primitives (incl. their registry deps) + selected motion.
+const FREE_ITEMS = [
+  "button",
+  "input",
+  "textarea",
+  "field",
+  "field-message",
+  "checkbox",
+  "switch",
+  "select",
+  "radio-group",
+  "badge",
+  "avatar",
+  "spinner",
+  "skeleton",
+  "kinetic-heading",
+  "magnetic-button",
+];
 
 const GSAP = ["gsap", "@gsap/react"];
 const MOTION = ["motion"];
@@ -109,7 +130,7 @@ const items = [
 
 const registry = {
   $schema: "https://ui.shadcn.com/schema/registry.json",
-  name: "duku-ui",
+  name: "duku-labs",
   homepage: HOME,
   items: items.map(
     ([name, title, description, dir, type, deps, regDeps, libs, css]) => ({
@@ -127,6 +148,7 @@ const registry = {
         ...libs.map((l) => ({ path: LIB[l], type: "registry:lib" })),
       ],
       ...(css ? { css } : {}),
+      meta: { tier: FREE_ITEMS.includes(name) ? "free" : "pro" },
     })
   ),
 };
@@ -148,3 +170,37 @@ const outPath = "registry/generated/file-contents.json";
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, JSON.stringify(fileContents, null, 2) + "\n");
 console.log(`${outPath} written with ${uniquePaths.size} files`);
+
+// Static registry files for the free tier, servable without the route
+// handler (and without a license key).
+mkdirSync("public/r", { recursive: true });
+writeFileSync(
+  "public/r/registry.json",
+  JSON.stringify(registry, null, 2) + "\n"
+);
+for (const item of registry.items) {
+  if (item.meta.tier !== "free") continue;
+  const payload = {
+    $schema: "https://ui.shadcn.com/schema/registry-item.json",
+    name: item.name,
+    type: item.type,
+    title: item.title,
+    description: item.description,
+    dependencies: item.dependencies,
+    registryDependencies: item.registryDependencies,
+    files: item.files.map((file) => ({
+      path: file.path,
+      type: file.type,
+      content: fileContents[file.path],
+    })),
+    ...(item.css ? { css: item.css } : {}),
+    meta: item.meta,
+  };
+  writeFileSync(
+    `public/r/${item.name}.json`,
+    JSON.stringify(payload, null, 2) + "\n"
+  );
+}
+console.log(
+  `public/r written with ${FREE_ITEMS.length} free items + registry.json`
+);

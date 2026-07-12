@@ -1,0 +1,32 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "switch",
+  "type": "registry:ui",
+  "title": "Switch",
+  "description": "Spring thumb with press squish.",
+  "dependencies": [
+    "@radix-ui/react-switch",
+    "motion"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/default/ui/switch.tsx",
+      "type": "registry:ui",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport * as SwitchPrimitive from \"@radix-ui/react-switch\";\nimport { motion } from \"motion/react\";\nimport { cn } from \"@/lib/utils\";\nimport { useControllableState } from \"@/registry/default/lib/use-controllable-state\";\nimport { useReducedMotion } from \"@/registry/default/lib/use-reduced-motion\";\n\nexport interface SwitchProps\n  extends Omit<\n    React.ComponentProps<typeof SwitchPrimitive.Root>,\n    \"checked\" | \"defaultChecked\" | \"onCheckedChange\"\n  > {\n  checked?: boolean;\n  defaultChecked?: boolean;\n  onCheckedChange?: (checked: boolean) => void;\n  ref?: React.Ref<HTMLButtonElement>;\n}\n\nconst TRACK_W = 40;\nconst PAD = 2;\nconst THUMB = 18;\nconst THUMB_STRETCHED = 22;\n\nexport function Switch({\n  className,\n  checked: checkedProp,\n  defaultChecked = false,\n  onCheckedChange,\n  disabled,\n  ref,\n  ...rest\n}: SwitchProps) {\n  const [checked, setChecked] = useControllableState<boolean>({\n    value: checkedProp,\n    defaultValue: defaultChecked,\n    onChange: onCheckedChange,\n  });\n  const [pressed, setPressed] = React.useState(false);\n  const reduced = useReducedMotion();\n\n  const width = pressed && !disabled ? THUMB_STRETCHED : THUMB;\n  const x = checked ? TRACK_W - PAD * 2 - width : 0;\n\n  return (\n    <SwitchPrimitive.Root\n      ref={ref}\n      data-slot=\"switch\"\n      checked={checked}\n      onCheckedChange={setChecked}\n      disabled={disabled}\n      onPointerDown={() => setPressed(true)}\n      onPointerUp={() => setPressed(false)}\n      onPointerLeave={() => setPressed(false)}\n      className={cn(\n        \"relative inline-flex h-[22px] w-10 shrink-0 items-center rounded-full bg-input p-[2px]\",\n        \"transition-colors duration-200 data-[state=checked]:bg-primary\",\n        \"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background\",\n        \"disabled:opacity-50 disabled:pointer-events-none\",\n        className\n      )}\n      {...rest}\n    >\n      <SwitchPrimitive.Thumb asChild>\n        <motion.span\n          data-slot=\"thumb\"\n          className=\"block h-[18px] rounded-full bg-background shadow-sm\"\n          initial={false}\n          animate={{ x, width }}\n          transition={\n            reduced\n              ? { duration: 0 }\n              : {\n                  x: { type: \"spring\", stiffness: 380, damping: 32 },\n                  width: { type: \"spring\", stiffness: 260, damping: 28 },\n                }\n          }\n        />\n      </SwitchPrimitive.Thumb>\n    </SwitchPrimitive.Root>\n  );\n}\n"
+    },
+    {
+      "path": "registry/default/lib/use-reduced-motion.ts",
+      "type": "registry:lib",
+      "content": "\"use client\";\nimport { useSyncExternalStore } from \"react\";\n\nconst query = \"(prefers-reduced-motion: reduce)\";\nconst subscribe = (cb: () => void) => {\n  const mq = window.matchMedia(query);\n  mq.addEventListener(\"change\", cb);\n  return () => mq.removeEventListener(\"change\", cb);\n};\n\nexport function useReducedMotion() {\n  return useSyncExternalStore(\n    subscribe,\n    () => window.matchMedia(query).matches,\n    () => false\n  );\n}\n"
+    },
+    {
+      "path": "registry/default/lib/use-controllable-state.ts",
+      "type": "registry:lib",
+      "content": "\"use client\";\nimport * as React from \"react\";\n\ninterface UseControllableStateParams<T> {\n  value?: T;\n  defaultValue: T;\n  onChange?: (value: T) => void;\n}\n\n/**\n * Controlled/uncontrolled state helper. When `value` is provided the\n * component is controlled and internal state is ignored; otherwise the\n * hook owns the state, seeded from `defaultValue`.\n */\nexport function useControllableState<T>({\n  value,\n  defaultValue,\n  onChange,\n}: UseControllableStateParams<T>): [T, (next: T) => void] {\n  const [internal, setInternal] = React.useState<T>(defaultValue);\n  const isControlled = value !== undefined;\n  const current = isControlled ? (value as T) : internal;\n\n  const onChangeRef = React.useRef(onChange);\n  React.useEffect(() => {\n    onChangeRef.current = onChange;\n  });\n\n  const setValue = React.useCallback(\n    (next: T) => {\n      if (!isControlled) setInternal(next);\n      onChangeRef.current?.(next);\n    },\n    [isControlled]\n  );\n\n  return [current, setValue];\n}\n"
+    }
+  ],
+  "meta": {
+    "tier": "free"
+  }
+}

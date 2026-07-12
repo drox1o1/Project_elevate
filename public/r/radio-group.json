@@ -1,0 +1,21 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "radio-group",
+  "type": "registry:ui",
+  "title": "Radio Group",
+  "description": "Radix radio with back-out dot pop.",
+  "dependencies": [
+    "@radix-ui/react-radio-group"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "registry/default/ui/radio-group.tsx",
+      "type": "registry:ui",
+      "content": "\"use client\";\n\nimport * as React from \"react\";\nimport * as RadioGroupPrimitive from \"@radix-ui/react-radio-group\";\nimport { cn } from \"@/lib/utils\";\n\nexport interface RadioGroupProps\n  extends React.ComponentProps<typeof RadioGroupPrimitive.Root> {\n  ref?: React.Ref<HTMLDivElement>;\n}\n\nexport function RadioGroup({ className, ref, ...rest }: RadioGroupProps) {\n  return (\n    <RadioGroupPrimitive.Root\n      ref={ref}\n      data-slot=\"radio-group\"\n      className={cn(\"grid gap-2.5\", className)}\n      {...rest}\n    />\n  );\n}\n\nexport interface RadioGroupItemProps\n  extends React.ComponentProps<typeof RadioGroupPrimitive.Item> {\n  ref?: React.Ref<HTMLButtonElement>;\n}\n\nexport function RadioGroupItem({\n  className,\n  ref,\n  ...rest\n}: RadioGroupItemProps) {\n  return (\n    <RadioGroupPrimitive.Item\n      ref={ref}\n      data-slot=\"radio-group-item\"\n      className={cn(\n        \"group inline-flex size-[18px] shrink-0 items-center justify-center rounded-full border border-input bg-background\",\n        \"transition-colors duration-200 data-[state=checked]:border-primary\",\n        \"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background\",\n        \"disabled:opacity-50 disabled:pointer-events-none\",\n        className\n      )}\n      {...rest}\n    >\n      {/* dot pops with a back.out(1.7) overshoot */}\n      <span\n        data-slot=\"dot\"\n        aria-hidden=\"true\"\n        className={cn(\n          \"size-2 scale-0 rounded-full bg-primary\",\n          \"transition-transform duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]\",\n          \"group-data-[state=checked]:scale-100\"\n        )}\n      />\n    </RadioGroupPrimitive.Item>\n  );\n}\n"
+    }
+  ],
+  "meta": {
+    "tier": "free"
+  }
+}
