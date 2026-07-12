@@ -1,0 +1,1033 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "duku-ui",
+  "homepage": "https://duku.design",
+  "items": [
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "The state exemplar: loading spinner with width lock, success check-draw morph.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/button.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "input",
+      "type": "registry:ui",
+      "title": "Input",
+      "description": "Wrapper-based input with focus ring, invalid/valid states and adornment slots.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/input.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "textarea",
+      "type": "registry:ui",
+      "title": "Textarea",
+      "description": "Auto-growing textarea capped at maxRows.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/textarea.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "field",
+      "type": "registry:ui",
+      "title": "Field",
+      "description": "Label + control + FieldMessage wiring with error shake.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://duku.design/r/field-message.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/ui/field.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "checkbox",
+      "type": "registry:ui",
+      "title": "Checkbox",
+      "description": "Radix checkbox with center-scale fill and check-draw.",
+      "dependencies": [
+        "@radix-ui/react-checkbox"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/checkbox.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "switch",
+      "type": "registry:ui",
+      "title": "Switch",
+      "description": "Spring thumb with press squish.",
+      "dependencies": [
+        "@radix-ui/react-switch",
+        "motion"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/switch.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/use-controllable-state.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "type": "registry:ui",
+      "title": "Select",
+      "description": "Radix select with origin-aware pop-in and item cascade.",
+      "dependencies": [
+        "@radix-ui/react-select",
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/select.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "radio-group",
+      "type": "registry:ui",
+      "title": "Radio Group",
+      "description": "Radix radio with back-out dot pop.",
+      "dependencies": [
+        "@radix-ui/react-radio-group"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/radio-group.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "badge",
+      "type": "registry:ui",
+      "title": "Badge",
+      "description": "Status badge with optional live ping ring.",
+      "dependencies": [
+        "motion"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/badge.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "description": "Image avatar with shimmer loading, fallback initials and hover-spread group.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/avatar.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "css": {
+        "@keyframes duku-shimmer": {
+          "from": {
+            "transform": "translateX(-100%)"
+          },
+          "to": {
+            "transform": "translateX(100%)"
+          }
+        },
+        "@keyframes duku-fade-in": {
+          "from": {
+            "opacity": "0"
+          },
+          "to": {
+            "opacity": "1"
+          }
+        }
+      }
+    },
+    {
+      "name": "spinner",
+      "type": "registry:ui",
+      "title": "Spinner",
+      "description": "The house spinner as a standalone.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/spinner.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "skeleton",
+      "type": "registry:ui",
+      "title": "Skeleton",
+      "description": "Shimmering loading placeholder.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/skeleton.tsx",
+          "type": "registry:ui"
+        }
+      ],
+      "css": {
+        "@keyframes duku-shimmer": {
+          "from": {
+            "transform": "translateX(-100%)"
+          },
+          "to": {
+            "transform": "translateX(100%)"
+          }
+        }
+      }
+    },
+    {
+      "name": "field-message",
+      "type": "registry:ui",
+      "title": "Field Message",
+      "description": "Inline validation feedback with height-auto and crossfade.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/field-message.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "alert",
+      "type": "registry:ui",
+      "title": "Alert",
+      "description": "Static banner with rise-in entrance and collapsing dismiss.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/alert.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "toast",
+      "type": "registry:ui",
+      "title": "Toast",
+      "description": "Custom stacked toaster with springs, swipe-to-dismiss and toast.promise.",
+      "dependencies": [
+        "motion"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/toast.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "css": {
+        "@keyframes duku-timer": {
+          "from": {
+            "transform": "scaleX(1)"
+          },
+          "to": {
+            "transform": "scaleX(0)"
+          }
+        }
+      }
+    },
+    {
+      "name": "progress",
+      "type": "registry:ui",
+      "title": "Progress",
+      "description": "Bar and circular progress with tweened value changes.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/progress.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "kbd",
+      "type": "registry:ui",
+      "title": "Kbd + CopyButton",
+      "description": "Keyboard hint chip and clipboard button with check-draw morph.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/kbd.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dialog",
+      "type": "registry:ui",
+      "title": "Dialog",
+      "description": "Radix dialog with GSAP pop-in/out on data-state.",
+      "dependencies": [
+        "@radix-ui/react-dialog",
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/dialog.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/use-controllable-state.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "drawer",
+      "type": "registry:ui",
+      "title": "Drawer",
+      "description": "Sheet drawer with spring slide and drag-to-dismiss bottom sheet.",
+      "dependencies": [
+        "@radix-ui/react-dialog",
+        "motion"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/drawer.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/use-controllable-state.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "title": "Dropdown Menu",
+      "description": "Radix menu with origin-aware pop-in and item cascade.",
+      "dependencies": [
+        "@radix-ui/react-dropdown-menu",
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/dropdown-menu.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "slide-tabs",
+      "type": "registry:ui",
+      "title": "Slide Tabs",
+      "description": "Tabs with sliding pill indicator and directional content transition.",
+      "dependencies": [
+        "@radix-ui/react-tabs",
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/slide-tabs.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "navbar",
+      "type": "registry:ui",
+      "title": "Navbar",
+      "description": "Sticky nav with scroll blur, shared-layout underline and mobile menu.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react",
+        "motion"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/navbar.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "reveal-accordion",
+      "type": "registry:ui",
+      "title": "Reveal Accordion",
+      "description": "Spring-settled FAQ accordion with plus/minus morph.",
+      "dependencies": [
+        "@radix-ui/react-accordion",
+        "motion"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ui/reveal-accordion.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "stat-counter",
+      "type": "registry:ui",
+      "title": "Stat Counter",
+      "description": "Scroll-triggered locale-formatted count-up with delta badge.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/fintech/stat-counter.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "number-flow",
+      "type": "registry:ui",
+      "title": "Number Flow",
+      "description": "Odometer digit roll for live values.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/fintech/number-flow.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "css": {
+        "@keyframes duku-fade-in": {
+          "from": {
+            "opacity": "0"
+          },
+          "to": {
+            "opacity": "1"
+          }
+        }
+      }
+    },
+    {
+      "name": "amount-input",
+      "type": "registry:ui",
+      "title": "Amount Input",
+      "description": "Auto-scaling amount field with as-you-type grouping and caret preservation.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/fintech/amount-input.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/use-controllable-state.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/format-number.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "sparkline-card",
+      "type": "registry:ui",
+      "title": "Sparkline Card",
+      "description": "Portfolio card with self-drawing sparkline.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/fintech/sparkline-card.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "otp-input",
+      "type": "registry:ui",
+      "title": "OTP Input",
+      "description": "One-time-code cells driven by a single hidden input.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/fintech/otp-input.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/use-controllable-state.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "css": {
+        "@keyframes duku-pop-in": {
+          "from": {
+            "transform": "scale(0.96)",
+            "opacity": "0"
+          },
+          "to": {
+            "transform": "scale(1)",
+            "opacity": "1"
+          }
+        },
+        "@keyframes duku-caret-blink": {
+          "0%, 100%": {
+            "opacity": "1"
+          },
+          "50%": {
+            "opacity": "0"
+          }
+        }
+      }
+    },
+    {
+      "name": "transaction-list",
+      "type": "registry:ui",
+      "title": "Transaction List",
+      "description": "Dashboard list with scroll cascade and skeleton loading.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/fintech/transaction-list.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "css": {
+        "@keyframes duku-shimmer": {
+          "from": {
+            "transform": "translateX(-100%)"
+          },
+          "to": {
+            "transform": "translateX(100%)"
+          }
+        },
+        "@keyframes duku-fade-in": {
+          "from": {
+            "opacity": "0"
+          },
+          "to": {
+            "opacity": "1"
+          }
+        }
+      }
+    },
+    {
+      "name": "stream-text",
+      "type": "registry:ui",
+      "title": "Stream Text",
+      "description": "LLM-style streaming text reveal with blinking caret.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ai/stream-text.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "thinking-indicator",
+      "type": "registry:ui",
+      "title": "Thinking Indicator",
+      "description": "Shimmering status label with pulsing dots.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ai/thinking-indicator.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "css": {
+        "@keyframes duku-shimmer": {
+          "from": {
+            "transform": "translateX(-100%)"
+          },
+          "to": {
+            "transform": "translateX(100%)"
+          }
+        }
+      }
+    },
+    {
+      "name": "chat-message",
+      "type": "registry:ui",
+      "title": "Chat Message",
+      "description": "User/assistant message bubbles with entrance and streaming.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://duku.design/r/stream-text.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/ai/chat-message.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "ai-prompt-input",
+      "type": "registry:ui",
+      "title": "AI Prompt Input",
+      "description": "The composer: auto-grow textarea, morphing submit, async handling.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ai/ai-prompt-input.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/use-controllable-state.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "skills-card",
+      "type": "registry:ui",
+      "title": "Skills Card",
+      "description": "Collapsible agent skills card with staggered cascade.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ai/skills-card.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/use-controllable-state.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "kinetic-heading",
+      "type": "registry:ui",
+      "title": "Kinetic Heading",
+      "description": "Character-split headline reveal with stagger.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/motion/kinetic-heading.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "magnetic-button",
+      "type": "registry:ui",
+      "title": "Magnetic Button",
+      "description": "CTA that eases toward the cursor and springs back.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/motion/magnetic-button.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "marquee",
+      "type": "registry:ui",
+      "title": "Marquee",
+      "description": "Seamless belt with hover-eased pause.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/motion/marquee.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "text-roll-link",
+      "type": "registry:ui",
+      "title": "Text Roll Link",
+      "description": "Link label that rolls per-char with an underline sweep.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/motion/text-roll-link.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "scroll-reveal-grid",
+      "type": "registry:ui",
+      "title": "Scroll Reveal Grid",
+      "description": "Grid wrapper with grid-aware scroll stagger.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/motion/scroll-reveal-grid.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "signup-card",
+      "type": "registry:block",
+      "title": "Signup Card",
+      "description": "The flagship block: full validation, strength meter, success morph.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://duku.design/r/button.json",
+        "https://duku.design/r/input.json",
+        "https://duku.design/r/field.json",
+        "https://duku.design/r/field-message.json",
+        "https://duku.design/r/checkbox.json",
+        "https://duku.design/r/alert.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/blocks/signup-card.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "css": {
+        "@keyframes duku-fade-in": {
+          "from": {
+            "opacity": "0"
+          },
+          "to": {
+            "opacity": "1"
+          }
+        }
+      }
+    },
+    {
+      "name": "login-card",
+      "type": "registry:block",
+      "title": "Login Card",
+      "description": "Signup reduced: email + password with the same choreography.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://duku.design/r/button.json",
+        "https://duku.design/r/input.json",
+        "https://duku.design/r/field.json",
+        "https://duku.design/r/field-message.json",
+        "https://duku.design/r/checkbox.json",
+        "https://duku.design/r/alert.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/blocks/login-card.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "pricing-card",
+      "type": "registry:block",
+      "title": "Pricing Card",
+      "description": "Plan card with billing toggle, NumberFlow price roll and feature cascade.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react",
+        "motion"
+      ],
+      "registryDependencies": [
+        "https://duku.design/r/button.json",
+        "https://duku.design/r/badge.json",
+        "https://duku.design/r/number-flow.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/blocks/pricing-card.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "newsletter-input",
+      "type": "registry:block",
+      "title": "Newsletter Input",
+      "description": "Single-line capture that morphs into a success pill.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://duku.design/r/button.json",
+        "https://duku.design/r/field-message.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/blocks/newsletter-input.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    }
+  ]
+}
