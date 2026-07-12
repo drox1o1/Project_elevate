@@ -1,6 +1,9 @@
-// Generates registry.json from the component table below.
+// Generates registry.json from the component table below, plus a
+// file-contents map so the /r/[name] route never touches the filesystem
+// at request time (required for edge/Workers runtimes with no disk access).
 // Run: node scripts/gen-registry.mjs
-import { writeFileSync } from "node:fs";
+import { writeFileSync, readFileSync, mkdirSync } from "node:fs";
+import { dirname } from "node:path";
 
 const HOME = "https://duku.design";
 
@@ -130,3 +133,18 @@ const registry = {
 
 writeFileSync("registry.json", JSON.stringify(registry, null, 2) + "\n");
 console.log(`registry.json written with ${registry.items.length} items`);
+
+// Inline every referenced file's contents at build time. The route handler
+// imports this bundled map instead of reading disk per-request.
+const uniquePaths = new Set();
+for (const item of registry.items) {
+  for (const file of item.files) uniquePaths.add(file.path);
+}
+const fileContents = {};
+for (const p of uniquePaths) {
+  fileContents[p] = readFileSync(p, "utf8");
+}
+const outPath = "registry/generated/file-contents.json";
+mkdirSync(dirname(outPath), { recursive: true });
+writeFileSync(outPath, JSON.stringify(fileContents, null, 2) + "\n");
+console.log(`${outPath} written with ${uniquePaths.size} files`);

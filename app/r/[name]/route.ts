@@ -1,7 +1,6 @@
-import { readFile } from "node:fs/promises";
-import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
 import registry from "@/registry.json";
+import fileContents from "@/registry/generated/file-contents.json";
 
 /** Items served without a license key. */
 const FREE_ITEMS = new Set(["kinetic-heading", "magnetic-button", "button"]);
@@ -38,6 +37,8 @@ function isAuthorized(req: NextRequest): boolean {
     .includes(token);
 }
 
+const CONTENTS: Record<string, string> = fileContents;
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ name: string }> }
@@ -65,14 +66,14 @@ export async function GET(
     );
   }
 
-  // Inline file contents into the registry-item payload.
-  const files = await Promise.all(
-    item.files.map(async (file) => ({
-      path: file.path,
-      type: file.type,
-      content: await readFile(path.join(process.cwd(), file.path), "utf8"),
-    }))
-  );
+  // File contents are inlined at build time (registry/generated/file-contents.json)
+  // so this handler never touches the filesystem — required for edge/Workers
+  // runtimes (e.g. Cloudflare) that have no disk access at request time.
+  const files = item.files.map((file) => ({
+    path: file.path,
+    type: file.type,
+    content: CONTENTS[file.path] ?? "",
+  }));
 
   return NextResponse.json(
     {
