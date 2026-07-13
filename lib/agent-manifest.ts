@@ -47,6 +47,7 @@ const CATEGORY_BY_PHASE: Record<string, string> = {
   "Blocks": "blocks",
   "Signature workflows": "signature-workflows",
   "Healthcare": "healthcare",
+  "Enterprise & data": "enterprise-data",
 };
 
 /** PRD component levels: 1 primitives, 2 advanced components, 3 product blocks. */
@@ -60,6 +61,7 @@ const LEVEL_BY_CATEGORY: Record<string, 1 | 2 | 3> = {
   "blocks": 3,
   "signature-workflows": 3,
   "healthcare": 2,
+  "enterprise-data": 2,
 };
 
 /** Guarantees every published DUKU Labs component ships with. */

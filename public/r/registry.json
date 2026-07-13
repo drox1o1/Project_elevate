@@ -1389,6 +1389,169 @@
       }
     },
     {
+      "name": "order-ticket",
+      "type": "registry:ui",
+      "title": "Order Ticket",
+      "description": "Advanced order ticket: buy/sell recolors the ticket, margin and charges roll live, over-margin blocks, partial-fill progress.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/button.json",
+        "https://labs.duku.design/r/number-flow.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/fintech/order-ticket.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "strategy-builder",
+      "type": "registry:ui",
+      "title": "Strategy Builder",
+      "description": "Options strategy builder: payoff curve morphs between structures, breakevens marked, Greeks totalled, expiry-spot scrubber.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/number-flow.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/fintech/strategy-builder.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/black-scholes.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "bank-linking",
+      "type": "registry:block",
+      "title": "Bank Linking",
+      "description": "Account-aggregator linking: bank grid, explicit consent review, OTP verification, account selection, connection-health card.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/button.json",
+        "https://labs.duku.design/r/badge.json",
+        "https://labs.duku.design/r/otp-input.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/fintech/bank-linking.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "expense-feed",
+      "type": "registry:ui",
+      "title": "Expense Feed",
+      "description": "Expense intelligence: categorised merchants, subscription counting, unusual-charge flags, refund linking, cascading filters.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/badge.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/fintech/expense-feed.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "reconciliation",
+      "type": "registry:block",
+      "title": "Reconciliation",
+      "description": "Two-sided match workspace: confidence-scored ledger↔statement pairs, rupee-level differences, accept/reject, bulk accept, matched meter.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/button.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/enterprise/reconciliation.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "audit-log",
+      "type": "registry:ui",
+      "title": "Audit Log",
+      "description": "Tamper-evident audit trail: action chips, expandable before→after diffs, device metadata, hash-chain integrity badge.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/badge.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/enterprise/audit-log.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
       "name": "signup-card",
       "type": "registry:block",
       "title": "Signup Card",

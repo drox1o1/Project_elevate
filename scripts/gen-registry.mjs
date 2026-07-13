@@ -137,6 +137,13 @@ const items = [
   ["medication-timeline", "Medication Timeline", "A month of medication: growing course bars, adherence dot cascade, refill flags and interaction notes.", "health", "registry:ui", GSAP, ["badge"], ["rm"]],
   ["clinical-risk", "Clinical Risk", "Risk gauge that sweeps to its score with protective/adverse factor bars and clinician-review framing.", "health", "registry:ui", GSAP, ["button"], ["rm"]],
   ["vitals-monitor", "Vitals Monitor", "Live patient card: continuously drawing ECG trace, rolling heart rate, and a pulsing tachycardia alarm state.", "health", "registry:ui", GSAP, ["number-flow"], ["rm"]],
+  // ---- Phase 10: markets, payments & enterprise, batch 3
+  ["order-ticket", "Order Ticket", "Advanced order ticket: buy/sell recolors the ticket, margin and charges roll live, over-margin blocks, partial-fill progress.", "fintech", "registry:ui", GSAP, ["button", "number-flow"], ["rm"]],
+  ["strategy-builder", "Strategy Builder", "Options strategy builder: payoff curve morphs between structures, breakevens marked, Greeks totalled, expiry-spot scrubber.", "fintech", "registry:ui", GSAP, ["number-flow"], ["rm", "bs"]],
+  ["bank-linking", "Bank Linking", "Account-aggregator linking: bank grid, explicit consent review, OTP verification, account selection, connection-health card.", "fintech", "registry:block", GSAP, ["button", "badge", "otp-input"], ["rm"]],
+  ["expense-feed", "Expense Feed", "Expense intelligence: categorised merchants, subscription counting, unusual-charge flags, refund linking, cascading filters.", "fintech", "registry:ui", GSAP, ["badge"], ["rm"]],
+  ["reconciliation", "Reconciliation", "Two-sided match workspace: confidence-scored ledger↔statement pairs, rupee-level differences, accept/reject, bulk accept, matched meter.", "enterprise", "registry:block", GSAP, ["button"], ["rm"]],
+  ["audit-log", "Audit Log", "Tamper-evident audit trail: action chips, expandable before→after diffs, device metadata, hash-chain integrity badge.", "enterprise", "registry:ui", GSAP, ["badge"], ["rm"]],
   // ---- Phase 7: blocks
   ["signup-card", "Signup Card", "The flagship block: full validation, strength meter, success morph.", "blocks", "registry:block", GSAP, ["button", "input", "field", "field-message", "checkbox", "alert"], ["rm"], KF.fadeIn],
   ["login-card", "Login Card", "Signup reduced: email + password with the same choreography.", "blocks", "registry:block", GSAP, ["button", "input", "field", "field-message", "checkbox", "alert"], ["rm"]],

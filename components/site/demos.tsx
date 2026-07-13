@@ -107,6 +107,12 @@ import {
   DEMO_CARDIO_RISK,
 } from "@/registry/default/health/clinical-risk";
 import { VitalsMonitor } from "@/registry/default/health/vitals-monitor";
+import { OrderTicket } from "@/registry/default/fintech/order-ticket";
+import { StrategyBuilder } from "@/registry/default/fintech/strategy-builder";
+import { BankLinking } from "@/registry/default/fintech/bank-linking";
+import { ExpenseFeed } from "@/registry/default/fintech/expense-feed";
+import { Reconciliation } from "@/registry/default/enterprise/reconciliation";
+import { AuditLog } from "@/registry/default/enterprise/audit-log";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -1257,7 +1263,68 @@ function VitalsMonitorDemo() {
   );
 }
 
+function OrderTicketDemo() {
+  return (
+    <OrderTicket
+      symbol="NIFTY 24800 CE"
+      lastPrice={147.35}
+      bestBid={147.1}
+      bestAsk={147.6}
+      availableMargin={25_000}
+      onPlaced={(o) =>
+        toast({
+          title: `${o.side === "buy" ? "Bought" : "Sold"} ${o.qty} @ ${o.price ?? "market"}`,
+          variant: "success",
+        })
+      }
+    />
+  );
+}
+
+function StrategyBuilderDemo() {
+  return <StrategyBuilder spot={24_812} className="max-w-full" />;
+}
+
+function BankLinkingDemo() {
+  return (
+    <BankLinking
+      onLinked={(d) =>
+        toast({
+          title: "Bank linked",
+          description: `${d.accountIds.length} account(s) via ${d.bank}`,
+          variant: "success",
+        })
+      }
+    />
+  );
+}
+
+function ExpenseFeedDemo() {
+  return <ExpenseFeed className="max-w-full" />;
+}
+
+function ReconciliationDemo() {
+  return <Reconciliation className="max-w-full" />;
+}
+
+function AuditLogDemo() {
+  return (
+    <AuditLog
+      className="max-w-full"
+      onExport={(v) =>
+        toast({ title: `Exported ${v.length} events`, variant: "success" })
+      }
+    />
+  );
+}
+
 export const DEMOS: Record<string, React.ComponentType> = {
+  "order-ticket": OrderTicketDemo,
+  "strategy-builder": StrategyBuilderDemo,
+  "bank-linking": BankLinkingDemo,
+  "expense-feed": ExpenseFeedDemo,
+  "reconciliation": ReconciliationDemo,
+  "audit-log": AuditLogDemo,
   "market-depth": MarketDepthDemo,
   "sip-simulator": SipSimulatorDemo,
   "payment-status": PaymentStatusDemo,

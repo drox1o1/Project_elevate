@@ -18,12 +18,13 @@ Codex and other MCP-compatible coding agents. Formerly DUKU UI.
 
 ## Catalog
 
-56 components across 9 phases:
+62 components across 10 phases:
 
 | Phase | Components |
 | --- | --- |
 | 8 · Signature workflows | kyc-flow, option-chain, greeks-panel, crypto-swap, agent-canvas, portfolio-risk, biomarker-trend |
 | 9 · Healthcare | medication-timeline, clinical-risk, vitals-monitor |
+| 10 · Enterprise & data | reconciliation, audit-log |
 | 1 · Primitives | button, input, textarea, field, checkbox, switch, select, radio-group, badge, avatar, spinner, skeleton |
 | 2 · Feedback | field-message, alert, toast, progress, kbd + copy-button |
 | 3 · Overlays & nav | dialog, drawer, dropdown-menu, slide-tabs, navbar, reveal-accordion |
