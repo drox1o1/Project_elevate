@@ -29,6 +29,7 @@ const P5 = "AI / agent";
 const P6 = "Motion showpieces";
 const P7 = "Blocks";
 const P8 = "Signature workflows";
+const P9 = "Healthcare";
 
 export const DOCS: DocEntry[] = [
   {
@@ -838,10 +839,119 @@ export const DOCS: DocEntry[] = [
       { prop: "altUnit", type: "{ unit, factor }", description: "Secondary unit toggle." },
     ],
   },
+  {
+    slug: "market-depth",
+    title: "Market Depth",
+    description:
+      "Live bid/ask ladder: quantity bars breathe to each update, the spread sits in the middle, buyer/seller balance re-weights and last price flashes directionally.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/market-depth.tsx",
+    interactions: [
+      { action: "Watch the feed", result: "Level bars tween to new quantities (0.45s power2.out); last price flashes market-up/down for 600ms" },
+      { action: "Click a level", result: "onLevelSelect fires with side and level — prefill an order ticket" },
+      { action: "Watch the balance bar", result: "Buyer/seller share of visible depth re-weights over 0.5s" },
+    ],
+    props: [
+      { prop: "symbol / lastPrice", type: "string / number", description: "Instrument and last traded price." },
+      { prop: "bids / asks", type: "DepthLevel[]", description: "Best-first ladders; generateDepth(mid) ships for demos." },
+      { prop: "atp", type: "number", description: "Average traded price shown in the spread row." },
+      { prop: "onLevelSelect", type: '(side, level) => void', description: "Level click callback." },
+    ],
+  },
+  {
+    slug: "sip-simulator",
+    title: "SIP Simulator",
+    description:
+      "SIP goal simulator: four sliders drive a compounding projection whose area chart morphs, corpus rolls via NumberFlow and invested/growth split re-balances live.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/sip-simulator.tsx",
+    interactions: [
+      { action: "Drag any slider", result: "The growth area morphs to the new curve (path tween), the corpus rolls, the split bar re-weights" },
+      { action: "Set a goal", result: "A dashed goal line appears; copy reports the year it's reached or that it isn't" },
+      { action: "Raise step-up", result: "Later years fatten visibly — the point of step-up SIPs, made spatial" },
+    ],
+    props: [
+      { prop: "defaults", type: "Partial<SipInputs>", description: "monthly, years, returnPct, stepUpPct, inflationPct." },
+      { prop: "goal", type: "number", description: "Target corpus marked on the chart." },
+    ],
+  },
+  {
+    slug: "payment-status",
+    title: "Payment Status",
+    description:
+      "One payment's whole lifecycle: initiated → authorised → captured → settled with check-draws, a failure state with decline reason, and a refund branch.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/payment-status.tsx",
+    interactions: [
+      { action: "Play the success scenario", result: "Stages light in sequence — spinner on the active stage, check-draw on completion, rail fills green" },
+      { action: "Play the failed scenario", result: "Capture stops the rail in red with the issuer decline code and what happens to the hold" },
+      { action: "Play the refunded scenario", result: "After settlement a refund branch plays in info-blue" },
+    ],
+    props: [
+      { prop: "amount / reference / method", type: "number / string / string", description: "Payment identity." },
+      { prop: "scenario", type: '"success" | "failed" | "refunded"', defaultValue: '"success"', description: "Which lifecycle to play." },
+      { prop: "playKey", type: "React.Key", description: "Change to replay the timeline." },
+      { prop: "onSettled", type: "(scenario) => void", description: "Fires when the timeline finishes." },
+    ],
+  },
+  {
+    slug: "medication-timeline",
+    title: "Medication Timeline",
+    description:
+      "A month of medication at a glance: course bars grow in, adherence dots cascade (missed doses in amber), refill flags pulse and interactions annotate the rows they concern.",
+    phase: P9,
+    sourceFile: "registry/default/health/medication-timeline.tsx",
+    interactions: [
+      { action: "Mount", result: "Course bars scale in from the left (staggered), then dose dots pop in with a back-out cascade" },
+      { action: "Select a medication", result: "Row expands with adherence stats and missed-dose guidance" },
+      { action: "Check Atorvastatin", result: "A pulsing refill badge warns 4 days before the course runs out" },
+    ],
+    props: [
+      { prop: "medications", type: "Medication[]", description: "Name, dose, schedule window, per-day adherence. DEMO_MEDICATIONS ships." },
+      { prop: "interactions", type: "MedicationInteraction[]", description: "Pairwise notes rendered under the chart." },
+      { prop: "windowDays / today", type: "number / number", defaultValue: "28 / 20", description: "Visible window and the today marker." },
+    ],
+  },
+  {
+    slug: "clinical-risk",
+    title: "Clinical Risk",
+    description:
+      "Clinician-review risk summary: the gauge arc sweeps to the score while the number counts up, factor bars grow protective-left/adverse-right, missing data widens stated uncertainty.",
+    phase: P9,
+    sourceFile: "registry/default/health/clinical-risk.tsx",
+    interactions: [
+      { action: "Mount", result: "Arc sweeps to the score over 1.1s in the risk-band color while the score counts up; factor bars stagger in from the center" },
+      { action: "Read the copy", result: "Explicitly decision-support: missing data, modifiable factors, escalation to clinician review" },
+    ],
+    props: [
+      { prop: "title / score", type: "string / number", description: "0–100; bands map to risk-low/medium/high tokens. DEMO_CARDIO_RISK ships." },
+      { prop: "factors", type: "RiskFactor[]", description: "label, weight (−1..1, positive = adverse), detail." },
+      { prop: "missingData / recommendation", type: "string[] / string", description: "Uncertainty note and next step." },
+      { prop: "onEscalate", type: "() => void", description: "Send-to-clinician action." },
+    ],
+  },
+  {
+    slug: "vitals-monitor",
+    title: "Vitals Monitor",
+    description:
+      "Live patient vitals: a continuously drawing synthetic ECG trace, heart rate rolling via NumberFlow, and a whole-card pulsing alarm when a vital leaves range.",
+    phase: P9,
+    sourceFile: "registry/default/health/vitals-monitor.tsx",
+    interactions: [
+      { action: "Watch the strip", result: "P-QRS-T beats stream across the grid at the current heart rate (rAF writes the path directly — no re-renders)" },
+      { action: "Trigger the alarm", result: "HR climbs, its tile and the trace turn risk-red, the card border pulses, role=alert announces tachycardia" },
+      { action: "Enable reduced motion", result: "A static two-beat strip replaces the animation; values still update" },
+    ],
+    props: [
+      { prop: "patient / heartRate / spo2 / systolic / diastolic / temperature", type: "…", description: "The vitals set." },
+      { prop: "alarm", type: "boolean", defaultValue: "false", description: "Simulate tachycardia: HR climbs past the threshold." },
+      { prop: "hrAlarmAt", type: "number", defaultValue: "110", description: "Alarm threshold." },
+    ],
+  },
 ];
 
 export function getDoc(slug: string): DocEntry | undefined {
   return DOCS.find((d) => d.slug === slug);
 }
 
-export const PHASES = [P8, P1, P2, P3, P4, P5, P6, P7];
+export const PHASES = [P8, P1, P2, P3, P4, P9, P5, P6, P7];

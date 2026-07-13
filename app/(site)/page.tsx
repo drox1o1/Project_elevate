@@ -10,7 +10,7 @@ import { ScrollFade } from "@/components/site/scroll-fade";
 import { DOCS, PHASES, getDoc } from "@/lib/docs-data";
 
 const AGENT_ACCESS = [
-  ["Component metadata", "Name, category, tier and use cases for all 50 components"],
+  ["Component metadata", `Name, category, tier and use cases for all ${DOCS.length} components`],
   ["Component source", "The actual TypeScript, not a screenshot of it"],
   ["Props & variants", "Typed API contracts with defaults and descriptions"],
   ["Dependencies", "npm packages and registry dependencies, resolved"],
@@ -27,8 +27,8 @@ const CATEGORIES = [
   { title: "Markets & investing", detail: "NIFTY option chain with live Greeks, a Greeks panel and a portfolio risk cockpit.", status: "available" },
   { title: "Crypto & payments", detail: "USDT→ETH swap with routes, slippage, approval flow and on-chain confirmation.", status: "available" },
   { title: "AI & agent interfaces", detail: "Agent execution canvas with approval gates, streaming responses, chat, prompt composers.", status: "available" },
-  { title: "Healthcare", detail: "Biomarker trend explorer with reference ranges, baselines and medication events.", status: "available" },
-  { title: "Fintech & data", detail: "Amount inputs with lakh/crore grouping, odometer values, sparklines, OTP, transactions.", status: "available" },
+  { title: "Healthcare", detail: "Biomarker trends, medication adherence timelines, clinical risk gauges, live vitals.", status: "available" },
+  { title: "Fintech & data", detail: "Market depth ladders, SIP simulation, payment timelines, amount inputs, odometer values.", status: "available" },
   { title: "Motion systems", detail: "Kinetic headings, magnetic CTAs, marquees, scroll reveals — engineered, not decorated.", status: "available" },
   { title: "Onboarding & activation", detail: "Signup, login, pricing and capture blocks with complete submit choreography.", status: "available" },
   { title: "Data-heavy enterprise", detail: "Investigation timelines, reconciliation, audit-log explorers.", status: "roadmap" },
@@ -283,8 +283,8 @@ export default function HomePage() {
               The catalog
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
-              50 components across 8 phases — signature workflows first,
-              primitives underneath.
+              {DOCS.length} components across {PHASES.length} phases —
+              signature workflows first, primitives underneath.
             </p>
           </ScrollFade>
           <div className="mt-10 flex flex-col gap-12">

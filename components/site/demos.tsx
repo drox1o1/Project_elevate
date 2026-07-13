@@ -88,6 +88,25 @@ import {
   BiomarkerTrend,
   DEMO_LDL,
 } from "@/registry/default/health/biomarker-trend";
+import {
+  MarketDepth,
+  generateDepth,
+} from "@/registry/default/fintech/market-depth";
+import { SipSimulator } from "@/registry/default/fintech/sip-simulator";
+import {
+  PaymentStatus,
+  type PaymentScenario,
+} from "@/registry/default/fintech/payment-status";
+import {
+  MedicationTimeline,
+  DEMO_MEDICATIONS,
+  DEMO_INTERACTIONS,
+} from "@/registry/default/health/medication-timeline";
+import {
+  ClinicalRisk,
+  DEMO_CARDIO_RISK,
+} from "@/registry/default/health/clinical-risk";
+import { VitalsMonitor } from "@/registry/default/health/vitals-monitor";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -931,7 +950,7 @@ function PricingCardDemo() {
       monthlyPrice={49}
       yearlyPrice={470}
       features={[
-        "All 50 components",
+        "Every component in the catalog",
         "Registry access + updates",
         "Unlimited projects",
         "Priority support",
@@ -1137,7 +1156,114 @@ function BiomarkerTrendDemo() {
   return <BiomarkerTrend {...DEMO_LDL} className="max-w-full" />;
 }
 
+function MarketDepthDemo() {
+  const reduced = useReducedMotion();
+  const [mid, setMid] = React.useState(1543.4);
+  React.useEffect(() => {
+    if (reduced) return;
+    const id = setInterval(
+      () => setMid((m) => +(m + (Math.random() - 0.5) * 0.6).toFixed(2)),
+      1400
+    );
+    return () => clearInterval(id);
+  }, [reduced]);
+  const { bids, asks } = React.useMemo(() => generateDepth(mid), [mid]);
+  return (
+    <MarketDepth
+      symbol="HDFCBANK"
+      bids={bids}
+      asks={asks}
+      lastPrice={mid}
+      atp={1542.1}
+      onLevelSelect={(side, level) =>
+        toast({
+          title: `${side === "bid" ? "Sell to bid" : "Buy from ask"} @ ₹${level.price.toFixed(2)}`,
+          description: `${level.qty} qty across ${level.orders} orders`,
+        })
+      }
+    />
+  );
+}
+
+function SipSimulatorDemo() {
+  return <SipSimulator goal={20_000_000} className="max-w-full" />;
+}
+
+function PaymentStatusDemo() {
+  const [scenario, setScenario] = React.useState<PaymentScenario>("success");
+  const [play, setPlay] = React.useState(0);
+  return (
+    <div className="flex w-full flex-col items-center gap-4">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        {(["success", "failed", "refunded"] as const).map((s) => (
+          <button
+            key={s}
+            type="button"
+            aria-pressed={scenario === s}
+            onClick={() => {
+              setScenario(s);
+              setPlay((p) => p + 1);
+            }}
+            className={
+              scenario === s
+                ? "rounded-md bg-primary px-2 py-1 font-medium capitalize text-primary-foreground"
+                : "rounded-md bg-muted px-2 py-1 font-medium capitalize hover:text-foreground"
+            }
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+      <PaymentStatus
+        amount={2499}
+        reference="pay_Nk8Yw2 · Order #8412"
+        scenario={scenario}
+        playKey={play}
+      />
+    </div>
+  );
+}
+
+function MedicationTimelineDemo() {
+  return (
+    <MedicationTimeline
+      medications={DEMO_MEDICATIONS}
+      interactions={DEMO_INTERACTIONS}
+      className="max-w-full"
+    />
+  );
+}
+
+function ClinicalRiskDemo() {
+  return (
+    <ClinicalRisk
+      {...DEMO_CARDIO_RISK}
+      onEscalate={() =>
+        toast({ title: "Sent for clinician review", variant: "success" })
+      }
+    />
+  );
+}
+
+function VitalsMonitorDemo() {
+  const [alarm, setAlarm] = React.useState(false);
+  return (
+    <div className="flex w-full flex-col items-center gap-4">
+      <VitalsMonitor alarm={alarm} />
+      <Button size="sm" variant="outline" onClick={() => setAlarm((a) => !a)}>
+        {alarm ? "Resolve alarm" : "Simulate tachycardia"}
+      </Button>
+    </div>
+  );
+}
+
 export const DEMOS: Record<string, React.ComponentType> = {
+  "market-depth": MarketDepthDemo,
+  "sip-simulator": SipSimulatorDemo,
+  "payment-status": PaymentStatusDemo,
+  "medication-timeline": MedicationTimelineDemo,
+  "clinical-risk": ClinicalRiskDemo,
+  "vitals-monitor": VitalsMonitorDemo,
   "option-chain": OptionChainDemo,
   "greeks-panel": GreeksPanelDemo,
   "kyc-flow": KycFlowDemo,

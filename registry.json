@@ -1235,6 +1235,160 @@
       }
     },
     {
+      "name": "market-depth",
+      "type": "registry:ui",
+      "title": "Market Depth",
+      "description": "Live bid/ask ladder with breathing quantity bars, buyer/seller balance, spread and level selection.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/fintech/market-depth.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "sip-simulator",
+      "type": "registry:ui",
+      "title": "SIP Simulator",
+      "description": "SIP goal simulator: sliders morph the growth projection, corpus rolls, invested/growth split re-balances.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/number-flow.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/fintech/sip-simulator.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "payment-status",
+      "type": "registry:ui",
+      "title": "Payment Status",
+      "description": "Payment orchestration timeline: initiated→authorised→captured→settled, with failure and refund branches.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/spinner.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/fintech/payment-status.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "medication-timeline",
+      "type": "registry:ui",
+      "title": "Medication Timeline",
+      "description": "A month of medication: growing course bars, adherence dot cascade, refill flags and interaction notes.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/badge.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/health/medication-timeline.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "clinical-risk",
+      "type": "registry:ui",
+      "title": "Clinical Risk",
+      "description": "Risk gauge that sweeps to its score with protective/adverse factor bars and clinician-review framing.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/button.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/health/clinical-risk.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "vitals-monitor",
+      "type": "registry:ui",
+      "title": "Vitals Monitor",
+      "description": "Live patient card: continuously drawing ECG trace, rolling heart rate, and a pulsing tachycardia alarm state.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/number-flow.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/health/vitals-monitor.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
       "name": "signup-card",
       "type": "registry:block",
       "title": "Signup Card",
