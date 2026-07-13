@@ -45,7 +45,7 @@ const TIERS: Tier[] = [
     priceNote: "one-time",
     altPrice: "or $19/month",
     features: [
-      "All 50 components, source included",
+      "Every component in the catalog, source included",
       "Advanced workflows as they release",
       "All themes",
       "MCP implementation tools",

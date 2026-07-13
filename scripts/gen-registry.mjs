@@ -130,6 +130,13 @@ const items = [
   ["agent-canvas", "Agent Canvas", "Agent execution timeline: plan, live tool calls, human approval gate, error with retry, final artifact.", "ai", "registry:block", GSAP, ["button", "spinner"], ["rm"]],
   ["portfolio-risk", "Portfolio Risk", "Risk cockpit: value, P&L, beta and VaR tiles, sector exposure bars, concentration alerts, scenario shocks with hedge idea.", "fintech", "registry:block", GSAP, ["number-flow", "alert"], ["rm"]],
   ["biomarker-trend", "Biomarker Trend", "Lab-value trend explorer: reference band, personal baseline, abnormal points, medication events, unit conversion.", "health", "registry:ui", GSAP, [], ["rm"]],
+  // ---- Phase 9: fintech & healthcare, batch 2
+  ["market-depth", "Market Depth", "Live bid/ask ladder with breathing quantity bars, buyer/seller balance, spread and level selection.", "fintech", "registry:ui", GSAP, [], ["rm"]],
+  ["sip-simulator", "SIP Simulator", "SIP goal simulator: sliders morph the growth projection, corpus rolls, invested/growth split re-balances.", "fintech", "registry:ui", GSAP, ["number-flow"], ["rm"]],
+  ["payment-status", "Payment Status", "Payment orchestration timeline: initiated→authorised→captured→settled, with failure and refund branches.", "fintech", "registry:ui", GSAP, ["spinner"], ["rm"]],
+  ["medication-timeline", "Medication Timeline", "A month of medication: growing course bars, adherence dot cascade, refill flags and interaction notes.", "health", "registry:ui", GSAP, ["badge"], ["rm"]],
+  ["clinical-risk", "Clinical Risk", "Risk gauge that sweeps to its score with protective/adverse factor bars and clinician-review framing.", "health", "registry:ui", GSAP, ["button"], ["rm"]],
+  ["vitals-monitor", "Vitals Monitor", "Live patient card: continuously drawing ECG trace, rolling heart rate, and a pulsing tachycardia alarm state.", "health", "registry:ui", GSAP, ["number-flow"], ["rm"]],
   // ---- Phase 7: blocks
   ["signup-card", "Signup Card", "The flagship block: full validation, strength meter, success morph.", "blocks", "registry:block", GSAP, ["button", "input", "field", "field-message", "checkbox", "alert"], ["rm"], KF.fadeIn],
   ["login-card", "Login Card", "Signup reduced: email + password with the same choreography.", "blocks", "registry:block", GSAP, ["button", "input", "field", "field-message", "checkbox", "alert"], ["rm"]],

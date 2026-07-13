@@ -18,11 +18,12 @@ Codex and other MCP-compatible coding agents. Formerly DUKU UI.
 
 ## Catalog
 
-50 components across 8 phases:
+56 components across 9 phases:
 
 | Phase | Components |
 | --- | --- |
 | 8 · Signature workflows | kyc-flow, option-chain, greeks-panel, crypto-swap, agent-canvas, portfolio-risk, biomarker-trend |
+| 9 · Healthcare | medication-timeline, clinical-risk, vitals-monitor |
 | 1 · Primitives | button, input, textarea, field, checkbox, switch, select, radio-group, badge, avatar, spinner, skeleton |
 | 2 · Feedback | field-message, alert, toast, progress, kbd + copy-button |
 | 3 · Overlays & nav | dialog, drawer, dropdown-menu, slide-tabs, navbar, reveal-accordion |
@@ -65,7 +66,7 @@ as `Authorization: Bearer` unlocks Pro source when `DUKU_LICENSE_KEYS` is set.
 ```bash
 npm install
 npm run dev            # docs/showcase site on :3000
-npm run build          # production build (all 50 doc pages)
+npm run build          # production build (one doc page per component)
 npm run registry:gen   # regenerate registry.json, file contents + public/r
 ```
 
