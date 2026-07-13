@@ -18,18 +18,18 @@ Codex and other MCP-compatible coding agents. Formerly DUKU UI.
 
 ## Catalog
 
-62 components across 10 phases:
+69 components across 10 phases:
 
 | Phase | Components |
 | --- | --- |
 | 8 · Signature workflows | kyc-flow, option-chain, greeks-panel, crypto-swap, agent-canvas, portfolio-risk, biomarker-trend |
 | 9 · Healthcare | medication-timeline, clinical-risk, vitals-monitor |
-| 10 · Enterprise & data | reconciliation, audit-log |
+| 10 · Enterprise & data | reconciliation, audit-log, investigation-timeline, entity-graph |
 | 1 · Primitives | button, input, textarea, field, checkbox, switch, select, radio-group, badge, avatar, spinner, skeleton |
 | 2 · Feedback | field-message, alert, toast, progress, kbd + copy-button |
 | 3 · Overlays & nav | dialog, drawer, dropdown-menu, slide-tabs, navbar, reveal-accordion |
-| 4 · Fintech & data | stat-counter, number-flow, amount-input, sparkline-card, otp-input, transaction-list |
-| 5 · AI / agent | stream-text, thinking-indicator, chat-message, ai-prompt-input, skills-card |
+| 4 · Fintech & data | stat-counter, number-flow, amount-input, sparkline-card, otp-input, transaction-list, market-depth, sip-simulator, payment-status, order-ticket, strategy-builder, bank-linking, expense-feed, fund-compare, loan-eligibility |
+| 5 · AI / agent | stream-text, thinking-indicator, chat-message, ai-prompt-input, skills-card, tool-call-inspector, approval-gate, grounded-answer |
 | 6 · Motion showpieces | kinetic-heading, magnetic-button, marquee, text-roll-link, scroll-reveal-grid |
 | 7 · Blocks | signup-card, login-card, pricing-card, newsletter-input |
 
