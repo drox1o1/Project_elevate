@@ -66,7 +66,7 @@ const TOOLS = [
 ] as const;
 
 const RESOURCES = [
-  ["duku://components", "Index of all 43 components"],
+  ["duku://components", "Index of all 50 components"],
   ["duku://components/{name}", "Per-component schema and source"],
   ["duku://tokens/default", "Foundation, semantic, domain and motion tokens"],
   ["duku://docs/quality-standard", "What every published component guarantees"],

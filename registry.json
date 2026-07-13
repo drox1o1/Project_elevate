@@ -1031,6 +1031,210 @@
       }
     },
     {
+      "name": "option-chain",
+      "type": "registry:ui",
+      "title": "Option Chain",
+      "description": "NIFTY-style option chain: Greeks toggle, ATM highlighting, OI bars, tick flashes and in-context depth with orders.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/fintech/option-chain.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/black-scholes.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "greeks-panel",
+      "type": "registry:ui",
+      "title": "Greeks Panel",
+      "description": "Live Black-Scholes Greeks for one option with rolling values and springing magnitude gauges.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/number-flow.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/fintech/greeks-panel.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/black-scholes.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "kyc-flow",
+      "type": "registry:block",
+      "title": "KYC Flow",
+      "description": "Adaptive identity-verification journey: PAN, document capture, liveness, review, approved and manual-review outcomes.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/button.json",
+        "https://labs.duku.design/r/input.json",
+        "https://labs.duku.design/r/field.json",
+        "https://labs.duku.design/r/field-message.json",
+        "https://labs.duku.design/r/alert.json",
+        "https://labs.duku.design/r/badge.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/workflows/kyc-flow.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "css": {
+        "@keyframes duku-shimmer": {
+          "from": {
+            "transform": "translateX(-100%)"
+          },
+          "to": {
+            "transform": "translateX(100%)"
+          }
+        }
+      },
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "crypto-swap",
+      "type": "registry:block",
+      "title": "Crypto Swap",
+      "description": "USDT→ETH swap: token flip, slippage, route hops, fee breakdown, approval then swap, on-chain confirmation timeline.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/button.json",
+        "https://labs.duku.design/r/spinner.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/crypto/crypto-swap.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "agent-canvas",
+      "type": "registry:block",
+      "title": "Agent Canvas",
+      "description": "Agent execution timeline: plan, live tool calls, human approval gate, error with retry, final artifact.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/button.json",
+        "https://labs.duku.design/r/spinner.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/ai/agent-canvas.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "portfolio-risk",
+      "type": "registry:block",
+      "title": "Portfolio Risk",
+      "description": "Risk cockpit: value, P&L, beta and VaR tiles, sector exposure bars, concentration alerts, scenario shocks with hedge idea.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/number-flow.json",
+        "https://labs.duku.design/r/alert.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/fintech/portfolio-risk.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "biomarker-trend",
+      "type": "registry:ui",
+      "title": "Biomarker Trend",
+      "description": "Lab-value trend explorer: reference band, personal baseline, abnormal points, medication events, unit conversion.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/health/biomarker-trend.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
       "name": "signup-card",
       "type": "registry:block",
       "title": "Signup Card",

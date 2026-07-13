@@ -18,10 +18,11 @@ Codex and other MCP-compatible coding agents. Formerly DUKU UI.
 
 ## Catalog
 
-43 components across 7 phases:
+50 components across 8 phases:
 
 | Phase | Components |
 | --- | --- |
+| 8 · Signature workflows | kyc-flow, option-chain, greeks-panel, crypto-swap, agent-canvas, portfolio-risk, biomarker-trend |
 | 1 · Primitives | button, input, textarea, field, checkbox, switch, select, radio-group, badge, avatar, spinner, skeleton |
 | 2 · Feedback | field-message, alert, toast, progress, kbd + copy-button |
 | 3 · Overlays & nav | dialog, drawer, dropdown-menu, slide-tabs, navbar, reveal-accordion |
@@ -30,9 +31,10 @@ Codex and other MCP-compatible coding agents. Formerly DUKU UI.
 | 6 · Motion showpieces | kinetic-heading, magnetic-button, marquee, text-roll-link, scroll-reveal-grid |
 | 7 · Blocks | signup-card, login-card, pricing-card, newsletter-input |
 
-Signature domain workflows (KYC journey, token swap, option chain, agent
-execution canvas, portfolio risk, biomarker explorer) are on the roadmap and
-shown as such on the site — nothing is marketed as available before it exists.
+Phase 8 is the PRD's Phase 2 signature set: the adaptive KYC journey, NIFTY
+option chain (Black-Scholes Greeks via `registry/default/lib/black-scholes.ts`),
+Greeks panel, USDT→ETH swap, agent execution canvas, portfolio risk cockpit
+and biomarker trend explorer. Data in demos is simulated and labelled as such.
 
 ## MCP server
 
@@ -63,7 +65,7 @@ as `Authorization: Bearer` unlocks Pro source when `DUKU_LICENSE_KEYS` is set.
 ```bash
 npm install
 npm run dev            # docs/showcase site on :3000
-npm run build          # production build (all 43 doc pages)
+npm run build          # production build (all 50 doc pages)
 npm run registry:gen   # regenerate registry.json, file contents + public/r
 ```
 
