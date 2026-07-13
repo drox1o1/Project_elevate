@@ -73,6 +73,18 @@ export function AmountInput({
   const reduced = useReducedMotion();
   React.useImperativeHandle(ref, () => inputRef.current as HTMLInputElement);
 
+  // Re-group the existing value when the format style switches (e.g. the
+  // user toggles US → EU → Indian). Without this the stored string keeps
+  // its old grouping until the next keystroke.
+  const prevFormat = React.useRef(numberFormat);
+  React.useEffect(() => {
+    if (prevFormat.current === numberFormat) return;
+    const raw = parseFormatted(value, prevFormat.current);
+    prevFormat.current = numberFormat;
+    if (raw !== "") setValue(formatAsYouType(raw, numberFormat));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [numberFormat]);
+
   // Restore the caret after React re-renders the formatted value.
   React.useLayoutEffect(() => {
     const input = inputRef.current;
