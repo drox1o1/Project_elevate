@@ -30,6 +30,7 @@ const P6 = "Motion showpieces";
 const P7 = "Blocks";
 const P8 = "Signature workflows";
 const P9 = "Healthcare";
+const P10 = "Enterprise & data";
 
 export const DOCS: DocEntry[] = [
   {
@@ -948,10 +949,120 @@ export const DOCS: DocEntry[] = [
       { prop: "hrAlarmAt", type: "number", defaultValue: "110", description: "Alarm threshold." },
     ],
   },
+  {
+    slug: "order-ticket",
+    title: "Order Ticket",
+    description:
+      "Advanced order ticket: buy/sell recolors the whole ticket, order types reveal only the fields they need, margin and charges roll live, over-margin blocks, and placement plays a partial fill.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/order-ticket.tsx",
+    interactions: [
+      { action: "Toggle buy/sell", result: "Border, action button and margin bar recolor market-up/market-down" },
+      { action: "Switch to stop-limit", result: "Trigger and price fields appear; market disables and pins price to best bid/ask" },
+      { action: "Crank lots past the margin", result: "Margin bar turns destructive, review is blocked with the reason" },
+      { action: "Confirm the order", result: "Placing → 40% partial fill → complete, with a live fill progress bar" },
+    ],
+    props: [
+      { prop: "symbol / lastPrice / bestBid / bestAsk", type: "string / number ×3", description: "The instrument and its quote." },
+      { prop: "availableMargin / marginFactor", type: "number / number", defaultValue: "250000 / 0.14", description: "Drives the risk-blocked state." },
+      { prop: "lotSize", type: "number", defaultValue: "75", description: "Units per lot." },
+      { prop: "onPlaced", type: "(order: PlacedOrder) => void", description: "After the fill completes." },
+    ],
+  },
+  {
+    slug: "strategy-builder",
+    title: "Strategy Builder",
+    description:
+      "Options strategy builder: pick long call, spread, straddle, strangle or iron condor and the payoff curve morphs to it, with breakevens, max P&L, net Greeks and an expiry-spot scrubber.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/strategy-builder.tsx",
+    interactions: [
+      { action: "Switch strategy", result: "The payoff path and profit/loss regions morph over 0.55s (power3.inOut) — no redraw snap" },
+      { action: "Drag the expiry-spot scrubber", result: "The P&L marker rides the curve; the number rolls with trend colors" },
+      { action: "Pick the iron condor", result: "Four legs list with side badges; net premium flips positive (credit)" },
+    ],
+    props: [
+      { prop: "spot / dte / step", type: "number / number / number", defaultValue: "— / 7 / 100", description: "Pricing inputs; legs priced via Black-Scholes." },
+      { prop: "defaultStrategy", type: "StrategyKey", defaultValue: '"bull-call-spread"', description: "long-call, bull-call-spread, straddle, strangle, iron-condor." },
+      { prop: "lotSize", type: "number", defaultValue: "75", description: "P&L scaling." },
+    ],
+  },
+  {
+    slug: "bank-linking",
+    title: "Bank Linking",
+    description:
+      "Account-aggregator style linking: bank grid, an explicit consent review of exactly what is shared and for how long, OTP verification, account selection and a connection-health card.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/bank-linking.tsx",
+    interactions: [
+      { action: "Pick a bank", result: "Step panel slides in with the consent list — data shared, duration, revocability" },
+      { action: "Enter a wrong OTP", result: "Cells shake destructive and the flow explains, then lets you retry" },
+      { action: "Link the accounts", result: "Loading → connection-health card: Healthy badge, next sync, consent expiry" },
+    ],
+    props: [
+      { prop: "banks / accounts", type: "LinkableBank[] / LinkableAccount[]", description: "DEMO_BANKS / DEMO_ACCOUNTS ship." },
+      { prop: "validOtp", type: "string", defaultValue: '"246810"', description: "The demo code that succeeds." },
+      { prop: "consentMonths", type: "number", defaultValue: "12", description: "Consent validity shown on review." },
+      { prop: "onLinked", type: "(detail) => void", description: "Bank id + selected account ids." },
+    ],
+  },
+  {
+    slug: "expense-feed",
+    title: "Expense Feed",
+    description:
+      "An expense feed that understands itself: categorised merchants, subscription month counting, unusual-charge flags with the multiple, refund → original linking and cascading category filters.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/expense-feed.tsx",
+    interactions: [
+      { action: "Filter by category", result: "Rows re-cascade (0.035s stagger); day groups collapse to what matches" },
+      { action: "Find the Croma charge", result: "Flagged amber: 9× your usual at this merchant" },
+      { action: "Tap 'refund — show original'", result: "The refund and its source transaction highlight together in info-blue" },
+    ],
+    props: [
+      { prop: "items", type: "ExpenseItem[]", defaultValue: "DEMO_EXPENSES", description: "Merchant, amount, category, recurringMonth, unusualMultiple, refundOf." },
+      { prop: "currency", type: "string", defaultValue: '"₹"', description: "Display currency." },
+    ],
+  },
+  {
+    slug: "reconciliation",
+    title: "Reconciliation",
+    description:
+      "Two-sided reconciliation workspace: confidence-scored ledger↔statement pairs, differences called out to the rupee, accept/reject per pair, bulk-accept above a threshold, live matched meter.",
+    phase: P10,
+    sourceFile: "registry/default/enterprise/reconciliation.tsx",
+    interactions: [
+      { action: "Accept a match", result: "The pair slides right and collapses; the matched meter fills" },
+      { action: "Check the Initech pair", result: "₹1,180 short flagged in warning with a bank-charges hypothesis" },
+      { action: "Accept all ≥95%", result: "High-confidence pairs resolve in one action; low ones stay for review" },
+      { action: "Clear the queue", result: "'All matched' panel notes that decisions are audit-logged" },
+    ],
+    props: [
+      { prop: "pairs", type: "ReconPair[]", defaultValue: "DEMO_RECON", description: "Ledger/statement sides + confidence." },
+      { prop: "bulkThreshold", type: "number", defaultValue: "0.95", description: "Bulk-accept cutoff." },
+      { prop: "onResolve", type: '(id, "accept" | "reject") => void', description: "Per-pair decision callback." },
+    ],
+  },
+  {
+    slug: "audit-log",
+    title: "Audit Log",
+    description:
+      "Tamper-evident audit trail: actor, action chip and resource per event, expandable field-level before→after diffs, device metadata, and a hash-chain integrity badge that turns destructive on mismatch.",
+    phase: P10,
+    sourceFile: "registry/default/enterprise/audit-log.tsx",
+    interactions: [
+      { action: "Expand the credit-limit event", result: "Field diff renders before struck-through in red → after in green" },
+      { action: "Filter by action", result: "created/updated/deleted/accessed chips re-cascade the list" },
+      { action: "Spot the tampered entry", result: "The row and the header badge go destructive: hash mismatch with previous entry" },
+    ],
+    props: [
+      { prop: "events", type: "AuditEvent[]", defaultValue: "DEMO_AUDIT", description: "Actor, action, resource, changes, integrity." },
+      { prop: "onExport", type: "(visible: AuditEvent[]) => void", description: "Export the filtered view." },
+    ],
+  },
 ];
 
 export function getDoc(slug: string): DocEntry | undefined {
   return DOCS.find((d) => d.slug === slug);
 }
 
-export const PHASES = [P8, P1, P2, P3, P4, P9, P5, P6, P7];
+export const PHASES = [P8, P1, P2, P3, P4, P9, P10, P5, P6, P7];
