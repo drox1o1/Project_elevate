@@ -1552,6 +1552,180 @@
       }
     },
     {
+      "name": "investigation-timeline",
+      "type": "registry:ui",
+      "title": "Investigation Timeline",
+      "description": "Case timeline with actors, sources, confidence bars, expandable evidence and first-class activity gaps.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/enterprise/investigation-timeline.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "entity-graph",
+      "type": "registry:ui",
+      "title": "Entity Graph",
+      "description": "Entity-relationship graph: typed nodes, labelled edges, dashed risk links, isolate-on-select with a detail panel.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/enterprise/entity-graph.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "fund-compare",
+      "type": "registry:ui",
+      "title": "Fund Compare",
+      "description": "Two funds honestly compared: mirrored metric bars, per-metric winners, exit loads and portfolio overlap.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/fintech/fund-compare.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "loan-eligibility",
+      "type": "registry:ui",
+      "title": "Loan Eligibility",
+      "description": "EMI composer with a live FOIR meter, credit-band pricing, approval read with the reason, and cost breakdown.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/number-flow.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/fintech/loan-eligibility.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "tool-call-inspector",
+      "type": "registry:ui",
+      "title": "Tool Call Inspector",
+      "description": "Agent transcript: per-call permission, duration bars, human ↔ raw JSON toggle, error retry, denied-by-policy state.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/button.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/ai/tool-call-inspector.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "approval-gate",
+      "type": "registry:ui",
+      "title": "Approval Gate",
+      "description": "Human approval for agent actions: draining expiry bar, approve/reject/modify-then-approve, designed expired state.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/button.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/ai/approval-gate.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "grounded-answer",
+      "type": "registry:ui",
+      "title": "Grounded Answer",
+      "description": "Answer with per-claim citations that light up the exact source quote, surfaced contradictions and stated gaps.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/ai/grounded-answer.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
       "name": "signup-card",
       "type": "registry:block",
       "title": "Signup Card",

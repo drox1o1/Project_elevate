@@ -144,6 +144,14 @@ const items = [
   ["expense-feed", "Expense Feed", "Expense intelligence: categorised merchants, subscription counting, unusual-charge flags, refund linking, cascading filters.", "fintech", "registry:ui", GSAP, ["badge"], ["rm"]],
   ["reconciliation", "Reconciliation", "Two-sided match workspace: confidence-scored ledger↔statement pairs, rupee-level differences, accept/reject, bulk accept, matched meter.", "enterprise", "registry:block", GSAP, ["button"], ["rm"]],
   ["audit-log", "Audit Log", "Tamper-evident audit trail: action chips, expandable before→after diffs, device metadata, hash-chain integrity badge.", "enterprise", "registry:ui", GSAP, ["badge"], ["rm"]],
+  // ---- Phase 11: investigations, comparisons & AI trust, batch 4
+  ["investigation-timeline", "Investigation Timeline", "Case timeline with actors, sources, confidence bars, expandable evidence and first-class activity gaps.", "enterprise", "registry:ui", GSAP, [], ["rm"]],
+  ["entity-graph", "Entity Graph", "Entity-relationship graph: typed nodes, labelled edges, dashed risk links, isolate-on-select with a detail panel.", "enterprise", "registry:ui", GSAP, [], ["rm"]],
+  ["fund-compare", "Fund Compare", "Two funds honestly compared: mirrored metric bars, per-metric winners, exit loads and portfolio overlap.", "fintech", "registry:ui", GSAP, [], ["rm"]],
+  ["loan-eligibility", "Loan Eligibility", "EMI composer with a live FOIR meter, credit-band pricing, approval read with the reason, and cost breakdown.", "fintech", "registry:ui", GSAP, ["number-flow"], ["rm"]],
+  ["tool-call-inspector", "Tool Call Inspector", "Agent transcript: per-call permission, duration bars, human ↔ raw JSON toggle, error retry, denied-by-policy state.", "ai", "registry:ui", GSAP, ["button"], ["rm"]],
+  ["approval-gate", "Approval Gate", "Human approval for agent actions: draining expiry bar, approve/reject/modify-then-approve, designed expired state.", "ai", "registry:ui", GSAP, ["button"], ["rm"]],
+  ["grounded-answer", "Grounded Answer", "Answer with per-claim citations that light up the exact source quote, surfaced contradictions and stated gaps.", "ai", "registry:ui", GSAP, [], ["rm"]],
   // ---- Phase 7: blocks
   ["signup-card", "Signup Card", "The flagship block: full validation, strength meter, success morph.", "blocks", "registry:block", GSAP, ["button", "input", "field", "field-message", "checkbox", "alert"], ["rm"], KF.fadeIn],
   ["login-card", "Login Card", "Signup reduced: email + password with the same choreography.", "blocks", "registry:block", GSAP, ["button", "input", "field", "field-message", "checkbox", "alert"], ["rm"]],

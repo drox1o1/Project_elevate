@@ -26,12 +26,12 @@ const CATEGORIES = [
   { title: "Identity & compliance", detail: "Adaptive KYC journey: PAN verification, document quality checks, liveness, manual review.", status: "available" },
   { title: "Markets & investing", detail: "Option chain with live Greeks, strategy builder, order ticket, depth ladder, portfolio risk.", status: "available" },
   { title: "Crypto & payments", detail: "USDT→ETH swap with routes, slippage, approval flow and on-chain confirmation.", status: "available" },
-  { title: "AI & agent interfaces", detail: "Agent execution canvas with approval gates, streaming responses, chat, prompt composers.", status: "available" },
+  { title: "AI & agent interfaces", detail: "Agent canvas, approval gates, tool-call inspector, grounded answers with citations, streaming chat.", status: "available" },
   { title: "Healthcare", detail: "Biomarker trends, medication adherence timelines, clinical risk gauges, live vitals.", status: "available" },
   { title: "Fintech & data", detail: "Market depth ladders, SIP simulation, payment timelines, amount inputs, odometer values.", status: "available" },
   { title: "Motion systems", detail: "Kinetic headings, magnetic CTAs, marquees, scroll reveals — engineered, not decorated.", status: "available" },
   { title: "Onboarding & activation", detail: "Signup, login, pricing and capture blocks with complete submit choreography.", status: "available" },
-  { title: "Data-heavy enterprise", detail: "Reconciliation workspaces and tamper-evident audit logs; investigation timelines next.", status: "available" },
+  { title: "Data-heavy enterprise", detail: "Reconciliation, tamper-evident audit logs, investigation timelines, entity graphs.", status: "available" },
 ] as const;
 
 const STATES = [

@@ -115,6 +115,13 @@ import { BankLinking } from "@/registry/default/fintech/bank-linking";
 import { ExpenseFeed } from "@/registry/default/fintech/expense-feed";
 import { Reconciliation } from "@/registry/default/enterprise/reconciliation";
 import { AuditLog } from "@/registry/default/enterprise/audit-log";
+import { InvestigationTimeline } from "@/registry/default/enterprise/investigation-timeline";
+import { EntityGraph } from "@/registry/default/enterprise/entity-graph";
+import { FundCompare } from "@/registry/default/fintech/fund-compare";
+import { LoanEligibility } from "@/registry/default/fintech/loan-eligibility";
+import { ToolCallInspector } from "@/registry/default/ai/tool-call-inspector";
+import { ApprovalGate } from "@/registry/default/ai/approval-gate";
+import { GroundedAnswer, DEMO_ANSWER } from "@/registry/default/ai/grounded-answer";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -1328,7 +1335,81 @@ function AuditLogDemo() {
   );
 }
 
+function InvestigationTimelineDemo() {
+  return <InvestigationTimeline className="max-w-full" />;
+}
+
+function EntityGraphDemo() {
+  return <EntityGraph className="max-w-full" />;
+}
+
+function FundCompareDemo() {
+  return <FundCompare className="max-w-full" />;
+}
+
+function LoanEligibilityDemo() {
+  return <LoanEligibility />;
+}
+
+function ToolCallInspectorDemo() {
+  return (
+    <ToolCallInspector
+      className="max-w-full"
+      onRetry={() => toast({ title: "Retrying payments.refund…" })}
+    />
+  );
+}
+
+function ApprovalGateDemo() {
+  const [run, setRun] = React.useState(0);
+  return (
+    <div className="flex w-full flex-col items-center gap-3">
+      <ApprovalGate
+        key={run}
+        action="Send refund confirmation to the customer"
+        payload={
+          "Hi Asha — your refund of ₹2,499 for order #8412 has been initiated and will reach your account in 5–7 working days."
+        }
+        details={[
+          ["Recipient", "asha@example.com"],
+          ["Channel", "Transactional email"],
+          ["Triggered by", "agent · refund workflow"],
+        ]}
+        expiresInSec={45}
+        onDecision={(state) =>
+          toast({
+            title: `Gate ${state}`,
+            variant: state === "approved" || state === "modified" ? "success" : "default",
+          })
+        }
+      />
+      <Button size="sm" variant="ghost" onClick={() => setRun((r) => r + 1)}>
+        Reset gate
+      </Button>
+    </div>
+  );
+}
+
+function GroundedAnswerDemo() {
+  return (
+    <GroundedAnswer
+      className="max-w-full"
+      question={DEMO_ANSWER.question!}
+      onFeedback={(h) =>
+        toast({ title: h ? "Marked helpful" : "Marked not helpful" })
+      }
+    />
+  );
+}
+
 export const DEMOS: Record<string, React.ComponentType> = {
+  "investigation-timeline": InvestigationTimelineDemo,
+  "entity-graph": EntityGraphDemo,
+  "fund-compare": FundCompareDemo,
+  "loan-eligibility": LoanEligibilityDemo,
+  "tool-call-inspector": ToolCallInspectorDemo,
+  "approval-gate": ApprovalGateDemo,
+  "grounded-answer": GroundedAnswerDemo,
   "order-ticket": OrderTicketDemo,
   "strategy-builder": StrategyBuilderDemo,
   "bank-linking": BankLinkingDemo,

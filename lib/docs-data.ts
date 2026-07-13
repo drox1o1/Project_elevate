@@ -1059,6 +1059,130 @@ export const DOCS: DocEntry[] = [
       { prop: "onExport", type: "(visible: AuditEvent[]) => void", description: "Export the filtered view." },
     ],
   },
+  {
+    slug: "investigation-timeline",
+    title: "Investigation Timeline",
+    description:
+      "A case timeline for investigators: events carry actor, source and confidence, evidence expands in place, and unexplained gaps are rendered as first-class dashed voids.",
+    phase: P10,
+    sourceFile: "registry/default/enterprise/investigation-timeline.tsx",
+    interactions: [
+      { action: "Mount", result: "Events cascade in with the house rise + blur (0.07s stagger)" },
+      { action: "Filter by source", result: "Transactions / emails / access-logs re-cascade the thread; gap markers only show on the full view" },
+      { action: "Click an event", result: "Its evidence list and analyst note expand in place (height tween)" },
+      { action: "Scan the rail", result: "Amber dots and short confidence bars mark lower-confidence interpretations" },
+    ],
+    props: [
+      { prop: "events", type: "InvestigationEvent[]", defaultValue: "DEMO_INVESTIGATION", description: "time, title, actor, source, confidence, evidence, note, gapDaysBefore." },
+      { prop: "title", type: "string", description: "Case header." },
+    ],
+  },
+  {
+    slug: "entity-graph",
+    title: "Entity Graph",
+    description:
+      "Entity-relationship graph for investigations: typed nodes pop in, edges draw themselves, risk links render dashed destructive, and selecting a node isolates its neighbourhood.",
+    phase: P10,
+    sourceFile: "registry/default/enterprise/entity-graph.tsx",
+    interactions: [
+      { action: "Mount", result: "Nodes pop with back-out stagger; edges draw in via dashoffset, then risk edges settle to their dashed pattern" },
+      { action: "Select a node", result: "Non-neighbours dim to 18%; the detail panel explains the entity and lists its relationships" },
+      { action: "Keyboard", result: "Nodes are focusable buttons — Enter/Space toggles isolation" },
+    ],
+    props: [
+      { prop: "nodes / edges", type: "GraphNode[] / GraphEdge[]", defaultValue: "DEMO_GRAPH", description: "Typed nodes with positions; labelled edges, risk flag renders dashed destructive." },
+    ],
+  },
+  {
+    slug: "fund-compare",
+    title: "Fund Compare",
+    description:
+      "Two funds honestly compared: mirrored metric bars grow from the centre, the better side gets the dot per metric, and portfolio overlap says whether holding both diversifies anything.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/fund-compare.tsx",
+    interactions: [
+      { action: "Mount", result: "Mirrored bars fill outward from the centre; green dots mark the winner per metric" },
+      { action: "Check the overlap meter", result: "Above 50% it turns warning with 'holding both adds little diversification'" },
+      { action: "Read the footer", result: "Which fund leads on how many metrics — plus the returns disclaimer" },
+    ],
+    props: [
+      { prop: "funds", type: "[FundProfile, FundProfile]", defaultValue: "DEMO_FUNDS", description: "Returns, rolling consistency, expense, drawdown, Sharpe, tenure, concentration." },
+      { prop: "overlapPct", type: "number", defaultValue: "41", description: "Portfolio overlap between the two funds." },
+    ],
+  },
+  {
+    slug: "loan-eligibility",
+    title: "Loan Eligibility",
+    description:
+      "Loan composer with the reason built in: sliders drive an amortised EMI, the FOIR meter shows exactly why approval is likely/borderline/unlikely, and the fix is suggested.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/loan-eligibility.tsx",
+    interactions: [
+      { action: "Drag any slider", result: "EMI rolls via NumberFlow; the FOIR meter tweens toward or past the lender line" },
+      { action: "Push the amount too high", result: "Verdict turns 'Unlikely at this size' and the copy names the amount that would fit" },
+      { action: "Switch credit band", result: "Rate re-prices (750+ / 700–749 / 650–699) and everything recomputes" },
+    ],
+    props: [
+      { prop: "rates", type: "{ excellent, good, fair }", defaultValue: "10.5 / 12.25 / 14.5", description: "Annual rate by credit band, %." },
+      { prop: "foirLimit", type: "number", defaultValue: "0.5", description: "Obligation/income ceiling for the approval read." },
+      { prop: "processingFeePct", type: "number", defaultValue: "1.5", description: "Fee shown in the cost breakdown." },
+    ],
+  },
+  {
+    slug: "tool-call-inspector",
+    title: "Tool Call Inspector",
+    description:
+      "A transcript of what the agent actually did: per-call permission badges, duration bars, a human ↔ raw JSON toggle, retryable errors and a denied-by-policy state.",
+    phase: P5,
+    sourceFile: "registry/default/ai/tool-call-inspector.tsx",
+    interactions: [
+      { action: "Toggle human / raw", result: "Summaries swap for exact argument JSON; expanded detail shows the full call envelope" },
+      { action: "Expand the failed refund", result: "504 error with a Retry action; its successful retry is tagged as such" },
+      { action: "Find the denied call", result: "db.delete_customer blocked by policy — 'no side effects occurred'" },
+    ],
+    props: [
+      { prop: "calls", type: "InspectedToolCall[]", defaultValue: "DEMO_TOOL_CALLS", description: "tool, args, result/error, duration, status, permission, retryOf." },
+      { prop: "onRetry", type: "(id) => void", description: "Retry a failed call." },
+    ],
+  },
+  {
+    slug: "approval-gate",
+    title: "Approval Gate",
+    description:
+      "A standalone human gate for agent actions: the expiry bar drains in real time, and every terminal state is designed — approved, rejected, modified-then-approved, and expired.",
+    phase: P5,
+    sourceFile: "registry/default/ai/approval-gate.tsx",
+    interactions: [
+      { action: "Watch the bar", result: "Drains linearly; turns destructive in the final third; hitting zero lands the designed expired state" },
+      { action: "Modify", result: "The payload becomes editable; approving sends your version, marked 'edited by reviewer'" },
+      { action: "Reject", result: "Nothing is sent; the copy states what the agent does next" },
+    ],
+    props: [
+      { prop: "action / payload", type: "string / string", description: "What the agent wants to do and the exact content being approved." },
+      { prop: "details", type: "[string, string][]", description: "Key-value rows (recipients, cost…)." },
+      { prop: "expiresInSec", type: "number", defaultValue: "60", description: "Countdown to the expired state." },
+      { prop: "onDecision", type: "(state, payload) => void", description: "approved / modified / rejected / expired with the final payload." },
+    ],
+  },
+  {
+    slug: "grounded-answer",
+    title: "Grounded Answer",
+    description:
+      "An answer that shows its work: per-claim citation chips light up the exact source quote, contradictions are surfaced inline instead of averaged away, and uncovered ground is stated.",
+    phase: P5,
+    sourceFile: "registry/default/ai/grounded-answer.tsx",
+    interactions: [
+      { action: "Mount", result: "Claims blur in sequentially like a considered answer" },
+      { action: "Click a citation chip", result: "The matching source card highlights and pulses with its exact quote" },
+      { action: "Read claim 2", result: "A contradiction note: the 2023 help page disagrees with the 2025 policy" },
+      { action: "Check the dashed box", result: "What no source covers is said plainly, not guessed at" },
+    ],
+    props: [
+      { prop: "question / claims / sources", type: "string / AnswerClaim[] / AnswerSource[]", defaultValue: "DEMO_ANSWER", description: "Claims carry sourceIds, confidence and optional contradiction." },
+      { prop: "missingEvidence", type: "string[]", description: "What the sources don't cover." },
+      { prop: "onFeedback", type: "(helpful: boolean) => void", description: "Helpful / not helpful." },
+    ],
+  },
 ];
 
 export function getDoc(slug: string): DocEntry | undefined {
