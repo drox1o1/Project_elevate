@@ -53,20 +53,23 @@ export function KineticHeading({
 
       if (reduced) {
         gsap.set(root, { visibility: "visible" });
-        gsap.set(chars, { yPercent: 0, opacity: 1 });
+        // clearProps drops any inline filter left by a pre-hydration pass
+        gsap.set(chars, { yPercent: 0, opacity: 1, clearProps: "filter" });
         return;
       }
 
-      gsap.set(chars, { yPercent: 110, opacity: 0 });
+      gsap.set(chars, { yPercent: 110, opacity: 0, filter: "blur(8px)" });
       gsap.set(root, { visibility: "visible" });
 
       const vars: gsap.TweenVars = {
         yPercent: 0,
         opacity: 1,
+        filter: "blur(0px)",
         duration: 0.9,
         ease: "power4.out",
         stagger,
         delay,
+        clearProps: "filter",
       };
       if (trigger === "scroll") {
         vars.scrollTrigger = { trigger: root, start: "top 85%", once: true };

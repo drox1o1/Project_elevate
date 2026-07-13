@@ -75,6 +75,20 @@ import { SignupCard } from "@/registry/default/blocks/signup-card";
 import { LoginCard } from "@/registry/default/blocks/login-card";
 import { PricingCard } from "@/registry/default/blocks/pricing-card";
 import { NewsletterInput } from "@/registry/default/blocks/newsletter-input";
+import {
+  OptionChain,
+  generateOptionChain,
+} from "@/registry/default/fintech/option-chain";
+import { GreeksPanel } from "@/registry/default/fintech/greeks-panel";
+import { PortfolioRisk } from "@/registry/default/fintech/portfolio-risk";
+import { KycFlow, type KycOutcome } from "@/registry/default/workflows/kyc-flow";
+import { CryptoSwap } from "@/registry/default/crypto/crypto-swap";
+import { AgentCanvas } from "@/registry/default/ai/agent-canvas";
+import {
+  BiomarkerTrend,
+  DEMO_LDL,
+} from "@/registry/default/health/biomarker-trend";
+import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
@@ -917,7 +931,7 @@ function PricingCardDemo() {
       monthlyPrice={49}
       yearlyPrice={470}
       features={[
-        "All 43 components",
+        "All 50 components",
         "Registry access + updates",
         "Unlimited projects",
         "Priority support",
@@ -937,7 +951,200 @@ function NewsletterInputDemo() {
   );
 }
 
+function OptionChainDemo() {
+  const reduced = useReducedMotion();
+  const [spot, setSpot] = React.useState(24_812.4);
+  const [expiry, setExpiry] = React.useState("17 Jul");
+  const dte = { "17 Jul": 4, "24 Jul": 11, "31 Jul": 18 }[expiry] ?? 7;
+
+  React.useEffect(() => {
+    if (reduced) return;
+    const id = setInterval(() => {
+      setSpot((s) => +(s + (Math.random() - 0.5) * 18).toFixed(2));
+    }, 1600);
+    return () => clearInterval(id);
+  }, [reduced]);
+
+  const rows = React.useMemo(
+    () => generateOptionChain({ spot, span: 5, dte }),
+    [spot, dte]
+  );
+
+  return (
+    <div className="w-full">
+      <OptionChain
+        rows={rows}
+        spot={spot}
+        expiries={["17 Jul", "24 Jul", "31 Jul"]}
+        expiry={expiry}
+        onExpiryChange={setExpiry}
+        onOrder={(o) =>
+          toast({
+            title: `${o.action === "buy" ? "Buy" : "Sell"} ${o.side} ${o.strike}`,
+            description: `Limit ₹${o.price.toFixed(2)} · 1 lot`,
+            variant: "success",
+          })
+        }
+      />
+    </div>
+  );
+}
+
+function GreeksPanelDemo() {
+  const [spot, setSpot] = React.useState(24_800);
+  const [side, setSide] = React.useState<"call" | "put">("call");
+  return (
+    <div className="flex w-full max-w-md flex-col items-stretch gap-4">
+      <GreeksPanel side={side} strike={24_800} spot={spot} dte={7} />
+      <div className="flex items-center gap-3">
+        <div className="flex rounded-lg bg-muted p-0.5">
+          {(["call", "put"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              aria-pressed={side === s}
+              onClick={() => setSide(s)}
+              className={
+                side === s
+                  ? "rounded-md bg-background px-2.5 py-1 text-xs font-medium capitalize shadow-sm"
+                  : "rounded-md px-2.5 py-1 text-xs font-medium capitalize text-muted-foreground"
+              }
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+        <label className="flex flex-1 items-center gap-2 text-xs text-muted-foreground">
+          Spot
+          <input
+            type="range"
+            min={24_200}
+            max={25_400}
+            step={20}
+            value={spot}
+            onChange={(e) => setSpot(parseInt(e.target.value, 10))}
+            className="flex-1 accent-primary"
+            aria-label="Spot price"
+          />
+          <span className="w-14 text-right tabular-nums text-foreground">
+            {new Intl.NumberFormat("en-IN").format(spot)}
+          </span>
+        </label>
+      </div>
+    </div>
+  );
+}
+
+function KycFlowDemo() {
+  const [outcome, setOutcome] = React.useState<KycOutcome>("approved");
+  const [run, setRun] = React.useState(0);
+  return (
+    <div className="flex w-full flex-col items-center gap-4">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        Outcome:
+        {(["approved", "manual-review"] as const).map((o) => (
+          <button
+            key={o}
+            type="button"
+            aria-pressed={outcome === o}
+            onClick={() => {
+              setOutcome(o);
+              setRun((r) => r + 1);
+            }}
+            className={
+              outcome === o
+                ? "rounded-md bg-primary px-2 py-1 font-medium text-primary-foreground"
+                : "rounded-md bg-muted px-2 py-1 font-medium hover:text-foreground"
+            }
+          >
+            {o}
+          </button>
+        ))}
+      </div>
+      <KycFlow
+        key={`${outcome}-${run}`}
+        outcome={outcome}
+        initialData={{ name: "Asha Verma", email: "asha@example.com", dob: "1993-04-12", pan: "ABCDE1234F" }}
+        onComplete={(_, o) =>
+          toast({
+            title: o === "approved" ? "KYC approved" : "Sent to manual review",
+            variant: o === "approved" ? "success" : "default",
+          })
+        }
+      />
+    </div>
+  );
+}
+
+function CryptoSwapDemo() {
+  return (
+    <CryptoSwap
+      onSwapped={(d) =>
+        toast({
+          title: "Swap confirmed",
+          description: `${d.amountIn} ${d.from} → ${d.amountOut.toFixed(5)} ${d.to}`,
+          variant: "success",
+        })
+      }
+    />
+  );
+}
+
+function AgentCanvasDemo() {
+  return (
+    <AgentCanvas
+      goal="Refund order #8412 and notify the customer"
+      steps={[
+        {
+          id: "lookup",
+          title: "Locate the order and payment",
+          toolCalls: [
+            { tool: "orders.get", args: 'id: "8412"', result: "₹2,499 · paid via UPI", duration: 900 },
+            { tool: "payments.lookup", args: 'order: "8412"', result: "txn_9f2c settled", duration: 800 },
+          ],
+        },
+        {
+          id: "refund",
+          title: "Issue the refund",
+          approval: { summary: "Refund ₹2,499 to the original UPI handle?" },
+          toolCalls: [
+            { tool: "payments.refund", args: "txn_9f2c, full", result: "refund_51ab initiated", duration: 1100, failsOnceWith: "gateway timeout (504)" },
+          ],
+        },
+        {
+          id: "notify",
+          title: "Notify the customer",
+          toolCalls: [
+            { tool: "email.send", args: "template: refund_confirmed", result: "queued", duration: 800 },
+          ],
+        },
+      ]}
+      artifact={
+        <div className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-foreground">
+          Refund <span className="font-semibold">refund_51ab</span> completed and
+          confirmation emailed — 3 steps, 1 approval, 1 retry.
+        </div>
+      }
+    />
+  );
+}
+
+function PortfolioRiskDemo() {
+  return <PortfolioRisk className="max-w-full" />;
+}
+
+function BiomarkerTrendDemo() {
+  return <BiomarkerTrend {...DEMO_LDL} className="max-w-full" />;
+}
+
 export const DEMOS: Record<string, React.ComponentType> = {
+  "option-chain": OptionChainDemo,
+  "greeks-panel": GreeksPanelDemo,
+  "kyc-flow": KycFlowDemo,
+  "crypto-swap": CryptoSwapDemo,
+  "agent-canvas": AgentCanvasDemo,
+  "portfolio-risk": PortfolioRiskDemo,
+  "biomarker-trend": BiomarkerTrendDemo,
   button: ButtonDemo,
   input: InputDemo,
   textarea: TextareaDemo,

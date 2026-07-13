@@ -1,16 +1,16 @@
 import Link from "next/link";
-import { KineticHeading } from "@/registry/default/motion/kinetic-heading";
-import { MagneticButton } from "@/registry/default/motion/magnetic-button";
 import { Marquee } from "@/registry/default/motion/marquee";
 import { ScrollRevealGrid } from "@/registry/default/motion/scroll-reveal-grid";
 import { Badge } from "@/registry/default/ui/badge";
 import { AgentDemo } from "@/components/site/agent-demo";
+import { HeroIntro } from "@/components/site/hero-intro";
 import { InstallTabs } from "@/components/site/install-tabs";
 import { PreviewPanel } from "@/components/site/preview";
+import { ScrollFade } from "@/components/site/scroll-fade";
 import { DOCS, PHASES, getDoc } from "@/lib/docs-data";
 
 const AGENT_ACCESS = [
-  ["Component metadata", "Name, category, tier and use cases for all 43 components"],
+  ["Component metadata", "Name, category, tier and use cases for all 50 components"],
   ["Component source", "The actual TypeScript, not a screenshot of it"],
   ["Props & variants", "Typed API contracts with defaults and descriptions"],
   ["Dependencies", "npm packages and registry dependencies, resolved"],
@@ -23,14 +23,14 @@ const AGENT_ACCESS = [
 ] as const;
 
 const CATEGORIES = [
-  { title: "AI & agent interfaces", detail: "Streaming responses, thinking states, chat, prompt composers, skill cards.", status: "available" },
+  { title: "Identity & compliance", detail: "Adaptive KYC journey: PAN verification, document quality checks, liveness, manual review.", status: "available" },
+  { title: "Markets & investing", detail: "NIFTY option chain with live Greeks, a Greeks panel and a portfolio risk cockpit.", status: "available" },
+  { title: "Crypto & payments", detail: "USDT→ETH swap with routes, slippage, approval flow and on-chain confirmation.", status: "available" },
+  { title: "AI & agent interfaces", detail: "Agent execution canvas with approval gates, streaming responses, chat, prompt composers.", status: "available" },
+  { title: "Healthcare", detail: "Biomarker trend explorer with reference ranges, baselines and medication events.", status: "available" },
   { title: "Fintech & data", detail: "Amount inputs with lakh/crore grouping, odometer values, sparklines, OTP, transactions.", status: "available" },
   { title: "Motion systems", detail: "Kinetic headings, magnetic CTAs, marquees, scroll reveals — engineered, not decorated.", status: "available" },
   { title: "Onboarding & activation", detail: "Signup, login, pricing and capture blocks with complete submit choreography.", status: "available" },
-  { title: "Identity & compliance", detail: "KYC journeys, document capture, liveness, review panels.", status: "roadmap" },
-  { title: "Markets & investing", detail: "Option chains, order tickets, depth ladders, portfolio risk.", status: "roadmap" },
-  { title: "Crypto & payments", detail: "Token swaps, route visualisers, signing sheets, payment timelines.", status: "roadmap" },
-  { title: "Healthcare", detail: "Biomarker trends, report extraction review, medication timelines.", status: "roadmap" },
   { title: "Data-heavy enterprise", detail: "Investigation timelines, reconciliation, audit-log explorers.", status: "roadmap" },
 ] as const;
 
@@ -49,12 +49,12 @@ const STATES = [
 ] as const;
 
 const SHOWCASE = [
-  "signup-card",
-  "amount-input",
-  "otp-input",
-  "ai-prompt-input",
-  "number-flow",
-  "sparkline-card",
+  "kyc-flow",
+  "option-chain",
+  "crypto-swap",
+  "agent-canvas",
+  "portfolio-risk",
+  "biomarker-trend",
 ] as const;
 
 const PILLARS = [
@@ -80,32 +80,7 @@ export default function HomePage() {
     <main>
       {/* Hero */}
       <section className="mx-auto flex max-w-3xl flex-col items-center px-4 pb-12 pt-24 text-center">
-        <Badge variant="outline" pulse className="mb-6">
-          Design engineering with AI
-        </Badge>
-        <KineticHeading text="Interfaces your AI would not design by itself." />
-        <p className="mt-6 max-w-2xl text-base text-muted-foreground">
-          DUKU Labs gives developers and coding agents access to beautifully
-          engineered React components, expressive motion and complete product
-          workflows. Connect through MCP, describe what you are building and
-          let Claude Code or Codex discover, customise and implement the right
-          interface directly in your codebase.
-        </p>
-        <div className="mt-8 flex items-center gap-4">
-          <Link href="/connect">
-            <MagneticButton>Connect to MCP</MagneticButton>
-          </Link>
-          <Link
-            href="/components/button"
-            className="text-sm font-medium text-foreground underline-offset-4 transition-colors duration-200 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            Explore the library
-          </Link>
-        </div>
-        <p className="mt-6 text-xs text-muted-foreground">
-          Built for real products. Designed for every state. Yours to
-          customise.
-        </p>
+        <HeroIntro />
       </section>
 
       {/* Live implementation demo */}
@@ -128,15 +103,17 @@ export default function HomePage() {
 
       {/* Built for agents */}
       <section className="mx-auto max-w-5xl px-4 py-20">
-        <h2 className="max-w-2xl text-2xl font-semibold tracking-tight">
-          Your coding agent can see the system, not just the screenshot.
-        </h2>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-          The DUKU Labs MCP server gives compatible agents structured access to
-          the whole design system — as resources, tools and reusable prompts.
-          MCP provides the context and the tools; your agent still works inside
-          your project, with your permission.
-        </p>
+        <ScrollFade>
+          <h2 className="max-w-2xl text-2xl font-semibold tracking-tight">
+            Your coding agent can see the system, not just the screenshot.
+          </h2>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+            The DUKU Labs MCP server gives compatible agents structured access
+            to the whole design system — as resources, tools and reusable
+            prompts. MCP provides the context and the tools; your agent still
+            works inside your project, with your permission.
+          </p>
+        </ScrollFade>
         <ScrollRevealGrid className="mt-10">
           {AGENT_ACCESS.map(([title, detail]) => (
             <div
@@ -157,15 +134,18 @@ export default function HomePage() {
       {/* Beyond basic components */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-5xl px-4 py-20">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            The difficult parts are already designed.
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Most libraries provide primitives. DUKU Labs builds the layer above
-            them: complexity already designed, states already considered,
-            motion already engineered. Domain workflows ship on the roadmap
-            below — nothing is listed as available before it exists.
-          </p>
+          <ScrollFade>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              The difficult parts are already designed.
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Most libraries provide primitives. DUKU Labs builds the layer
+              above them: complexity already designed, states already
+              considered, motion already engineered. Every category marked
+              available ships real components today — nothing is listed before
+              it exists.
+            </p>
+          </ScrollFade>
           <ScrollRevealGrid className="mt-10">
             {CATEGORIES.map((c) => (
               <div
@@ -194,14 +174,16 @@ export default function HomePage() {
       {/* Showcase */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-6xl px-4 py-20">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Try it here, not in a screenshot.
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-            Every demo below is the real component — type in it, break it,
-            replay it.
-          </p>
-          <div className="mt-10 grid gap-8 md:grid-cols-2">
+          <ScrollFade>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Try it here, not in a screenshot.
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Every demo below is the real component — type in it, break it,
+              replay it.
+            </p>
+          </ScrollFade>
+          <ScrollFade y={22} className="mt-10 grid gap-8 md:grid-cols-2">
             {SHOWCASE.map((slug) => {
               const doc = getDoc(slug);
               if (!doc) return null;
@@ -222,54 +204,60 @@ export default function HomePage() {
                 </div>
               );
             })}
-          </div>
+          </ScrollFade>
         </div>
       </section>
 
       {/* Every state included */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-5xl px-4 py-20">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Every state included.
-          </h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-            A component is not finished when the happy path looks good. DUKU
-            Labs components ship with their full interaction state matrix
-            designed, documented and readable by your agent.
-          </p>
-          <div className="mt-8 flex max-w-2xl flex-wrap gap-2">
+          <ScrollFade>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Every state included.
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+              A component is not finished when the happy path looks good. DUKU
+              Labs components ship with their full interaction state matrix
+              designed, documented and readable by your agent.
+            </p>
+          </ScrollFade>
+          <ScrollFade pop stagger={0.05} className="mt-8 flex max-w-2xl flex-wrap gap-2">
             {STATES.map((s) => (
               <Badge key={s} variant="secondary">
                 {s}
               </Badge>
             ))}
-          </div>
+          </ScrollFade>
         </div>
       </section>
 
       {/* Installation */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-3xl px-4 py-20">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Installation
-          </h2>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            Connect your agent once, or install components directly — either
-            way the source lands in your project and belongs to you.
-          </p>
-          <div className="mt-8">
-            <InstallTabs />
-          </div>
+          <ScrollFade>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Installation
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              Connect your agent once, or install components directly — either
+              way the source lands in your project and belongs to you.
+            </p>
+            <div className="mt-8">
+              <InstallTabs />
+            </div>
+          </ScrollFade>
         </div>
       </section>
 
       {/* Why DUKU Labs */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-5xl px-4 py-20">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Why DUKU Labs
-          </h2>
-          <div className="mt-10 grid gap-6 md:grid-cols-3">
+          <ScrollFade>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              Why DUKU Labs
+            </h2>
+          </ScrollFade>
+          <ScrollRevealGrid className="mt-10 gap-6 md:grid-cols-3 lg:grid-cols-3">
             {PILLARS.map((p) => (
               <div
                 key={p.title}
@@ -283,19 +271,22 @@ export default function HomePage() {
                 </p>
               </div>
             ))}
-          </div>
+          </ScrollRevealGrid>
         </div>
       </section>
 
       {/* Catalog */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-5xl px-4 py-20">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            The catalog
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            43 components across 7 phases — primitives first, blocks last.
-          </p>
+          <ScrollFade>
+            <h2 className="text-2xl font-semibold tracking-tight">
+              The catalog
+            </h2>
+            <p className="mt-2 text-sm text-muted-foreground">
+              50 components across 8 phases — signature workflows first,
+              primitives underneath.
+            </p>
+          </ScrollFade>
           <div className="mt-10 flex flex-col gap-12">
             {PHASES.map((phase) => (
               <div key={phase}>

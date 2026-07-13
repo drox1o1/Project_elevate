@@ -28,6 +28,7 @@ const P4 = "Fintech & data";
 const P5 = "AI / agent";
 const P6 = "Motion showpieces";
 const P7 = "Blocks";
+const P8 = "Signature workflows";
 
 export const DOCS: DocEntry[] = [
   {
@@ -702,10 +703,145 @@ export const DOCS: DocEntry[] = [
       { prop: "placeholder / buttonLabel", type: "string", description: "Copy." },
     ],
   },
+  {
+    slug: "option-chain",
+    title: "Option Chain",
+    description:
+      "NIFTY-style option chain: Greeks toggle, ATM highlighting, OI data bars, restrained tick flashes and in-context depth with buy/sell.",
+    phase: P8,
+    sourceFile: "registry/default/fintech/option-chain.tsx",
+    interactions: [
+      { action: "Watch the spot tick", result: "Changed LTPs flash market-up/market-down for 600ms, then settle — no full-table repaints" },
+      { action: "Click a strike row", result: "Bid/ask depth with Buy/Sell expands in context below the row (height tween, power3.out)" },
+      { action: "Toggle Greeks", result: "OI/volume columns swap to Δ Γ Θ V computed from Black-Scholes" },
+      { action: "Switch expiry", result: "Rows re-quote for the new DTE; premiums and Greeks stay coherent" },
+    ],
+    props: [
+      { prop: "rows / spot", type: "OptionChainRow[] / number", description: "Chain data (see generateOptionChain) and spot price." },
+      { prop: "expiries / expiry / onExpiryChange", type: "string[] / string / fn", description: "Expiry tabs." },
+      { prop: "defaultShowGreeks", type: "boolean", defaultValue: "false", description: "Start on Greek columns." },
+      { prop: "compact", type: "boolean", defaultValue: "false", description: "OI + LTP only, for narrow containers." },
+      { prop: "onOrder", type: "(order: OptionOrder) => void", description: "Buy/Sell from the depth panel." },
+      { prop: "lotSize", type: "number", defaultValue: "75", description: "Lot size shown on order buttons." },
+    ],
+  },
+  {
+    slug: "greeks-panel",
+    title: "Greeks Panel",
+    description:
+      "Live Black-Scholes Greeks for one option: premium and Δ Γ Θ V roll via NumberFlow while magnitude gauges spring to each new value.",
+    phase: P8,
+    sourceFile: "registry/default/fintech/greeks-panel.tsx",
+    interactions: [
+      { action: "Move the spot", result: "Premium and all four Greeks roll to their new values; gauges tween width over 0.6s" },
+      { action: "Cross the strike", result: "Delta swings through 0.5, gamma peaks — the gauges make the ATM sensitivity visible" },
+    ],
+    props: [
+      { prop: "side / strike / spot / dte", type: '"call" | "put" / number ×3', description: "The option being priced." },
+      { prop: "iv", type: "number", description: "Implied vol as a fraction; defaults to a smile around ATM." },
+      { prop: "lotSize", type: "number", defaultValue: "75", description: "For the per-lot theta line." },
+    ],
+  },
+  {
+    slug: "kyc-flow",
+    title: "KYC Flow",
+    description:
+      "The adaptive identity-verification journey: details, PAN, document capture with quality checks, liveness, review, and approved or manual-review outcomes.",
+    phase: P8,
+    sourceFile: "registry/default/workflows/kyc-flow.tsx",
+    interactions: [
+      { action: "Submit empty details", result: "Fields shake, errors height-auto in with role=alert" },
+      { action: "Verify a PAN", result: "Format-validated, then a simulated registry check: loading → valid input + name-match alert" },
+      { action: "Capture the ID front", result: "First attempt detects glare and asks for a retake — the failure state is part of the design" },
+      { action: "Run liveness", result: "Progress arc tweens through face prompts; success check draws itself" },
+      { action: "Submit for verification", result: "Approved shows a check-draw; manual-review shows a calm pulsing badge with turnaround copy" },
+    ],
+    props: [
+      { prop: "outcome", type: '"approved" | "manual-review"', defaultValue: '"approved"', description: "Final verification outcome." },
+      { prop: "onComplete", type: "(data, outcome) => void", description: "Fires after submission." },
+      { prop: "onStepChange", type: "(step: number) => void", description: "Step index changes." },
+      { prop: "initialData", type: "Partial<KycData>", description: "Prefill name/email/dob/pan." },
+    ],
+  },
+  {
+    slug: "crypto-swap",
+    title: "Crypto Swap",
+    description:
+      "USDT→ETH swap with slippage, route hops, expanding fee breakdown, approval-then-swap flow and an on-chain confirmation timeline.",
+    phase: P8,
+    sourceFile: "registry/default/crypto/crypto-swap.tsx",
+    interactions: [
+      { action: "Click the flip button", result: "Pay and receive cards physically exchange position (power3.inOut), then values swap" },
+      { action: "Expand the quote row", result: "Price impact, min received, slippage presets and the route hops unfold (height tween)" },
+      { action: "Swap an ERC-20 the first time", result: "Approve transaction runs first; the swap button takes over after" },
+      { action: "Confirm the swap", result: "Form morphs into a Submitted → Pending → Confirmed timeline with check-draws" },
+      { action: "Enter more than the balance", result: "Destructive border + Insufficient balance, button disabled" },
+    ],
+    props: [
+      { prop: "tokens", type: "SwapToken[]", defaultValue: "DEFAULT_TOKENS", description: "Symbols, USD prices, balances, approval needs." },
+      { prop: "onSwapped", type: "(detail) => void", description: "After simulated confirmation." },
+    ],
+  },
+  {
+    slug: "agent-canvas",
+    title: "Agent Canvas",
+    description:
+      "Agent execution timeline: the plan becomes a live run with tool calls, a human approval gate, error with retry, and a final artifact reveal.",
+    phase: P8,
+    sourceFile: "registry/default/ai/agent-canvas.tsx",
+    interactions: [
+      { action: "Run the plan", result: "Steps activate in order; tool calls stream in with spinner → check per call" },
+      { action: "Reach the approval gate", result: "Run pauses on an amber pulsing step; Approve resumes, Reject stops with a resume option" },
+      { action: "Hit the failing tool", result: "Step turns error-red with the message; Retry re-runs from the failed call and succeeds" },
+      { action: "Complete the run", result: "The artifact blurs in under the timeline; footer shows tokens and cost" },
+    ],
+    props: [
+      { prop: "goal / steps", type: "string / AgentStep[]", description: "The plan. Steps carry toolCalls, optional approval gate, optional failsOnceWith." },
+      { prop: "autoStart", type: "boolean", defaultValue: "false", description: "Run on mount instead of showing the plan." },
+      { prop: "artifact", type: "ReactNode", description: "Rendered when the run completes." },
+      { prop: "onStatusChange", type: "(status: AgentRunStatus) => void", description: "idle/running/waiting-approval/error/complete/rejected." },
+    ],
+  },
+  {
+    slug: "portfolio-risk",
+    title: "Portfolio Risk",
+    description:
+      "Risk cockpit: value, day P&L, beta and 1-day VaR tiles, sector exposure bars with concentration alerts, and a scenario slider with a hedge idea.",
+    phase: P8,
+    sourceFile: "registry/default/fintech/portfolio-risk.tsx",
+    interactions: [
+      { action: "Mount", result: "Sector bars fill staggered; over-limit sectors render in risk-high with a concentration alert" },
+      { action: "Drag the scenario slider", result: "β-scaled impact rolls via NumberFlow with trend colors" },
+      { action: "Shock below −5%", result: "A hedge suggestion appears (educational copy, explicitly not advice)" },
+    ],
+    props: [
+      { prop: "holdings", type: "Holding[]", defaultValue: "DEMO_HOLDINGS", description: "Symbol, sector, value, beta, day change." },
+      { prop: "concentrationLimit", type: "number", defaultValue: "0.25", description: "Sector share that triggers the warning." },
+    ],
+  },
+  {
+    slug: "biomarker-trend",
+    title: "Biomarker Trend",
+    description:
+      "Lab-value trend explorer: reference-range band, personal baseline, abnormal points in risk-high, medication event markers and unit conversion.",
+    phase: P8,
+    sourceFile: "registry/default/health/biomarker-trend.tsx",
+    interactions: [
+      { action: "Mount", result: "The trend line draws itself over 1.2s through the reference band" },
+      { action: "Click or focus a point", result: "Reading detail panel updates; abnormal points get cautious, non-diagnostic copy" },
+      { action: "Toggle the unit", result: "Axis, range and readings convert (e.g. mg/dL ↔ mmol/L)" },
+    ],
+    props: [
+      { prop: "name / unit / readings / range", type: "string / string / BiomarkerReading[] / {low, high}", description: "The marker and its lab range. DEMO_LDL ships as example data." },
+      { prop: "baseline", type: "number", description: "Personal baseline dashed line." },
+      { prop: "events", type: "BiomarkerEvent[]", description: "Vertical markers, e.g. medication start." },
+      { prop: "altUnit", type: "{ unit, factor }", description: "Secondary unit toggle." },
+    ],
+  },
 ];
 
 export function getDoc(slug: string): DocEntry | undefined {
   return DOCS.find((d) => d.slug === slug);
 }
 
-export const PHASES = [P1, P2, P3, P4, P5, P6, P7];
+export const PHASES = [P8, P1, P2, P3, P4, P5, P6, P7];

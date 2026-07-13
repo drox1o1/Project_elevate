@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "motion/react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/registry/default/ui/badge";
 import { Button } from "@/registry/default/ui/button";
@@ -44,7 +45,7 @@ const TIERS: Tier[] = [
     priceNote: "one-time",
     altPrice: "or $19/month",
     features: [
-      "All 43 components, source included",
+      "All 50 components, source included",
       "Advanced workflows as they release",
       "All themes",
       "MCP implementation tools",
@@ -104,17 +105,58 @@ function FeatureCheck({ delay }: { delay: number }) {
 
 function TierCard({ tier, index }: { tier: Tier; index: number }) {
   const reduced = useReducedMotion();
-  return (
-    <motion.div
-      initial={reduced ? false : { opacity: 0, y: 14 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={
-        reduced
-          ? undefined
-          : { duration: 0.4, ease: "easeOut", delay: index * 0.08 }
+  const rootRef = React.useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const root = rootRef.current;
+      if (!root) return;
+      const rows = gsap.utils.toArray<HTMLElement>(
+        root.querySelectorAll('[data-slot="feature-row"]')
+      );
+
+      if (reduced) {
+        gsap.set(root, { y: 0, scale: 1, opacity: 1, clearProps: "filter" });
+        gsap.set(rows, { y: 0, opacity: 1, clearProps: "filter" });
+        return;
       }
+
+      const tl = gsap.timeline({ delay: index * 0.1 });
+      tl.fromTo(
+        root,
+        { y: 24, scale: 0.98, opacity: 0, filter: "blur(10px)" },
+        {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          filter: "blur(0px)",
+          duration: 0.55,
+          ease: "power3.out",
+          clearProps: "filter",
+        }
+      ).fromTo(
+        rows,
+        { y: 12, opacity: 0, filter: "blur(5px)" },
+        {
+          y: 0,
+          opacity: 1,
+          filter: "blur(0px)",
+          duration: 0.35,
+          ease: "power2.out",
+          stagger: 0.05,
+          clearProps: "filter",
+        },
+        0.25
+      );
+    },
+    { dependencies: [reduced, index], scope: rootRef }
+  );
+
+  return (
+    <div
+      ref={rootRef}
       className={cn(
-        "relative flex w-full max-w-sm flex-col rounded-2xl border bg-card p-6 shadow-sm",
+        "relative flex w-full max-w-sm flex-col rounded-2xl border bg-card p-6 opacity-0 shadow-sm",
         tier.featured ? "border-primary" : "border-border"
       )}
     >
@@ -141,9 +183,10 @@ function TierCard({ tier, index }: { tier: Tier; index: number }) {
         {tier.features.map((feature, i) => (
           <li
             key={feature}
-            className="flex items-start gap-2.5 text-sm text-foreground"
+            data-slot="feature-row"
+            className="flex items-start gap-2.5 text-sm text-foreground opacity-0"
           >
-            <FeatureCheck delay={200 + index * 80 + i * 50} />
+            <FeatureCheck delay={350 + index * 100 + i * 50} />
             {feature}
           </li>
         ))}
@@ -157,7 +200,7 @@ function TierCard({ tier, index }: { tier: Tier; index: number }) {
           {tier.ctaLabel}
         </Button>
       </div>
-    </motion.div>
+    </div>
   );
 }
 

@@ -169,7 +169,7 @@ function callTool(
       if (results.length === 0) {
         return text({
           results: [],
-          note: "No components matched. DUKU Labs currently covers primitives, feedback, overlays/navigation, fintech data, AI/agent interfaces, motion showpieces and auth/marketing blocks. Report unsupported requirements to the user instead of forcing a poor match.",
+          note: "No components matched. DUKU Labs currently covers primitives, feedback, overlays/navigation, fintech data, AI/agent interfaces, motion showpieces, auth/marketing blocks and signature workflows (KYC, option chain, Greeks, crypto swap, agent canvas, portfolio risk, biomarker trends). Report unsupported requirements to the user instead of forcing a poor match.",
         });
       }
       return text({ results });

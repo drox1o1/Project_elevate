@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CopyButton } from "@/registry/default/ui/kbd";
 import { Badge } from "@/registry/default/ui/badge";
+import { ScrollFade } from "@/components/site/scroll-fade";
 
 export const metadata: Metadata = {
   title: "Connect to MCP",
@@ -65,7 +66,7 @@ const TOOLS = [
 ] as const;
 
 const RESOURCES = [
-  ["duku://components", "Index of all 43 components"],
+  ["duku://components", "Index of all 50 components"],
   ["duku://components/{name}", "Per-component schema and source"],
   ["duku://tokens/default", "Foundation, semantic, domain and motion tokens"],
   ["duku://docs/quality-standard", "What every published component guarantees"],
@@ -79,7 +80,8 @@ const PROMPTS = [
 
 export default function ConnectPage() {
   return (
-    <main className="mx-auto flex max-w-3xl flex-col gap-14 px-4 py-20">
+    <main className="mx-auto max-w-3xl px-4 py-20">
+      <ScrollFade className="flex flex-col gap-14" y={20}>
       <header>
         <Badge variant="outline" className="mb-4">
           MCP beta · read-only registry
@@ -212,6 +214,7 @@ export default function ConnectPage() {
           reference instead).
         </p>
       </section>
+      </ScrollFade>
     </main>
   );
 }

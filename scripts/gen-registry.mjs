@@ -35,6 +35,7 @@ const LIB = {
   rm: "registry/default/lib/use-reduced-motion.ts",
   cs: "registry/default/lib/use-controllable-state.ts",
   fn: "registry/default/lib/format-number.ts",
+  bs: "registry/default/lib/black-scholes.ts",
 };
 
 const KF = {
@@ -121,6 +122,14 @@ const items = [
   ["marquee", "Marquee", "Seamless belt with hover-eased pause.", "motion", "registry:ui", GSAP, [], ["rm"]],
   ["text-roll-link", "Text Roll Link", "Link label that rolls per-char with an underline sweep.", "motion", "registry:ui", GSAP, [], ["rm"]],
   ["scroll-reveal-grid", "Scroll Reveal Grid", "Grid wrapper with grid-aware scroll stagger.", "motion", "registry:ui", GSAP, [], ["rm"]],
+  // ---- Phase 8: signature workflows
+  ["option-chain", "Option Chain", "NIFTY-style option chain: Greeks toggle, ATM highlighting, OI bars, tick flashes and in-context depth with orders.", "fintech", "registry:ui", GSAP, [], ["rm", "bs"]],
+  ["greeks-panel", "Greeks Panel", "Live Black-Scholes Greeks for one option with rolling values and springing magnitude gauges.", "fintech", "registry:ui", GSAP, ["number-flow"], ["rm", "bs"]],
+  ["kyc-flow", "KYC Flow", "Adaptive identity-verification journey: PAN, document capture, liveness, review, approved and manual-review outcomes.", "workflows", "registry:block", GSAP, ["button", "input", "field", "field-message", "alert", "badge"], ["rm"], KF.shimmer],
+  ["crypto-swap", "Crypto Swap", "USDT→ETH swap: token flip, slippage, route hops, fee breakdown, approval then swap, on-chain confirmation timeline.", "crypto", "registry:block", GSAP, ["button", "spinner"], ["rm"]],
+  ["agent-canvas", "Agent Canvas", "Agent execution timeline: plan, live tool calls, human approval gate, error with retry, final artifact.", "ai", "registry:block", GSAP, ["button", "spinner"], ["rm"]],
+  ["portfolio-risk", "Portfolio Risk", "Risk cockpit: value, P&L, beta and VaR tiles, sector exposure bars, concentration alerts, scenario shocks with hedge idea.", "fintech", "registry:block", GSAP, ["number-flow", "alert"], ["rm"]],
+  ["biomarker-trend", "Biomarker Trend", "Lab-value trend explorer: reference band, personal baseline, abnormal points, medication events, unit conversion.", "health", "registry:ui", GSAP, [], ["rm"]],
   // ---- Phase 7: blocks
   ["signup-card", "Signup Card", "The flagship block: full validation, strength meter, success morph.", "blocks", "registry:block", GSAP, ["button", "input", "field", "field-message", "checkbox", "alert"], ["rm"], KF.fadeIn],
   ["login-card", "Login Card", "Signup reduced: email + password with the same choreography.", "blocks", "registry:block", GSAP, ["button", "input", "field", "field-message", "checkbox", "alert"], ["rm"]],

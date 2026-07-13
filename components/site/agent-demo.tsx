@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "motion/react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 import { StreamText } from "@/registry/default/ai/stream-text";
 import { ThinkingIndicator } from "@/registry/default/ai/thinking-indicator";
@@ -19,6 +21,102 @@ const MATCHES = [
   { name: "otp-input", confidence: "0.73" },
 ];
 
+/** GSAP mount entrance: rise from below, optional back-out pop. */
+function Rise({
+  children,
+  className,
+  delay = 0,
+  y = 12,
+  pop = false,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  y?: number;
+  pop?: boolean;
+}) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+
+  useGSAP(
+    () => {
+      if (!ref.current) return;
+      if (reduced) {
+        gsap.set(ref.current, {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          clearProps: "filter",
+        });
+        return;
+      }
+      gsap.fromTo(
+        ref.current,
+        pop
+          ? { scale: 0.7, opacity: 0, filter: "blur(5px)" }
+          : { y, opacity: 0, filter: "blur(6px)" },
+        {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          filter: "blur(0px)",
+          duration: pop ? 0.45 : 0.4,
+          ease: pop ? "back.out(2)" : "power3.out",
+          delay,
+          clearProps: "filter",
+        }
+      );
+    },
+    { scope: ref }
+  );
+
+  return (
+    <div ref={ref} className={cn("opacity-0", className)}>
+      {children}
+    </div>
+  );
+}
+
+/** The house check-draw, GSAP-drawn when the install line lands. */
+function CheckDraw() {
+  const ref = React.useRef<SVGPathElement>(null);
+  const reduced = useReducedMotion();
+
+  useGSAP(() => {
+    if (!ref.current) return;
+    if (reduced) {
+      gsap.set(ref.current, { strokeDashoffset: 0 });
+      return;
+    }
+    gsap.fromTo(
+      ref.current,
+      { strokeDashoffset: 1 },
+      { strokeDashoffset: 0, duration: 0.45, ease: "power2.out", delay: 0.15 }
+    );
+  });
+
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={3}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="inline size-3.5 text-success"
+      aria-hidden="true"
+    >
+      <path
+        ref={ref}
+        d="M5 13l4 4L19 7"
+        pathLength={1}
+        strokeDasharray={1}
+        strokeDashoffset={1}
+      />
+    </svg>
+  );
+}
+
 /**
  * The hero's scripted agent session: prompt → MCP discovery → install →
  * the real, working SignupCard. Every artifact shown is real — the search
@@ -29,41 +127,59 @@ export function AgentDemo() {
   // Step 0 prompt · 1 searching · 2 results · 3 inspect · 4 install · 5 render
   const [step, setStep] = React.useState(0);
   const [replayKey, setReplayKey] = React.useState(0);
+  const cardRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    if (reduced) {
-      setStep(5);
-      return;
-    }
-    setStep(0);
+    setStep(reduced ? 5 : 0);
   }, [reduced, replayKey]);
-
-  const advance = React.useCallback(
-    (to: number, delay: number) => {
-      const t = setTimeout(() => setStep((s) => (s < to ? to : s)), delay);
-      return () => clearTimeout(t);
-    },
-    []
-  );
 
   React.useEffect(() => {
     if (reduced) return;
-    if (step === 1) return advance(2, 1400);
-    if (step === 2) return advance(3, 1300);
-    if (step === 3) return advance(4, 1100);
-    if (step === 4) return advance(5, 1200);
-  }, [step, reduced, advance]);
+    const delays: Record<number, number> = { 1: 1400, 2: 1300, 3: 1100, 4: 1200 };
+    const ms = delays[step];
+    if (!ms) return;
+    const t = setTimeout(() => setStep((s) => (s < step + 1 ? step + 1 : s)), ms);
+    return () => clearTimeout(t);
+  }, [step, reduced]);
 
-  const fade = (visible: boolean) =>
-    reduced
-      ? { opacity: visible ? 1 : 0 }
-      : undefined;
+  // The composed interface settles in with weight: rise + soft scale.
+  useGSAP(
+    () => {
+      if (step < 5 || !cardRef.current) return;
+      if (reduced) {
+        gsap.set(cardRef.current, {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          clearProps: "filter",
+        });
+        return;
+      }
+      gsap.fromTo(
+        cardRef.current,
+        { y: 24, scale: 0.97, opacity: 0, filter: "blur(10px)" },
+        {
+          y: 0,
+          scale: 1,
+          opacity: 1,
+          filter: "blur(0px)",
+          duration: 0.6,
+          ease: "power3.out",
+          clearProps: "filter",
+        }
+      );
+    },
+    { dependencies: [step, reduced] }
+  );
 
   return (
     <div className="w-full rounded-2xl border border-border bg-card shadow-sm">
       <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
         <div className="flex items-center gap-2">
-          <span className="size-2 rounded-full bg-agent-active" aria-hidden="true" />
+          <span className="relative flex size-2" aria-hidden="true">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-agent-active opacity-60" />
+            <span className="relative inline-flex size-2 rounded-full bg-agent-active" />
+          </span>
           <span className="text-xs font-medium text-muted-foreground">
             Coding agent · connected to duku-labs MCP
           </span>
@@ -96,77 +212,62 @@ export function AgentDemo() {
           ) : null}
 
           {step >= 2 ? (
-            <motion.div
-              initial={reduced ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              style={fade(true)}
-              className="flex flex-col gap-2"
-            >
-              <span className="text-muted-foreground">
-                → search_components ·{" "}
-                <span className="text-foreground">3 matches</span>
-              </span>
+            <div className="flex flex-col gap-2">
+              <Rise>
+                <span className="text-muted-foreground">
+                  → search_components ·{" "}
+                  <span className="text-foreground">3 matches</span>
+                </span>
+              </Rise>
               <div className="flex flex-wrap gap-2">
                 {MATCHES.map((m, i) => (
-                  <motion.span
-                    key={m.name}
-                    initial={reduced ? false : { opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={reduced ? undefined : { delay: 0.15 + i * 0.12 }}
-                  >
+                  <Rise key={m.name} pop delay={0.15 + i * 0.12}>
                     <Badge variant="outline">
                       {m.name}
                       <span className="ml-1.5 text-muted-foreground">
                         {m.confidence}
                       </span>
                     </Badge>
-                  </motion.span>
+                  </Rise>
                 ))}
               </div>
-            </motion.div>
+            </div>
           ) : null}
 
           {step >= 3 ? (
-            <motion.span
-              initial={reduced ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-muted-foreground"
-            >
-              → get_component signup-card ·{" "}
-              <span className="text-foreground">
-                props · states · motion spec · source
+            <Rise>
+              <span className="text-muted-foreground">
+                → get_component signup-card ·{" "}
+                <span className="text-foreground">
+                  props · states · motion spec · source
+                </span>
               </span>
-            </motion.span>
+            </Rise>
           ) : null}
 
           {step >= 4 ? (
-            <motion.span
-              initial={reduced ? false : { opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="break-all text-muted-foreground"
-            >
-              $ npx shadcn@latest add labs.duku.design/r/signup-card.json
-              {step >= 5 ? (
-                <span className="ml-2 text-success">✓ installed</span>
-              ) : null}
-            </motion.span>
+            <Rise>
+              <span className="break-all text-muted-foreground">
+                $ npx shadcn@latest add labs.duku.design/r/signup-card.json
+                {step >= 5 ? (
+                  <span className="ml-2 whitespace-nowrap text-success">
+                    <CheckDraw /> installed
+                  </span>
+                ) : null}
+              </span>
+            </Rise>
           ) : null}
         </div>
 
         <div className="flex items-start justify-center lg:w-[360px]">
           {step >= 5 ? (
-            <motion.div
-              initial={reduced ? false : { opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={reduced ? undefined : { duration: 0.4, ease: "easeOut" }}
-              className="w-full"
-            >
+            <div ref={cardRef} className="w-full opacity-0">
               <SignupCard
                 title="Create your account"
                 onSubmit={() => wait(1100)}
                 onOAuth={() => {}}
               />
-            </motion.div>
+            </div>
           ) : (
             <div
               aria-hidden="true"

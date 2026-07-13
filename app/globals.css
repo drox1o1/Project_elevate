@@ -50,6 +50,9 @@
   --motion-spring-stiffness: 380;
   --motion-spring-damping: 32;
   --motion-stagger: 50ms;
+  --motion-blur-sm: 4px;
+  --motion-blur-md: 8px;
+  --motion-blur-lg: 10px;
 }
 
 .dark {
