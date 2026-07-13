@@ -69,6 +69,8 @@ import { SkillsCard } from "@/registry/default/ai/skills-card";
 import { KineticHeading } from "@/registry/default/motion/kinetic-heading";
 import { MagneticButton } from "@/registry/default/motion/magnetic-button";
 import { Marquee } from "@/registry/default/motion/marquee";
+import { Navbar } from "@/registry/default/ui/navbar";
+import { LayoutGroup } from "motion/react";
 import { TextRollLink } from "@/registry/default/motion/text-roll-link";
 import { ScrollRevealGrid } from "@/registry/default/motion/scroll-reveal-grid";
 import { SignupCard } from "@/registry/default/blocks/signup-card";
@@ -611,26 +613,39 @@ function SlideTabsDemo() {
 }
 
 function NavbarDemo() {
+  const links = [
+    { href: "#home", label: "Home" },
+    { href: "#docs", label: "Docs" },
+    { href: "#pricing", label: "Pricing" },
+  ];
+  const [active, setActive] = React.useState("#home");
   return (
-    <div className="w-full max-w-lg overflow-hidden rounded-xl border border-border">
-      <div className="flex h-40 flex-col">
-        <div className="border-b border-border bg-background/80 backdrop-blur">
-          <div className="flex h-12 items-center justify-between px-4 text-sm">
-            <span className="font-semibold">duku</span>
-            <div className="flex gap-4 text-muted-foreground">
-              <span className="relative text-foreground">
-                Home
-                <span className="absolute inset-x-0 -bottom-3 mx-auto h-0.5 w-6 rounded-full bg-foreground" />
-              </span>
-              <span>Docs</span>
-              <span>Pricing</span>
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-1 items-center justify-center text-xs text-muted-foreground">
-          The real Navbar is dogfooded at the top of this site — scroll to see
-          the blur-in.
-        </div>
+    <div
+      className="w-full max-w-lg overflow-hidden rounded-xl border border-border"
+      onClickCapture={(e) => {
+        const a = (e.target as HTMLElement).closest("a[href^='#']");
+        if (a) {
+          e.preventDefault();
+          setActive(a.getAttribute("href") as string);
+        }
+      }}
+    >
+      {/* LayoutGroup namespaces the underline's layoutId so it never clashes
+          with the real site navbar at the top of the page. */}
+      <LayoutGroup id="navbar-demo">
+        <Navbar
+          className="!static bg-background"
+          links={links}
+          activeHref={active}
+          logo={
+            <span className="text-sm font-semibold text-foreground">duku</span>
+          }
+          cta={<span className="text-xs text-muted-foreground">v1.0</span>}
+        />
+      </LayoutGroup>
+      <div className="flex h-24 items-center justify-center px-6 text-center text-xs text-muted-foreground">
+        Click the links to spring the shared-layout underline. Narrow the window
+        for the hamburger → X mobile menu.
       </div>
     </div>
   );
@@ -714,12 +729,7 @@ function AmountInputDemo() {
   );
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-6">
-      <AmountInput
-        key={format}
-        numberFormat={format}
-        prefix="₹"
-        aria-label="Amount"
-      />
+      <AmountInput numberFormat={format} prefix="₹" aria-label="Amount" />
       <div className="flex gap-2">
         {(["in", "us", "eu", "space"] as const).map((f) => (
           <Button

@@ -44,11 +44,13 @@ const nf2 = new Intl.NumberFormat("en-IN", {
   maximumFractionDigits: 2,
 });
 
+// Indian-broker conventions: SL = stop-loss limit (trigger + limit price),
+// SL-M = stop-loss market (trigger, fills at market).
 const TYPES: { key: OrderType; label: string }[] = [
   { key: "market", label: "Market" },
   { key: "limit", label: "Limit" },
-  { key: "stop", label: "Stop" },
-  { key: "stop-limit", label: "Stop-Limit" },
+  { key: "stop-limit", label: "SL" },
+  { key: "stop", label: "SL-M" },
 ];
 
 type Stage = "form" | "review" | "placing" | "filling" | "done";
@@ -149,7 +151,7 @@ export function OrderTicket({
     set: (v: string) => void,
     disabled = false
   ) => (
-    <label className="flex flex-1 flex-col gap-1 text-[11px] text-muted-foreground">
+    <label className="flex min-w-0 flex-1 flex-col gap-1 text-[11px] text-muted-foreground">
       {label}
       <input
         inputMode="decimal"
@@ -158,7 +160,7 @@ export function OrderTicket({
         aria-label={label}
         onChange={(e) => set(e.target.value.replace(/[^0-9.]/g, ""))}
         className={cn(
-          "h-9 rounded-lg border border-input bg-background px-2.5 font-mono text-sm tabular-nums text-foreground",
+          "h-9 w-full min-w-0 rounded-lg border border-input bg-background px-2.5 font-mono text-sm tabular-nums text-foreground",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           disabled && "opacity-50"
         )}

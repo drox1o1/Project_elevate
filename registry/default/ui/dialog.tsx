@@ -3,7 +3,6 @@
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 import { cn } from "@/lib/utils";
 import { useControllableState } from "@/registry/default/lib/use-controllable-state";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
@@ -51,21 +50,40 @@ export function DialogContent({
   ...rest
 }: DialogContentProps) {
   const { open } = React.useContext(DialogCtx);
-  const wrapRef = React.useRef<HTMLDivElement>(null);
-  const overlayRef = React.useRef<HTMLDivElement>(null);
   const panelRef = React.useRef<HTMLDivElement>(null);
-  const mounted = React.useRef(false);
   const reduced = useReducedMotion();
+  const domId = React.useId().replace(/[^a-zA-Z0-9_-]/g, "");
   React.useImperativeHandle(ref, () => panelRef.current as HTMLDivElement);
 
-  // GSAP-on-data-state: content stays force-mounted, we animate open/close
-  // and hide with visibility when fully closed.
-  useGSAP(
-    () => {
-      const overlay = overlayRef.current;
-      const panel = panelRef.current;
-      const wrap = wrapRef.current;
-      if (!overlay || !panel || !wrap) return;
+  // Mount the portal only while open or animating out. Keeping Radix's
+  // dismissable layer mounted while closed makes it treat the trigger's
+  // own press as an outside-click and cancel the open — so we drive
+  // mount/unmount ourselves and use forceMount only to hold the tree
+  // through the GSAP exit.
+  const [render, setRender] = React.useState(open);
+  React.useEffect(() => {
+    if (open) setRender(true);
+  }, [open]);
+
+  // Drive the entrance/exit via rAF + a document query keyed on a stable
+  // per-instance id. The portal's DOM (and therefore its refs) isn't
+  // committed yet when this effect first runs on the mounting render, so
+  // reading a ref synchronously would miss the nodes — one frame later
+  // they exist.
+  React.useEffect(() => {
+    if (!render) return;
+    const raf = requestAnimationFrame(() => {
+      const wrap = document.querySelector<HTMLElement>(
+        `[data-dialog-id="${domId}"]`
+      );
+      if (!wrap) return;
+      const overlay = wrap.querySelector<HTMLElement>(
+        '[data-slot="dialog-overlay"]'
+      );
+      const panel = wrap.querySelector<HTMLElement>(
+        '[data-slot="dialog-content"]'
+      );
+      if (!overlay || !panel) return;
       gsap.killTweensOf([overlay, panel]);
       if (open) {
         gsap.set(wrap, { visibility: "visible" });
@@ -80,37 +98,37 @@ export function DialogContent({
           { opacity: 0, scale: 0.96, y: 8 },
           { opacity: 1, scale: 1, y: 0, duration: 0.25, ease: "power3.out" }
         );
-      } else if (mounted.current) {
-        if (reduced) {
-          gsap.set(wrap, { visibility: "hidden" });
-          return;
-        }
-        gsap.to(overlay, { opacity: 0, duration: 0.15, ease: "power2.in" });
-        gsap.to(panel, {
-          opacity: 0,
-          scale: 0.96,
-          y: 8,
-          duration: 0.15,
-          ease: "power2.in",
-          onComplete: () => gsap.set(wrap, { visibility: "hidden" }),
-        });
+        return;
       }
-      mounted.current = true;
-    },
-    { dependencies: [open, reduced], scope: wrapRef }
-  );
+      if (reduced) {
+        setRender(false);
+        return;
+      }
+      gsap.to(overlay, { opacity: 0, duration: 0.15, ease: "power2.in" });
+      gsap.to(panel, {
+        opacity: 0,
+        scale: 0.96,
+        y: 8,
+        duration: 0.15,
+        ease: "power2.in",
+        onComplete: () => setRender(false),
+      });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [open, render, reduced, domId]);
+
+  if (!render) return null;
 
   return (
     <DialogPrimitive.Portal forceMount>
       <div
-        ref={wrapRef}
         data-slot="dialog-wrapper"
+        data-dialog-id={domId}
         style={{ visibility: "hidden" }}
         className="fixed inset-0 z-50"
       >
         <DialogPrimitive.Overlay forceMount asChild>
           <div
-            ref={overlayRef}
             data-slot="dialog-overlay"
             className="fixed inset-0 bg-black/50 opacity-0 backdrop-blur-[2px]"
           />
