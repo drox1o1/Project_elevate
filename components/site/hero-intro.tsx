@@ -65,13 +65,18 @@ export function HeroIntro() {
 
   return (
     <div ref={rootRef} className="flex flex-col items-center">
-      <div data-hero="badge" className="mb-6 opacity-0">
-        <Badge variant="outline" pulse>
+      <div data-hero="badge" className="mb-5 flex flex-col items-center gap-4 opacity-0">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-light.svg" alt="" className="pixelated h-9 w-auto dark:hidden" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-dark.svg" alt="" className="pixelated hidden h-9 w-auto dark:block" />
+        <Badge variant="outline" pulse className="font-pixel text-[10px] uppercase tracking-widest">
           Design engineering with AI
         </Badge>
       </div>
       <KineticHeading
         text="Interfaces your AI would not design by itself."
+        className="font-pixel text-3xl leading-snug tracking-tight sm:text-4xl md:text-5xl"
         delay={0.35}
       />
       <p
@@ -84,22 +89,22 @@ export function HeroIntro() {
         Claude Code or Codex discover, customise and implement the right
         interface directly in your codebase.
       </p>
-      <div data-hero="cta" className="mt-8 flex items-center gap-4 opacity-0">
-        <Link href="/connect">
-          <MagneticButton>Connect to MCP</MagneticButton>
+      <div data-hero="cta" className="mt-8 flex flex-wrap items-center justify-center gap-4 opacity-0">
+        <Link href="/#access">
+          <MagneticButton>Get free access</MagneticButton>
         </Link>
         <Link
-          href="/components/button"
+          href="/connect"
           className="text-sm font-medium text-foreground underline-offset-4 transition-colors duration-200 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          Explore the library
+          Connect to MCP
         </Link>
       </div>
       <p
         data-hero="proof"
-        className="mt-6 text-xs text-muted-foreground opacity-0"
+        className="mt-6 font-pixel text-[10px] uppercase tracking-widest text-muted-foreground opacity-0"
       >
-        Built for real products. Designed for every state. Yours to customise.
+        Real products · every state · yours to customise
       </p>
     </div>
   );
