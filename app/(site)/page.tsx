@@ -3,6 +3,8 @@ import { Marquee } from "@/registry/default/motion/marquee";
 import { ScrollRevealGrid } from "@/registry/default/motion/scroll-reveal-grid";
 import { Badge } from "@/registry/default/ui/badge";
 import { AgentDemo } from "@/components/site/agent-demo";
+import { AccessForm } from "@/components/site/access-form";
+import { AsciiShowcase } from "@/components/site/ascii-showcase";
 import { HeroIntro } from "@/components/site/hero-intro";
 import { InstallTabs } from "@/components/site/install-tabs";
 import { PreviewPanel } from "@/components/site/preview";
@@ -79,13 +81,32 @@ export default function HomePage() {
   return (
     <main>
       {/* Hero */}
-      <section className="mx-auto flex max-w-3xl flex-col items-center px-4 pb-12 pt-24 text-center">
+      <section className="mx-auto flex max-w-3xl flex-col items-center px-4 pb-10 pt-20 text-center">
         <HeroIntro />
       </section>
 
+      {/* The whole product, in pixels */}
+      <section className="mx-auto max-w-5xl px-4 pb-6">
+        <AsciiShowcase />
+        <p className="mt-3 text-center font-pixel text-[10px] uppercase tracking-widest text-muted-foreground">
+          The whole product, drawn in pixels — option chains, KYC, vitals, swaps, agents
+        </p>
+      </section>
+
       {/* Live implementation demo */}
-      <section className="mx-auto max-w-5xl px-4 pb-20">
-        <AgentDemo />
+      <section className="mx-auto max-w-5xl px-4 py-14">
+        <ScrollFade>
+          <h2 className="font-pixel text-xl uppercase tracking-wide sm:text-2xl">
+            And here it is for real.
+          </h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+            The same system, running: an agent connected over MCP discovers,
+            installs and renders a working component.
+          </p>
+        </ScrollFade>
+        <div className="mt-6">
+          <AgentDemo />
+        </div>
       </section>
 
       <section className="border-y border-border py-10">
@@ -104,7 +125,7 @@ export default function HomePage() {
       {/* Built for agents */}
       <section className="mx-auto max-w-5xl px-4 py-20">
         <ScrollFade>
-          <h2 className="max-w-2xl text-2xl font-semibold tracking-tight">
+          <h2 className="max-w-2xl font-pixel text-xl uppercase tracking-wide sm:text-2xl">
             Your coding agent can see the system, not just the screenshot.
           </h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -135,7 +156,7 @@ export default function HomePage() {
       <section className="border-t border-border">
         <div className="mx-auto max-w-5xl px-4 py-20">
           <ScrollFade>
-            <h2 className="text-2xl font-semibold tracking-tight">
+            <h2 className="font-pixel text-xl uppercase tracking-wide sm:text-2xl">
               The difficult parts are already designed.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -175,7 +196,7 @@ export default function HomePage() {
       <section className="border-t border-border">
         <div className="mx-auto max-w-6xl px-4 py-20">
           <ScrollFade>
-            <h2 className="text-2xl font-semibold tracking-tight">
+            <h2 className="font-pixel text-xl uppercase tracking-wide sm:text-2xl">
               Try it here, not in a screenshot.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -212,7 +233,7 @@ export default function HomePage() {
       <section className="border-t border-border">
         <div className="mx-auto max-w-5xl px-4 py-20">
           <ScrollFade>
-            <h2 className="text-2xl font-semibold tracking-tight">
+            <h2 className="font-pixel text-xl uppercase tracking-wide sm:text-2xl">
               Every state included.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
@@ -231,11 +252,30 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Free access — the lead magnet */}
+      <section id="access" className="border-t border-border scroll-mt-20">
+        <div className="mx-auto max-w-3xl px-4 py-20">
+          <ScrollFade>
+            <h2 className="font-pixel text-xl uppercase tracking-wide sm:text-2xl">
+              Free while in beta.
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+              Every component — signature workflows included — is free to
+              integrate right now. In exchange, tell us what you&apos;re
+              building: it decides which components we design next.
+            </p>
+            <div className="mt-8">
+              <AccessForm />
+            </div>
+          </ScrollFade>
+        </div>
+      </section>
+
       {/* Installation */}
       <section className="border-t border-border">
         <div className="mx-auto max-w-3xl px-4 py-20">
           <ScrollFade>
-            <h2 className="text-2xl font-semibold tracking-tight">
+            <h2 className="font-pixel text-xl uppercase tracking-wide sm:text-2xl">
               Installation
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
@@ -253,7 +293,7 @@ export default function HomePage() {
       <section className="border-t border-border">
         <div className="mx-auto max-w-5xl px-4 py-20">
           <ScrollFade>
-            <h2 className="text-2xl font-semibold tracking-tight">
+            <h2 className="font-pixel text-xl uppercase tracking-wide sm:text-2xl">
               Why DUKU Labs
             </h2>
           </ScrollFade>
@@ -279,7 +319,7 @@ export default function HomePage() {
       <section className="border-t border-border">
         <div className="mx-auto max-w-5xl px-4 py-20">
           <ScrollFade>
-            <h2 className="text-2xl font-semibold tracking-tight">
+            <h2 className="font-pixel text-xl uppercase tracking-wide sm:text-2xl">
               The catalog
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
