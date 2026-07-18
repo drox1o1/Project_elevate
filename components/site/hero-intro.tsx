@@ -67,9 +67,9 @@ export function HeroIntro() {
     <div ref={rootRef} className="flex flex-col items-center">
       <div data-hero="badge" className="mb-5 flex flex-col items-center gap-4 opacity-0">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-light.svg" alt="" className="pixelated h-9 w-auto dark:hidden" />
+        <img src="/duku_labs_light.svg" alt="DUKU Labs" className="h-9 w-auto dark:hidden sm:h-11" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-dark.svg" alt="" className="pixelated hidden h-9 w-auto dark:block" />
+        <img src="/duku_labs_dark.svg" alt="DUKU Labs" className="hidden h-9 w-auto dark:block sm:h-11" />
         <Badge variant="outline" pulse className="font-pixel text-[10px] uppercase tracking-widest">
           Design engineering with AI
         </Badge>

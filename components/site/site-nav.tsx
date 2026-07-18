@@ -30,15 +30,12 @@ export function SiteNav() {
       logo={
         <Link
           href="/"
-          className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-light.svg" alt="DUKU" className="pixelated h-5 w-auto dark:hidden" />
+          <img src="/duku_labs_light.svg" alt="DUKU Labs" className="h-6 w-auto dark:hidden" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-dark.svg" alt="DUKU" className="pixelated hidden h-5 w-auto dark:block" />
-          <span className="font-pixel text-xs tracking-wider text-foreground">
-            DUKU LABS
-          </span>
+          <img src="/duku_labs_dark.svg" alt="DUKU Labs" className="hidden h-6 w-auto dark:block" />
         </Link>
       }
       cta={<ThemeToggle />}

@@ -43,15 +43,12 @@ export function SiteFooter() {
         <div>
           <Link
             href="/"
-            className="inline-flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-light.svg" alt="" className="pixelated h-6 w-auto dark:hidden" />
+            <img src="/duku_labs_light.svg" alt="DUKU Labs" className="h-7 w-auto dark:hidden" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-dark.svg" alt="" className="pixelated hidden h-6 w-auto dark:block" />
-            <span className="font-pixel text-sm tracking-wider text-foreground">
-              DUKU LABS
-            </span>
+            <img src="/duku_labs_dark.svg" alt="DUKU Labs" className="hidden h-7 w-auto dark:block" />
           </Link>
           <p className="mt-3 max-w-[26ch] font-pixel text-[11px] leading-5 tracking-wide text-muted-foreground">
             DESIGN ENGINEERING FOR AI-BUILT PRODUCTS
