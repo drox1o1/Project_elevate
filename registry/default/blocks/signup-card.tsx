@@ -434,7 +434,7 @@ export function SignupCard({
       ref={cardRef}
       data-slot="signup-card"
       className={cn(
-        "w-full max-w-md rounded-2xl border border-border bg-card p-8 opacity-0 shadow-sm",
+        "w-full max-w-md rounded-3xl border border-border/60 bg-card p-8 opacity-0 shadow-md",
         className
       )}
       {...rest}

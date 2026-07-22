@@ -130,9 +130,10 @@ export function NewsletterInput({
         ref={controlRef}
         data-slot="control"
         className={cn(
-          "relative flex h-12 items-center overflow-hidden rounded-full border border-input bg-background pl-4 pr-1.5",
-          "transition-[border-color,box-shadow] duration-200",
-          "focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/25",
+          "relative flex h-12 items-center overflow-hidden rounded-full border border-input bg-background pl-5 pr-1.5 shadow-sm",
+          "transition-[border-color,box-shadow] duration-300",
+          "hover:border-ring/30",
+          "focus-within:border-ring focus-within:shadow-md focus-within:ring-2 focus-within:ring-ring/25",
           error != null && "border-destructive focus-within:ring-destructive/25",
           phase === "success" && "justify-center border-emerald-600 px-0"
         )}

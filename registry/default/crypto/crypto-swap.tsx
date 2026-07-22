@@ -229,8 +229,8 @@ export function CryptoSwap({
     <div
       ref={which === "pay" ? payRef : recvRef}
       className={cn(
-        "rounded-xl border bg-background p-3",
-        which === "pay" && insufficient ? "border-destructive" : "border-border"
+        "rounded-2xl border bg-background/60 p-3.5 shadow-xs transition-colors duration-200",
+        which === "pay" && insufficient ? "border-destructive/50" : "border-border/60"
       )}
     >
       <div className="flex items-center justify-between text-[11px] text-muted-foreground">
@@ -288,7 +288,7 @@ export function CryptoSwap({
       ref={rootRef}
       data-slot="crypto-swap"
       className={cn(
-        "w-full max-w-sm rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-sm rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
@@ -301,9 +301,9 @@ export function CryptoSwap({
               type="button"
               aria-label="Flip tokens"
               onClick={flip}
-              className="absolute left-1/2 top-1/2 z-10 flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground shadow-sm transition-all duration-200 hover:text-foreground active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group/flip absolute left-1/2 top-1/2 z-10 flex size-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-card bg-background text-muted-foreground shadow-md ring-1 ring-border/60 transition-[transform,color,box-shadow] duration-200 ease-out-expo hover:text-foreground hover:shadow-lg active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="size-4" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="size-4 transition-transform duration-300 ease-out-expo group-hover/flip:rotate-180 motion-reduce:group-hover/flip:rotate-0" aria-hidden="true">
                 <path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3" />
               </svg>
             </button>

@@ -1165,25 +1165,19 @@ function KycFlowDemo() {
   return (
     <div className="flex w-full flex-col items-center gap-4">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        Outcome:
-        {(["approved", "manual-review"] as const).map((o) => (
-          <button
-            key={o}
-            type="button"
-            aria-pressed={outcome === o}
-            onClick={() => {
-              setOutcome(o);
-              setRun((r) => r + 1);
-            }}
-            className={
-              outcome === o
-                ? "rounded-md bg-primary px-2 py-1 font-medium text-primary-foreground"
-                : "rounded-md bg-muted px-2 py-1 font-medium hover:text-foreground"
-            }
-          >
-            {o}
-          </button>
-        ))}
+        <span>Outcome</span>
+        <SegmentedToggle
+          id="kyc-outcome"
+          value={outcome}
+          onChange={(v) => {
+            setOutcome(v as KycOutcome);
+            setRun((r) => r + 1);
+          }}
+          options={[
+            { value: "approved", label: "Approved" },
+            { value: "manual-review", label: "Manual review" },
+          ]}
+        />
       </div>
       <KycFlow
         key={`${outcome}-${run}`}

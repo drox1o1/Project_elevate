@@ -133,9 +133,12 @@ function StepRail({ step }: { step: number }) {
       />
       <span
         aria-hidden="true"
-        className="absolute left-3 top-[11px] h-0.5 max-w-[calc(100%-1.5rem)] bg-primary"
+        className="absolute left-3 top-[11px] h-0.5 max-w-[calc(100%-1.5rem)] rounded-full"
         ref={fillRef}
-        style={{ width: 0 }}
+        style={{
+          width: 0,
+          background: "linear-gradient(90deg, color-mix(in oklab, var(--primary) 55%, transparent), var(--primary))",
+        }}
       />
       {STEPS.map((label, i) => {
         const done = step > i;
@@ -500,7 +503,7 @@ export function KycFlow({
       ref={ref}
       data-slot="kyc-flow"
       className={cn(
-        "w-full max-w-md rounded-2xl border border-border bg-card p-6",
+        "w-full max-w-md rounded-3xl border border-border/60 bg-card p-6 shadow-md",
         className
       )}
       {...rest}
