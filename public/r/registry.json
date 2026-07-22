@@ -1726,6 +1726,53 @@
       }
     },
     {
+      "name": "card-payment",
+      "type": "registry:block",
+      "title": "Card Payment",
+      "description": "Add-card and pay: a live 3D card face detects the brand as you type, flips for the CVV, validates Luhn and expiry, and the pay button runs a processing → paid morph.",
+      "dependencies": [
+        "motion"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/fintech/card-payment.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
+      "name": "penny-drop",
+      "type": "registry:block",
+      "title": "Penny Drop",
+      "description": "Penny-drop bank verification: a ₹1 deposit confirms the account and returns the holder name, with staged progress and a name-match read (verified or mismatch).",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/fintech/penny-drop.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
       "name": "signup-card",
       "type": "registry:block",
       "title": "Signup Card",

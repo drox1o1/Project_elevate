@@ -122,6 +122,8 @@ import { LoanEligibility } from "@/registry/default/fintech/loan-eligibility";
 import { ToolCallInspector } from "@/registry/default/ai/tool-call-inspector";
 import { ApprovalGate } from "@/registry/default/ai/approval-gate";
 import { GroundedAnswer, DEMO_ANSWER } from "@/registry/default/ai/grounded-answer";
+import { CardPayment } from "@/registry/default/fintech/card-payment";
+import { PennyDrop } from "@/registry/default/fintech/penny-drop";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -1471,7 +1473,43 @@ function GroundedAnswerDemo() {
   );
 }
 
+function CardPaymentDemo() {
+  return (
+    <CardPayment
+      amount={2499}
+      onPaid={(d) =>
+        toast({
+          title: `Paid ₹2,499 · ${d.brand} ••${d.last4}`,
+          variant: "success",
+        })
+      }
+    />
+  );
+}
+
+function PennyDropDemo() {
+  return (
+    <PennyDrop
+      expectedName="Asha Verma"
+      onVerify={async ({ ifsc }) => {
+        await wait(300);
+        return {
+          beneficiaryName: "ASHA VERMA",
+          bank:
+            { HDFC: "HDFC Bank", ICIC: "ICICI Bank", SBIN: "State Bank of India" }[
+              ifsc.slice(0, 4)
+            ] ?? "Your bank",
+          matchScore: 1,
+          status: "verified" as const,
+        };
+      }}
+    />
+  );
+}
+
 export const DEMOS: Record<string, React.ComponentType> = {
+  "card-payment": CardPaymentDemo,
+  "penny-drop": PennyDropDemo,
   "investigation-timeline": InvestigationTimelineDemo,
   "entity-graph": EntityGraphDemo,
   "fund-compare": FundCompareDemo,
