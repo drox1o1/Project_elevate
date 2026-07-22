@@ -264,24 +264,26 @@ export function OptionChain({
   const toggleRow = (strike: number) =>
     setExpanded((e) => (e === strike ? null : strike));
 
-  const oiBar = (q: OptionQuote, side: "call" | "put") => ({
-    backgroundImage: `linear-gradient(to ${side === "call" ? "left" : "right"}, ${
-      side === "call" ? "var(--bid)" : "var(--ask)"
-    } ${Math.round((q.oi / maxOi) * 100)}%, transparent ${Math.round((q.oi / maxOi) * 100)}%)`,
-  });
+  const oiBar = (q: OptionQuote, side: "call" | "put") => {
+    const pct = Math.round((q.oi / maxOi) * 100);
+    const color = side === "call" ? "var(--bid)" : "var(--ask)";
+    return {
+      backgroundImage: `linear-gradient(to ${side === "call" ? "left" : "right"}, color-mix(in oklab, ${color} 26%, transparent) 0%, color-mix(in oklab, ${color} 9%, transparent) ${pct}%, transparent ${pct}%)`,
+    };
+  };
 
   return (
     <div
       ref={ref}
       data-slot="option-chain"
       className={cn(
-        "w-full rounded-xl border border-border bg-card text-sm",
+        "w-full overflow-hidden rounded-2xl border border-border/60 bg-card text-sm shadow-md",
         className
       )}
       {...rest}
     >
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-3 py-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-3 py-2.5">
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground">
             Spot
@@ -403,7 +405,7 @@ export function OptionChain({
                         {i === 0 && !compact ? (
                           <span
                             aria-hidden="true"
-                            className="absolute inset-y-1 right-0 left-0 opacity-15"
+                            className="absolute inset-y-1 right-0 left-0"
                             style={oiBar(row.call, "call")}
                           />
                         ) : null}
@@ -434,7 +436,7 @@ export function OptionChain({
                         {i === columns.length - 1 && !compact ? (
                           <span
                             aria-hidden="true"
-                            className="absolute inset-y-1 left-0 right-0 opacity-15"
+                            className="absolute inset-y-1 left-0 right-0"
                             style={oiBar(row.put, "put")}
                           />
                         ) : null}

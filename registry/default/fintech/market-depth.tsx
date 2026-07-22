@@ -104,11 +104,14 @@ function Row({
       <span
         ref={barRef}
         aria-hidden="true"
-        className={cn(
-          "absolute inset-y-0.5 rounded-sm opacity-15",
-          side === "bid" ? "right-0 bg-bid" : "left-0 bg-ask"
-        )}
-        style={{ width: 0 }}
+        className={cn("absolute inset-y-0.5 rounded-md", side === "bid" ? "right-0" : "left-0")}
+        style={{
+          width: 0,
+          background:
+            side === "bid"
+              ? "linear-gradient(270deg, color-mix(in oklab, var(--bid) 26%, transparent), color-mix(in oklab, var(--bid) 6%, transparent))"
+              : "linear-gradient(90deg, color-mix(in oklab, var(--ask) 26%, transparent), color-mix(in oklab, var(--ask) 6%, transparent))",
+        }}
       />
       <span className="relative text-left text-muted-foreground">
         {level.orders}
@@ -167,7 +170,7 @@ export function MarketDepth({
       ref={ref}
       data-slot="market-depth"
       className={cn(
-        "w-full max-w-sm rounded-xl border border-border bg-card p-3",
+        "w-full max-w-sm rounded-3xl border border-border/60 bg-card p-4 shadow-md",
         className
       )}
       {...rest}
@@ -176,26 +179,36 @@ export function MarketDepth({
         <span className="text-sm font-semibold text-foreground">{symbol}</span>
         <span
           className={cn(
-            "font-mono text-sm font-semibold tabular-nums transition-colors duration-500",
+            "flex items-center gap-1 font-mono text-base font-semibold tabular-nums transition-colors duration-500",
             flash === "up" && "text-market-up",
-            flash === "down" && "text-market-down"
+            flash === "down" && "text-market-down",
+            !flash && "text-foreground"
           )}
         >
+          {flash ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className={cn("size-3.5", flash === "down" && "rotate-180")} aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+          ) : null}
           {nf2.format(lastPrice)}
         </span>
       </div>
 
       {/* buyer/seller balance */}
       <div
-        className="mt-2 flex h-1.5 overflow-hidden rounded-full"
+        className="mt-2.5 flex h-2 overflow-hidden rounded-full ring-1 ring-inset ring-border/40"
         role="meter"
         aria-label="Buy-side share of visible depth"
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={bidShare}
       >
-        <span className="bg-bid transition-all duration-500" style={{ width: `${bidShare}%` }} />
-        <span className="flex-1 bg-ask" />
+        <span
+          className="transition-all duration-500"
+          style={{ width: `${bidShare}%`, background: "linear-gradient(90deg, color-mix(in oklab, var(--bid) 60%, transparent), var(--bid))" }}
+        />
+        <span
+          className="flex-1"
+          style={{ background: "linear-gradient(90deg, var(--ask), color-mix(in oklab, var(--ask) 60%, transparent))" }}
+        />
       </div>
       <div className="mt-1 flex justify-between px-1 text-[10px] text-muted-foreground">
         <span>Buyers {bidShare}%</span>
@@ -215,7 +228,7 @@ export function MarketDepth({
         ))}
       </div>
 
-      <div className="my-1 flex items-center justify-between rounded-md bg-muted/60 px-2 py-1 text-[11px]">
+      <div className="my-1.5 flex items-center justify-between rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1.5 text-[11px]">
         <span className="text-muted-foreground">
           Spread <span className="font-mono tabular-nums text-foreground">{nf2.format(spread)}</span>
         </span>
