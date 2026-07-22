@@ -129,7 +129,7 @@ export function GroundedAnswer({
       ref={rootRef}
       data-slot="grounded-answer"
       className={cn(
-        "w-full max-w-xl rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-xl rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
@@ -204,12 +204,12 @@ export function GroundedAnswer({
             key={s.id}
             data-source={s.id}
             className={cn(
-              "rounded-xl border px-3 py-2 transition-colors duration-300",
-              activeSource === s.id ? "border-primary bg-primary/5" : "border-border bg-background"
+              "rounded-xl border px-3 py-2.5 shadow-xs transition-colors duration-300",
+              activeSource === s.id ? "border-primary/50 bg-primary/[0.05]" : "border-border/60 bg-background/60"
             )}
           >
             <p className="flex items-baseline gap-1.5 text-xs font-medium text-foreground">
-              <span className="flex size-4 shrink-0 items-center justify-center rounded bg-info/15 text-[9px] font-semibold text-info">
+              <span className="flex size-4 shrink-0 items-center justify-center rounded bg-info/15 text-[9px] font-semibold text-info ring-1 ring-inset ring-info/20">
                 {srcIndex[s.id]}
               </span>
               {s.title}

@@ -75,7 +75,7 @@ function StepDot({ state }: { state: StepState }) {
         state === "active" && "border-agent-active",
         state === "waiting" && "border-agent-waiting",
         state === "error" && "border-agent-error bg-agent-error text-white",
-        state === "pending" && "border-border"
+        state === "pending" && "border-border bg-background shadow-xs"
       )}
     >
       {state === "done" ? (
@@ -266,13 +266,13 @@ export function AgentCanvas({
       ref={ref}
       data-slot="agent-canvas"
       className={cn(
-        "w-full max-w-lg rounded-2xl border border-border bg-card",
+        "w-full max-w-lg overflow-hidden rounded-3xl border border-border/60 bg-card shadow-md",
         className
       )}
       {...rest}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
+      <div className="flex items-start justify-between gap-3 border-b border-border/60 bg-muted/20 px-5 py-3.5">
         <div className="min-w-0">
           <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
             Goal
@@ -291,7 +291,7 @@ export function AgentCanvas({
       </div>
 
       {/* Timeline */}
-      <ol className="flex flex-col px-4 py-3">
+      <ol className="flex flex-col px-5 py-4">
         {steps.map((step, i) => {
           const state = stepState(i);
           const calls = step.toolCalls ?? [];
@@ -373,7 +373,7 @@ export function AgentCanvas({
       </ol>
 
       {/* Footer: start / artifact */}
-      <div className="border-t border-border px-4 py-3">
+      <div className="border-t border-border/60 px-5 py-3.5">
         {status === "idle" ? (
           <Button className="w-full" onClick={() => runFrom(0, -1)}>
             Run plan

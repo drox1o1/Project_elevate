@@ -126,7 +126,7 @@ export function SkillsCard({
       ref={rootRef}
       data-slot="skills-card"
       className={cn(
-        "w-full max-w-md rounded-xl border border-border bg-card",
+        "w-full max-w-md rounded-2xl border border-border/60 bg-card shadow-md",
         className
       )}
       {...rest}
@@ -138,7 +138,7 @@ export function SkillsCard({
         aria-controls={contentId}
         onClick={() => setOpen(!open)}
         className={cn(
-          "flex w-full items-center justify-between gap-3 rounded-xl px-5 py-4 text-left",
+          "flex w-full items-center justify-between gap-3 rounded-2xl px-5 py-4 text-left",
           "transition-colors duration-200 hover:bg-muted/50",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background"
         )}

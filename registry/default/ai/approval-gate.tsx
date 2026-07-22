@@ -114,7 +114,7 @@ export function ApprovalGate({
       ref={rootRef}
       data-slot="approval-gate"
       className={cn(
-        "w-full max-w-md rounded-2xl border bg-card p-4 transition-colors duration-300",
+        "w-full max-w-md rounded-3xl border bg-card p-5 shadow-md transition-colors duration-300",
         meta.border,
         className
       )}
@@ -152,8 +152,8 @@ export function ApprovalGate({
         ) : (
           <blockquote
             className={cn(
-              "rounded-lg border-l-2 bg-muted/50 px-3 py-2 text-[12px] leading-5",
-              draft !== payload ? "border-info text-foreground" : "border-border text-foreground",
+              "rounded-xl border border-l-2 bg-muted/40 px-3.5 py-2.5 text-[12px] leading-5 shadow-xs",
+              draft !== payload ? "border-l-info border-border/60 text-foreground" : "border-l-border border-border/60 text-foreground",
               state === "rejected" && "opacity-50"
             )}
           >
@@ -182,14 +182,16 @@ export function ApprovalGate({
       {/* Expiry / outcome */}
       {state === "pending" ? (
         <>
-          <div className="mt-3 h-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-muted ring-1 ring-inset ring-border/40" aria-hidden="true">
             <span
               ref={barRef}
-              className={cn(
-                "block h-full rounded-full",
-                remaining / expiresInSec > 0.33 ? "bg-agent-waiting" : "bg-destructive"
-              )}
-              style={{ width: "100%" }}
+              className="block h-full rounded-full"
+              style={{
+                width: "100%",
+                background: remaining / expiresInSec > 0.33
+                  ? "linear-gradient(90deg, color-mix(in oklab, var(--agent-waiting) 55%, transparent), var(--agent-waiting))"
+                  : "linear-gradient(90deg, color-mix(in oklab, var(--destructive) 55%, transparent), var(--destructive))",
+              }}
             />
           </div>
           <p className="mt-1 text-[10px] tabular-nums text-muted-foreground">
@@ -214,7 +216,7 @@ export function ApprovalGate({
                 <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
                   Modify
                 </Button>
-                <Button size="sm" className="flex-1" onClick={() => decide("approved")}>
+                <Button size="sm" className="flex-1 bg-success text-white shadow-sm hover:bg-success/90" onClick={() => decide("approved")}>
                   Approve
                 </Button>
               </>
