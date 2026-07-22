@@ -1259,22 +1259,37 @@ function BiomarkerTrendDemo() {
 
 function MarketDepthDemo() {
   const reduced = useReducedMotion();
-  const [mid, setMid] = React.useState(1543.4);
+  // A stable ladder: the price levels stay fixed and only the resting
+  // quantities drift, so the depth bars breathe smoothly instead of the
+  // whole book reshuffling and re-animating from zero each tick.
+  const base = React.useMemo(() => generateDepth(1543.4), []);
+  const [book, setBook] = React.useState(base);
+  const [last, setLast] = React.useState(1543.4);
+
   React.useEffect(() => {
     if (reduced) return;
-    const id = setInterval(
-      () => setMid((m) => +(m + (Math.random() - 0.5) * 0.6).toFixed(2)),
-      1400
-    );
+    const walk = (l: (typeof base)["bids"][number]) => ({
+      ...l,
+      // gentle ±8% random walk, floored so a level never disappears
+      qty: Math.max(300, Math.round(l.qty * (1 + (Math.random() - 0.5) * 0.16))),
+      orders: Math.max(1, l.orders + (Math.random() < 0.3 ? (Math.random() < 0.5 ? -1 : 1) : 0)),
+    });
+    const id = setInterval(() => {
+      setBook((b) => ({ bids: b.bids.map(walk), asks: b.asks.map(walk) }));
+      // last price ticks within the spread, occasionally, so the flash stays rare
+      if (Math.random() < 0.5) {
+        setLast((p) => +(p + (Math.random() - 0.5) * 0.08).toFixed(2));
+      }
+    }, 1800);
     return () => clearInterval(id);
-  }, [reduced]);
-  const { bids, asks } = React.useMemo(() => generateDepth(mid), [mid]);
+  }, [reduced, base]);
+
   return (
     <MarketDepth
       symbol="HDFCBANK"
-      bids={bids}
-      asks={asks}
-      lastPrice={mid}
+      bids={book.bids}
+      asks={book.asks}
+      lastPrice={last}
       atp={1542.1}
       onLevelSelect={(side, level) =>
         toast({

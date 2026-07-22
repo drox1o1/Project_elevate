@@ -82,9 +82,9 @@ function Row({
       }
       gsap.to(barRef.current, {
         width: `${pct}%`,
-        duration: 0.45,
+        duration: 0.7,
         ease: "power2.out",
-        overwrite: true,
+        overwrite: "auto",
       });
     },
     { dependencies: [pct, reduced] }
@@ -224,7 +224,7 @@ export function MarketDepth({
       {/* Asks (worst to best, so the spread meets in the middle) */}
       <div className="mt-1 flex flex-col-reverse">
         {asks.map((a, i) => (
-          <Row key={a.price} side="ask" level={a} maxQty={maxQty} best={i === 0} onSelect={onLevelSelect} />
+          <Row key={`ask-${i}`} side="ask" level={a} maxQty={maxQty} best={i === 0} onSelect={onLevelSelect} />
         ))}
       </div>
 
@@ -241,7 +241,7 @@ export function MarketDepth({
 
       <div className="flex flex-col">
         {bids.map((b, i) => (
-          <Row key={b.price} side="bid" level={b} maxQty={maxQty} best={i === 0} onSelect={onLevelSelect} />
+          <Row key={`bid-${i}`} side="bid" level={b} maxQty={maxQty} best={i === 0} onSelect={onLevelSelect} />
         ))}
       </div>
 
