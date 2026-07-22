@@ -3,8 +3,11 @@
 import * as React from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { LayoutGroup, motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
+
+const filterSpring = { type: "spring", stiffness: 480, damping: 38 } as const;
 
 /* ------------------------------------------------------------------ */
 /* Model                                                                */
@@ -110,6 +113,7 @@ export function InvestigationTimeline({
 }: InvestigationTimelineProps) {
   const reduced = useReducedMotion();
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
 
   const [filter, setFilter] = React.useState<EvidenceSource | "all">("all");
@@ -150,7 +154,7 @@ export function InvestigationTimeline({
       ref={rootRef}
       data-slot="investigation-timeline"
       className={cn(
-        "w-full max-w-xl rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-xl rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
@@ -164,25 +168,34 @@ export function InvestigationTimeline({
       </div>
 
       {/* Source filter */}
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {(["all", "transactions", "emails", "access-logs"] as const).map((s) => (
-          <button
-            key={s}
-            type="button"
-            aria-pressed={filter === s}
-            onClick={() => setFilter(s)}
-            className={cn(
-              "rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors duration-200",
-              filter === s
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:text-foreground",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            )}
-          >
-            {s === "all" ? "All sources" : SOURCE_META[s].label}
-          </button>
-        ))}
-      </div>
+      <LayoutGroup id={uid}>
+        <div className="isolate mt-3 flex flex-wrap gap-1.5">
+          {(["all", "transactions", "emails", "access-logs"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              aria-pressed={filter === s}
+              onClick={() => setFilter(s)}
+              className={cn(
+                "relative rounded-full px-3 py-1 text-[11px] font-medium transition-colors duration-200",
+                filter === s ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              )}
+            >
+              {filter === s ? (
+                <motion.span
+                  layoutId={`isrc-${uid}`}
+                  transition={reduced ? { duration: 0 } : filterSpring}
+                  className="absolute inset-0 -z-10 rounded-full bg-primary shadow-sm"
+                />
+              ) : (
+                <span className="absolute inset-0 -z-10 rounded-full bg-muted" />
+              )}
+              {s === "all" ? "All sources" : SOURCE_META[s].label}
+            </button>
+          ))}
+        </div>
+      </LayoutGroup>
 
       {/* Events */}
       <ol className="mt-4 flex flex-col">
@@ -198,16 +211,26 @@ export function InvestigationTimeline({
                     "mt-1.5 size-2.5 shrink-0 rounded-full border-2 border-card",
                     e.confidence >= 0.85 ? "bg-primary" : "bg-warning"
                   )}
+                  style={
+                    e.confidence < 0.85
+                      ? { boxShadow: "0 0 6px color-mix(in oklab, var(--warning) 60%, transparent)" }
+                      : undefined
+                  }
                 />
                 {i < visible.length - 1 ? (
-                  <span className="w-px flex-1 bg-border" aria-hidden="true" />
+                  <span
+                    className="w-px flex-1"
+                    aria-hidden="true"
+                    style={{ background: "linear-gradient(180deg, var(--border), color-mix(in oklab, var(--border) 30%, transparent))" }}
+                  />
                 ) : null}
               </div>
 
               <div className="min-w-0 flex-1 pb-3">
                 {/* gap marker */}
                 {e.gapDaysBefore && filter === "all" ? (
-                  <p className="mb-2 rounded-md border border-dashed border-border px-2 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <p className="mb-2 flex items-center gap-1.5 rounded-lg border border-dashed border-border/70 bg-muted/30 px-2.5 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="size-3" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
                     {e.gapDaysBefore} days with no recorded activity
                   </p>
                 ) : null}
@@ -230,13 +253,15 @@ export function InvestigationTimeline({
                     <span className="text-muted-foreground">
                       confidence {(e.confidence * 100).toFixed(0)}%
                     </span>
-                    <span className="h-1 w-12 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+                    <span className="h-1.5 w-14 overflow-hidden rounded-full bg-muted ring-1 ring-inset ring-border/40" aria-hidden="true">
                       <span
-                        className={cn(
-                          "block h-full rounded-full",
-                          e.confidence >= 0.85 ? "bg-primary" : "bg-warning"
-                        )}
-                        style={{ width: `${e.confidence * 100}%` }}
+                        className="block h-full rounded-full"
+                        style={{
+                          width: `${e.confidence * 100}%`,
+                          background: e.confidence >= 0.85
+                            ? "linear-gradient(90deg, color-mix(in oklab, var(--primary) 50%, transparent), var(--primary))"
+                            : "linear-gradient(90deg, color-mix(in oklab, var(--warning) 50%, transparent), var(--warning))",
+                        }}
                       />
                     </span>
                   </p>
@@ -294,7 +319,7 @@ function EvidencePanel({
   );
   return (
     <div ref={ref} className="overflow-hidden">
-      <ul className="mt-1.5 flex flex-col gap-1 rounded-lg border border-border bg-background p-2.5">
+      <ul className="mt-1.5 flex flex-col gap-1 rounded-xl border border-border/60 bg-background/60 p-3 shadow-xs">
         {event.evidence.map((ev) => (
           <li key={ev} className="flex items-start gap-1.5 text-[11px] text-foreground">
             <span aria-hidden="true" className="mt-1 size-1 shrink-0 rounded-full bg-muted-foreground" />

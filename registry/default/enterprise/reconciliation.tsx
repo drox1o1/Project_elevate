@@ -134,7 +134,7 @@ export function Reconciliation({
       ref={rootRef}
       data-slot="reconciliation"
       className={cn(
-        "w-full max-w-2xl rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-2xl rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
@@ -154,7 +154,7 @@ export function Reconciliation({
         </Button>
       </div>
       <div
-        className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted"
+        className="mt-3 h-2 overflow-hidden rounded-full bg-muted ring-1 ring-inset ring-border/40"
         role="meter"
         aria-label="Matched share"
         aria-valuemin={0}
@@ -162,8 +162,11 @@ export function Reconciliation({
         aria-valuenow={matchedPct}
       >
         <span
-          className="block h-full rounded-full bg-success transition-all duration-500 ease-out"
-          style={{ width: `${matchedPct}%` }}
+          className="block h-full rounded-full transition-all duration-500 ease-out"
+          style={{
+            width: `${matchedPct}%`,
+            background: "linear-gradient(90deg, color-mix(in oklab, var(--success) 55%, transparent), var(--success))",
+          }}
         />
       </div>
       <p className="mt-1 text-[11px] tabular-nums text-muted-foreground">
@@ -173,7 +176,7 @@ export function Reconciliation({
       {/* Pairs */}
       <div className="mt-3 flex flex-col">
         {open.length === 0 ? (
-          <div className="rounded-xl border border-success/40 bg-success/5 px-3 py-6 text-center">
+          <div className="rounded-2xl border border-success/40 bg-success/[0.06] px-3 py-8 text-center shadow-xs">
             <p className="text-sm font-medium text-success">All matched</p>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
               Decisions are logged to the audit trail with your user and timestamp.
@@ -187,36 +190,38 @@ export function Reconciliation({
             <div key={p.id} data-pair={p.id} className="mb-2 overflow-hidden">
               <div
                 className={cn(
-                  "rounded-xl border p-3",
-                  diff !== 0 ? "border-warning/50" : "border-border"
+                  "rounded-2xl border p-3.5 shadow-xs transition-colors duration-300",
+                  diff !== 0 ? "border-warning/40 bg-warning/[0.03]" : "border-border/60 bg-background/40"
                 )}
               >
-                <div className="grid gap-2 sm:grid-cols-[1fr_auto_1fr]">
+                <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto_1fr]">
                   {/* Ledger side */}
-                  <div className="min-w-0 rounded-lg bg-muted/50 px-2.5 py-2">
+                  <div className="min-w-0 rounded-xl border border-border/50 bg-muted/40 px-3 py-2.5">
                     <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
                       Ledger · {p.ledger.ref}
                     </p>
                     <p className="truncate text-xs font-medium text-foreground">{p.ledger.desc}</p>
                     <p className="font-mono text-sm tabular-nums text-foreground">₹{inr(p.ledger.amount)}</p>
                   </div>
-                  {/* Confidence link */}
-                  <div className="flex items-center justify-center">
+                  {/* Confidence link with connectors */}
+                  <div className="relative flex items-center justify-center py-1">
+                    <span aria-hidden="true" className="absolute right-1/2 top-1/2 hidden h-px w-3 -translate-y-1/2 bg-border sm:block" />
+                    <span aria-hidden="true" className="absolute left-1/2 top-1/2 hidden h-px w-3 -translate-y-1/2 bg-border sm:block" />
                     <span
                       className={cn(
-                        "rounded-full px-2 py-0.5 text-[10px] font-semibold tabular-nums",
+                        "relative rounded-full px-2 py-0.5 text-[10px] font-semibold tabular-nums ring-1 ring-inset",
                         high
-                          ? "bg-success/15 text-success"
+                          ? "bg-success/12 text-success ring-success/25"
                           : p.confidence >= 0.8
-                            ? "bg-warning/15 text-warning"
-                            : "bg-risk-high/15 text-risk-high"
+                            ? "bg-warning/12 text-warning ring-warning/25"
+                            : "bg-risk-high/12 text-risk-high ring-risk-high/25"
                       )}
                     >
                       {Math.round(p.confidence * 100)}%
                     </span>
                   </div>
                   {/* Statement side */}
-                  <div className="min-w-0 rounded-lg bg-muted/50 px-2.5 py-2 sm:text-right">
+                  <div className="min-w-0 rounded-xl border border-border/50 bg-muted/40 px-3 py-2.5 sm:text-right">
                     <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
                       Statement · {p.statement.ref}
                     </p>
@@ -224,10 +229,13 @@ export function Reconciliation({
                     <p className="font-mono text-sm tabular-nums text-foreground">₹{inr(p.statement.amount)}</p>
                   </div>
                 </div>
-                <div className="mt-2 flex items-center justify-between gap-2">
+                <div className="mt-3 flex items-center justify-between gap-2">
                   <p className="text-[11px] tabular-nums">
                     {diff === 0 ? (
-                      <span className="text-muted-foreground">Amounts agree exactly</span>
+                      <span className="flex items-center gap-1 text-muted-foreground">
+                        <span className="size-1.5 rounded-full bg-success" />
+                        Amounts agree exactly
+                      </span>
                     ) : (
                       <span className="font-medium text-warning">
                         Δ ₹{inr(Math.abs(diff))} {diff < 0 ? "short" : "over"} — likely bank charges; verify before accepting
@@ -238,7 +246,11 @@ export function Reconciliation({
                     <Button size="sm" variant="outline" onClick={() => resolve(p.id, "reject")}>
                       Reject
                     </Button>
-                    <Button size="sm" onClick={() => resolve(p.id, "accept")}>
+                    <Button
+                      size="sm"
+                      className="bg-success text-white shadow-sm hover:bg-success/90"
+                      onClick={() => resolve(p.id, "accept")}
+                    >
                       Accept match
                     </Button>
                   </div>
