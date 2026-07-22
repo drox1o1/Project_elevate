@@ -3,9 +3,66 @@
 import * as React from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { LayoutGroup, motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 import { NumberFlow } from "@/registry/default/fintech/number-flow";
+
+const bandSpring = { type: "spring", stiffness: 480, damping: 38 } as const;
+
+/** Custom range slider: designed track, gradient fill and a focus-ringed
+ *  thumb over a hidden native input (keeps keyboard + a11y). */
+function Slider({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  step,
+  format,
+}: {
+  label: string;
+  value: number;
+  onChange: (v: number) => void;
+  min: number;
+  max: number;
+  step: number;
+  format: (v: number) => string;
+}) {
+  const pct = ((value - min) / (max - min)) * 100;
+  return (
+    <label className="flex flex-col gap-1.5 text-xs">
+      <span className="flex justify-between text-muted-foreground">
+        {label}
+        <span className="font-semibold tabular-nums text-foreground">{format(value)}</span>
+      </span>
+      <span className="relative flex h-5 items-center">
+        <span className="pointer-events-none absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-muted ring-1 ring-inset ring-border/50" />
+        <span
+          className="pointer-events-none absolute left-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full"
+          style={{
+            width: `${pct}%`,
+            background: "linear-gradient(90deg, color-mix(in oklab, var(--primary) 45%, transparent), var(--primary))",
+          }}
+        />
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          aria-label={label}
+          onChange={(e) => onChange(parseInt(e.target.value, 10))}
+          className="peer absolute inset-0 z-20 w-full cursor-pointer appearance-none bg-transparent opacity-0"
+        />
+        <span
+          className="pointer-events-none absolute top-1/2 z-10 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary bg-background shadow-md peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background"
+          style={{ left: `${pct}%` }}
+        />
+      </span>
+    </label>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /* Model + math                                                         */
@@ -70,6 +127,7 @@ export function LoanEligibility({
 }: LoanEligibilityProps) {
   const reduced = useReducedMotion();
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
 
   const [amount, setAmount] = React.useState(800_000);
@@ -86,10 +144,10 @@ export function LoanEligibility({
 
   const verdict =
     foir <= foirLimit * 0.8
-      ? { label: "Approval likely", cls: "text-success", bar: "bg-success" }
+      ? { label: "Approval likely", cls: "text-success", hue: "var(--success)" }
       : foir <= foirLimit
-        ? { label: "Borderline", cls: "text-warning", bar: "bg-warning" }
-        : { label: "Unlikely at this size", cls: "text-risk-high", bar: "bg-risk-high" };
+        ? { label: "Borderline", cls: "text-warning", hue: "var(--warning)" }
+        : { label: "Unlikely at this size", cls: "text-risk-high", hue: "var(--risk-high)" };
 
   // Max amount that keeps FOIR at the limit, for the suggestion line.
   const headroom = Math.max(0, income * foirLimit - obligations);
@@ -110,39 +168,12 @@ export function LoanEligibility({
     { dependencies: [foir, reduced], scope: rootRef }
   );
 
-  const slider = (
-    label: string,
-    value: number,
-    set: (v: number) => void,
-    min: number,
-    max: number,
-    step: number,
-    fmt: (v: number) => string
-  ) => (
-    <label className="flex flex-col gap-1 text-xs">
-      <span className="flex justify-between text-muted-foreground">
-        {label}
-        <span className="font-medium tabular-nums text-foreground">{fmt(value)}</span>
-      </span>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        aria-label={label}
-        onChange={(e) => set(parseInt(e.target.value, 10))}
-        className="accent-primary"
-      />
-    </label>
-  );
-
   return (
     <div
       ref={rootRef}
       data-slot="loan-eligibility"
       className={cn(
-        "w-full max-w-md rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-md rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
@@ -165,7 +196,7 @@ export function LoanEligibility({
       {/* FOIR meter */}
       <div className="mt-2">
         <div
-          className="relative h-2 overflow-hidden rounded-full bg-muted"
+          className="relative h-2 overflow-hidden rounded-full bg-muted ring-1 ring-inset ring-border/40"
           role="meter"
           aria-label="Fixed-obligation to income ratio"
           aria-valuemin={0}
@@ -174,12 +205,15 @@ export function LoanEligibility({
         >
           <span
             data-foir
-            className={cn("block h-full rounded-full", verdict.bar)}
-            style={{ width: 0 }}
+            className="block h-full rounded-full"
+            style={{
+              width: 0,
+              background: `linear-gradient(90deg, color-mix(in oklab, ${verdict.hue} 55%, transparent), ${verdict.hue})`,
+            }}
           />
           <span
             aria-hidden="true"
-            className="absolute inset-y-0 w-0.5 bg-foreground/60"
+            className="absolute inset-y-0 z-10 w-0.5 bg-foreground/60"
             style={{ left: `${foirLimit * 100}%` }}
           />
         </div>
@@ -196,38 +230,45 @@ export function LoanEligibility({
       </div>
 
       {/* Controls */}
-      <div className="mt-4 flex flex-col gap-3">
-        {slider("Loan amount", amount, setAmount, 100_000, 3_000_000, 50_000, lakh)}
-        {slider("Tenure", months, setMonths, 12, 84, 6, (v) => `${v} months`)}
-        {slider("Monthly income", income, setIncome, 25_000, 400_000, 5_000, (v) => `₹${inr(v)}`)}
-        {slider("Existing EMIs", obligations, setObligations, 0, 100_000, 1_000, (v) => `₹${inr(v)}`)}
+      <div className="mt-5 flex flex-col gap-3.5">
+        <Slider label="Loan amount" value={amount} onChange={setAmount} min={100_000} max={3_000_000} step={50_000} format={lakh} />
+        <Slider label="Tenure" value={months} onChange={setMonths} min={12} max={84} step={6} format={(v) => `${v} months`} />
+        <Slider label="Monthly income" value={income} onChange={setIncome} min={25_000} max={400_000} step={5_000} format={(v) => `₹${inr(v)}`} />
+        <Slider label="Existing EMIs" value={obligations} onChange={setObligations} min={0} max={100_000} step={1_000} format={(v) => `₹${inr(v)}`} />
         <div className="flex items-center justify-between gap-2 text-xs">
           <span className="text-muted-foreground">Credit score</span>
-          <div className="flex gap-1" role="tablist" aria-label="Credit band">
-            {BANDS.map((b) => (
-              <button
-                key={b.key}
-                role="tab"
-                aria-selected={band === b.key}
-                onClick={() => setBand(b.key)}
-                className={cn(
-                  "rounded-md px-2 py-1 text-[11px] font-medium tabular-nums transition-colors duration-200",
-                  band === b.key
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:text-foreground",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                )}
-                title={b.range}
-              >
-                {b.label}
-              </button>
-            ))}
-          </div>
+          <LayoutGroup id={uid}>
+            <div className="isolate flex gap-1 rounded-xl bg-muted p-1" role="tablist" aria-label="Credit band">
+              {BANDS.map((b) => (
+                <button
+                  key={b.key}
+                  role="tab"
+                  aria-selected={band === b.key}
+                  onClick={() => setBand(b.key)}
+                  className={cn(
+                    "relative rounded-lg px-2.5 py-1 text-[11px] font-medium tabular-nums transition-colors duration-200",
+                    band === b.key ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  )}
+                  title={b.range}
+                >
+                  {band === b.key ? (
+                    <motion.span
+                      layoutId={`band-${uid}`}
+                      transition={reduced ? { duration: 0 } : bandSpring}
+                      className="absolute inset-0 -z-10 rounded-lg bg-primary shadow-sm"
+                    />
+                  ) : null}
+                  {b.label}
+                </button>
+              ))}
+            </div>
+          </LayoutGroup>
         </div>
       </div>
 
       {/* Cost breakdown */}
-      <dl className="mt-4 flex flex-col gap-1 rounded-xl border border-border bg-background p-3 text-xs tabular-nums">
+      <dl className="mt-5 flex flex-col gap-1.5 rounded-2xl border border-border/60 bg-background/60 p-3.5 text-xs tabular-nums shadow-xs">
         <div className="flex justify-between">
           <dt className="text-muted-foreground">Interest rate ({BANDS.find((b) => b.key === band)?.range})</dt>
           <dd className="text-foreground">{rate.toFixed(2)}% p.a.</dd>
@@ -249,7 +290,7 @@ export function LoanEligibility({
           {DOCUMENTS.map((d) => (
             <li
               key={d}
-              className="rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground"
+              className="rounded-full bg-muted px-2.5 py-1 text-[10px] text-muted-foreground ring-1 ring-inset ring-border/50"
             >
               {d}
             </li>

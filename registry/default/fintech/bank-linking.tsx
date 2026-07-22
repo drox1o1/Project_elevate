@@ -143,7 +143,7 @@ export function BankLinking({
       ref={ref}
       data-slot="bank-linking"
       className={cn(
-        "w-full max-w-sm rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-sm rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
@@ -154,10 +154,13 @@ export function BankLinking({
           {Math.min(step + 1, 5)}/5
         </span>
       </div>
-      <div className="mt-2 h-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+      <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-muted ring-1 ring-inset ring-border/40" aria-hidden="true">
         <span
-          className="block h-full rounded-full bg-primary transition-all duration-500 ease-out"
-          style={{ width: `${((step + 1) / 5) * 100}%` }}
+          className="block h-full rounded-full transition-all duration-500 ease-out"
+          style={{
+            width: `${((step + 1) / 5) * 100}%`,
+            background: "linear-gradient(90deg, color-mix(in oklab, var(--primary) 55%, transparent), var(--primary))",
+          }}
         />
       </div>
 
@@ -172,12 +175,12 @@ export function BankLinking({
                   setBank(b);
                   setStep(1);
                 }}
-                className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-background p-3 transition-all duration-200 hover:border-primary/50 hover:bg-muted/50 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="group/bank flex flex-col items-center gap-2 rounded-2xl border border-border/60 bg-background/60 p-3.5 shadow-xs transition-[transform,box-shadow,border-color,background-color] duration-200 ease-out-expo hover:-translate-y-0.5 hover:border-ring/30 hover:shadow-md active:translate-y-0 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:hover:translate-y-0"
               >
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "flex size-8 items-center justify-center rounded-full text-[11px] font-bold text-white",
+                    "flex size-9 items-center justify-center rounded-full text-[12px] font-bold text-white shadow-sm ring-1 ring-inset ring-white/15 transition-transform duration-200 group-hover/bank:scale-105 motion-reduce:group-hover/bank:scale-100",
                     b.tone
                   )}
                 >

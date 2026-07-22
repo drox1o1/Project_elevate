@@ -142,22 +142,22 @@ export function PaymentStatus({
       ref={ref}
       data-slot="payment-status"
       className={cn(
-        "w-full max-w-sm rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-sm rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-xl font-semibold tabular-nums text-foreground">
+          <p className="text-2xl font-semibold tracking-tight tabular-nums text-foreground">
             {currency}
             {new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2 }).format(amount)}
           </p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="mt-0.5 text-[11px] text-muted-foreground">
             {reference} · {method}
           </p>
         </div>
-        <span className={cn("text-xs font-semibold", headline.tone)} aria-live="polite">
+        <span className={cn("flex items-center gap-1.5 rounded-full bg-muted/60 px-2 py-0.5 text-xs font-semibold ring-1 ring-inset ring-border/50", headline.tone)} aria-live="polite">
           {headline.text}
         </span>
       </div>

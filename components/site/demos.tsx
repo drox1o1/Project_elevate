@@ -829,18 +829,17 @@ function AmountInputDemo() {
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-6">
       <AmountInput numberFormat={format} prefix="₹" aria-label="Amount" />
-      <div className="flex gap-2">
-        {(["in", "us", "eu", "space"] as const).map((f) => (
-          <Button
-            key={f}
-            size="sm"
-            variant={format === f ? "default" : "outline"}
-            onClick={() => setFormat(f)}
-          >
-            {f}
-          </Button>
-        ))}
-      </div>
+      <SegmentedToggle
+        id="amount-format"
+        value={format}
+        onChange={(v) => setFormat(v as "us" | "eu" | "in" | "space")}
+        options={[
+          { value: "in", label: "in" },
+          { value: "us", label: "us" },
+          { value: "eu", label: "eu" },
+          { value: "space", label: "space" },
+        ]}
+      />
     </div>
   );
 }
@@ -1300,26 +1299,19 @@ function PaymentStatusDemo() {
   const [play, setPlay] = React.useState(0);
   return (
     <div className="flex w-full flex-col items-center gap-4">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        {(["success", "failed", "refunded"] as const).map((s) => (
-          <button
-            key={s}
-            type="button"
-            aria-pressed={scenario === s}
-            onClick={() => {
-              setScenario(s);
-              setPlay((p) => p + 1);
-            }}
-            className={
-              scenario === s
-                ? "rounded-md bg-primary px-2 py-1 font-medium capitalize text-primary-foreground"
-                : "rounded-md bg-muted px-2 py-1 font-medium capitalize hover:text-foreground"
-            }
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+      <SegmentedToggle
+        id="payment-scenario"
+        value={scenario}
+        onChange={(v) => {
+          setScenario(v as PaymentScenario);
+          setPlay((p) => p + 1);
+        }}
+        options={[
+          { value: "success", label: "Success" },
+          { value: "failed", label: "Failed" },
+          { value: "refunded", label: "Refunded" },
+        ]}
+      />
       <PaymentStatus
         amount={2499}
         reference="pay_Nk8Yw2 · Order #8412"
