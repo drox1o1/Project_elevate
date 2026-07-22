@@ -143,7 +143,7 @@ export function MedicationTimeline({
       ref={rootRef}
       data-slot="medication-timeline"
       className={cn(
-        "w-full max-w-xl rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-xl rounded-2xl border border-border/70 bg-card p-4 shadow-sm",
         className
       )}
       {...rest}
@@ -157,8 +157,16 @@ export function MedicationTimeline({
         {/* today line */}
         <span
           aria-hidden="true"
-          className="absolute bottom-0 top-0 w-px bg-info/60"
-          style={{ left: `${pct(today)}%` }}
+          className="absolute bottom-0 top-1 w-px"
+          style={{
+            left: `${pct(today)}%`,
+            background: "linear-gradient(180deg, var(--info), color-mix(in oklab, var(--info) 20%, transparent))",
+          }}
+        />
+        <span
+          aria-hidden="true"
+          className="absolute top-1 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-info"
+          style={{ left: `${pct(today)}%`, boxShadow: "0 0 6px color-mix(in oklab, var(--info) 70%, transparent)" }}
         />
         <span
           className="absolute -top-1 -translate-x-1/2 text-[9px] font-medium uppercase text-info"
@@ -200,8 +208,12 @@ export function MedicationTimeline({
                 <span
                   data-course
                   aria-hidden="true"
-                  className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary/15"
-                  style={{ left: `${pct(m.startDay)}%`, width: `${pct(m.endDay) - pct(m.startDay)}%` }}
+                  className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full"
+                  style={{
+                    left: `${pct(m.startDay)}%`,
+                    width: `${pct(m.endDay) - pct(m.startDay)}%`,
+                    background: "linear-gradient(90deg, color-mix(in oklab, var(--info) 22%, transparent), color-mix(in oklab, var(--success) 18%, transparent))",
+                  }}
                 />
                 {m.adherence.map((a, i) => {
                   const day = m.startDay + i;
@@ -213,7 +225,7 @@ export function MedicationTimeline({
                       aria-hidden="true"
                       className={cn(
                         "absolute top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full",
-                        a === "taken" && "bg-success",
+                        a === "taken" && "bg-success ring-2 ring-success/20",
                         a === "missed" && "bg-warning ring-2 ring-warning/30",
                         a === "upcoming" && "border border-border bg-background"
                       )}
