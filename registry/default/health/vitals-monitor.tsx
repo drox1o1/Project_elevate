@@ -69,6 +69,7 @@ export function VitalsMonitor({
   const reduced = useReducedMotion();
   const rootRef = React.useRef<HTMLDivElement>(null);
   const pathRef = React.useRef<SVGPathElement>(null);
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
 
   const [hr, setHr] = React.useState(heartRate);
@@ -146,26 +147,21 @@ export function VitalsMonitor({
       gsap.killTweensOf(root);
       if (inAlarm && !reduced) {
         gsap.to(root, {
-          boxShadow: "0 0 0 3px var(--risk-high)",
+          boxShadow: "0 0 0 3px color-mix(in oklab, var(--risk-high) 55%, transparent), var(--elevation-md)",
           duration: 0.7,
           ease: "power1.inOut",
           repeat: -1,
           yoyo: true,
         });
       } else {
-        gsap.set(root, { boxShadow: "0 0 0 0px transparent" });
+        gsap.set(root, { clearProps: "boxShadow" });
       }
     },
     { dependencies: [inAlarm, reduced] }
   );
 
+  const trace = inAlarm ? "var(--risk-high)" : "var(--success)";
   const tiles: { label: string; value: React.ReactNode; unit: string; bad?: boolean }[] = [
-    {
-      label: "HR",
-      value: <NumberFlow value={hr} />,
-      unit: "bpm",
-      bad: inAlarm,
-    },
     { label: "SpO₂", value: spo2, unit: "%", bad: spo2 < 94 },
     { label: "BP", value: `${systolic}/${diastolic}`, unit: "mmHg", bad: systolic > 140 },
     { label: "Temp", value: temperature.toFixed(1), unit: "°C", bad: temperature >= 38 },
@@ -176,16 +172,16 @@ export function VitalsMonitor({
       ref={rootRef}
       data-slot="vitals-monitor"
       className={cn(
-        "w-full max-w-sm rounded-2xl border bg-card p-4 transition-colors duration-300",
-        inAlarm ? "border-risk-high" : "border-border",
+        "w-full max-w-sm rounded-3xl border bg-card p-4 shadow-md transition-colors duration-300",
+        inAlarm ? "border-risk-high/60" : "border-border/60",
         className
       )}
       {...rest}
     >
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-2 px-1">
         <span className="text-sm font-semibold text-foreground">{patient}</span>
         {inAlarm ? (
-          <span className="flex items-center gap-1.5 text-xs font-semibold text-risk-high" role="alert">
+          <span className="flex items-center gap-1.5 rounded-full bg-risk-high/10 px-2 py-0.5 text-xs font-semibold text-risk-high" role="alert">
             <span className="relative flex size-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-risk-high opacity-60" />
               <span className="relative inline-flex size-2 rounded-full bg-risk-high" />
@@ -193,75 +189,83 @@ export function VitalsMonitor({
             Tachycardia
           </span>
         ) : (
-          <span className="text-xs text-success">All vitals in range</span>
+          <span className="flex items-center gap-1.5 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+            <span className="size-1.5 rounded-full bg-success" />
+            All vitals in range
+          </span>
         )}
       </div>
 
-      {/* ECG strip */}
-      <div className="mt-3 overflow-hidden rounded-lg bg-foreground/[0.04] dark:bg-background">
+      {/* ECG screen: a dark monitor surface in both themes, glowing trace,
+          live HR read out over the top-right of the strip. */}
+      <div
+        className="relative mt-3 overflow-hidden rounded-2xl border border-white/10 bg-[hsl(230_25%_7%)] shadow-inner"
+        style={{ "--trace": trace } as React.CSSProperties}
+      >
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full" aria-hidden="true">
+          <defs>
+            <filter id={`ecg-glow-${uid}`} x="-5%" y="-60%" width="110%" height="220%">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.6" floodColor={trace} floodOpacity="0.9" />
+            </filter>
+          </defs>
           {/* grid */}
           {Array.from({ length: 7 }, (_, i) => (
-            <line
-              key={`v${i}`}
-              x1={(i + 1) * (W / 8)}
-              x2={(i + 1) * (W / 8)}
-              y1={0}
-              y2={H}
-              className="stroke-border/60"
-              strokeWidth={0.5}
-            />
+            <line key={`v${i}`} x1={(i + 1) * (W / 8)} x2={(i + 1) * (W / 8)} y1={0} y2={H} stroke="currentColor" strokeWidth={0.5} className="text-white/[0.06]" />
           ))}
           {Array.from({ length: 3 }, (_, i) => (
-            <line
-              key={`h${i}`}
-              y1={(i + 1) * (H / 4)}
-              y2={(i + 1) * (H / 4)}
-              x1={0}
-              x2={W}
-              className="stroke-border/60"
-              strokeWidth={0.5}
-            />
+            <line key={`h${i}`} y1={(i + 1) * (H / 4)} y2={(i + 1) * (H / 4)} x1={0} x2={W} stroke="currentColor" strokeWidth={0.5} className="text-white/[0.06]" />
           ))}
           <path
             ref={pathRef}
             fill="none"
-            strokeWidth={1.6}
+            strokeWidth={1.8}
             strokeLinejoin="round"
-            className={cn(inAlarm ? "stroke-risk-high" : "stroke-success")}
+            strokeLinecap="round"
+            stroke={trace}
+            filter={`url(#ecg-glow-${uid})`}
           />
         </svg>
+        {/* HR read-out, on a soft scrim so the trace never fights it */}
+        <div className="absolute right-2 top-1.5 rounded-xl bg-[hsl(230_25%_7%)]/80 px-2.5 py-1 text-right backdrop-blur-sm">
+          <span className="text-[9px] font-medium uppercase tracking-[0.15em] text-white/40">HR</span>
+          <div className="-mt-0.5 flex items-baseline justify-end gap-1 font-semibold tabular-nums" style={{ color: trace }}>
+            <span className="text-2xl leading-none">
+              <NumberFlow value={hr} />
+            </span>
+            <span className="text-[10px] text-white/40">bpm</span>
+          </div>
+        </div>
       </div>
       <p className="sr-only" aria-live="polite">
         Heart rate {hr} beats per minute{inAlarm ? ", tachycardia alarm active" : ""}.
       </p>
 
       {/* Tiles */}
-      <div className="mt-3 grid grid-cols-4 gap-2">
+      <div className="mt-3 grid grid-cols-3 gap-2">
         {tiles.map((t) => (
           <div
             key={t.label}
             className={cn(
-              "rounded-lg border px-2 py-1.5 text-center transition-colors duration-300",
-              t.bad ? "border-risk-high/50 bg-risk-high/5" : "border-border bg-background"
+              "relative overflow-hidden rounded-xl border px-3 py-2.5 shadow-xs transition-colors duration-300",
+              t.bad ? "border-risk-high/40 bg-risk-high/[0.06]" : "border-border/60 bg-background/60"
             )}
           >
-            <p className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
               {t.label}
             </p>
             <p
               className={cn(
-                "text-sm font-semibold tabular-nums",
+                "mt-0.5 text-lg font-semibold leading-none tabular-nums",
                 t.bad ? "text-risk-high" : "text-foreground"
               )}
             >
               {t.value}
             </p>
-            <p className="text-[9px] text-muted-foreground">{t.unit}</p>
+            <p className="mt-1 text-[10px] text-muted-foreground">{t.unit}</p>
           </div>
         ))}
       </div>
-      <p className="mt-2 text-[10px] text-muted-foreground">
+      <p className="mt-2.5 px-1 text-[10px] text-muted-foreground">
         Simulated telemetry for demonstration — not a medical device.
       </p>
     </div>
