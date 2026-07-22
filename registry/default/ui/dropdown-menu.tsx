@@ -3,7 +3,6 @@
 import * as React from "react";
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 
@@ -12,6 +11,51 @@ export const DropdownMenuTrigger = DropdownMenuPrimitive.Trigger;
 export const DropdownMenuGroup = DropdownMenuPrimitive.Group;
 export const DropdownMenuSub = DropdownMenuPrimitive.Sub;
 
+/* Entrance/exit rides on CSS data-state animations so Radix can hold the
+   node through the exit keyframe. The item cascade runs from a callback
+   ref: it fires the moment the portal DOM actually attaches, which an
+   effect on the (always-mounted) wrapper component never sees. */
+function useMenuCascade(
+  ref: React.Ref<HTMLDivElement> | undefined,
+  selector: string
+) {
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
+  const reduced = useReducedMotion();
+  React.useImperativeHandle(ref, () => contentRef.current as HTMLDivElement);
+
+  return React.useCallback(
+    (node: HTMLDivElement | null) => {
+      contentRef.current = node;
+      if (!node || reduced) return;
+      const items = node.querySelectorAll<HTMLElement>(selector);
+      if (!items.length) return;
+      gsap.fromTo(
+        items,
+        { opacity: 0, y: 6, filter: "blur(3px)" },
+        {
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: 0.35,
+          ease: "power3.out",
+          stagger: 0.025,
+          delay: 0.04,
+          clearProps: "opacity,transform,filter",
+        }
+      );
+    },
+    [reduced, selector]
+  );
+}
+
+const menuSurface = [
+  "z-50 overflow-hidden rounded-xl border border-border/70 bg-popover/90 p-1.5",
+  "shadow-popover backdrop-blur-xl supports-[backdrop-filter]:bg-popover/85",
+  "[transform-origin:var(--radix-dropdown-menu-content-transform-origin)]",
+  "data-[state=open]:animate-duku-menu-in data-[state=closed]:animate-duku-menu-out",
+  "motion-reduce:animate-none",
+].join(" ");
+
 export interface DropdownMenuContentProps
   extends React.ComponentProps<typeof DropdownMenuPrimitive.Content> {
   ref?: React.Ref<HTMLDivElement>;
@@ -19,59 +63,23 @@ export interface DropdownMenuContentProps
 
 export function DropdownMenuContent({
   className,
-  sideOffset = 6,
+  sideOffset = 8,
   ref,
   ...rest
 }: DropdownMenuContentProps) {
-  const contentRef = React.useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
-  React.useImperativeHandle(ref, () => contentRef.current as HTMLDivElement);
-
-  useGSAP(
-    () => {
-      const el = contentRef.current;
-      if (!el) return;
-      if (reduced) {
-        gsap.set(el, { opacity: 1, scale: 1 });
-        return;
-      }
-      el.style.transformOrigin =
-        "var(--radix-dropdown-menu-content-transform-origin)";
-      gsap.fromTo(
-        el,
-        { opacity: 0, scale: 0.96 },
-        { opacity: 1, scale: 1, duration: 0.25, ease: "power3.out" }
-      );
-      const items = gsap.utils.toArray<HTMLElement>(
-        el.querySelectorAll('[data-slot="dropdown-menu-item"]')
-      );
-      if (items.length) {
-        gsap.fromTo(
-          items,
-          { y: 4, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.25,
-            ease: "power2.out",
-            stagger: 0.018,
-          }
-        );
-      }
-    },
-    { scope: contentRef }
+  const attachRef = useMenuCascade(
+    ref,
+    '[data-slot="dropdown-menu-item"], [data-slot="dropdown-menu-label"], [data-slot="dropdown-menu-separator"]'
   );
 
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.Content
-        ref={contentRef}
+        ref={attachRef}
         data-slot="dropdown-menu-content"
         sideOffset={sideOffset}
-        className={cn(
-          "z-50 min-w-[10rem] overflow-hidden rounded-lg border border-border bg-background p-1 opacity-0 shadow-lg",
-          className
-        )}
+        collisionPadding={8}
+        className={cn(menuSurface, "min-w-[12rem]", className)}
         {...rest}
       />
     </DropdownMenuPrimitive.Portal>
@@ -88,40 +96,16 @@ export function DropdownMenuSubContent({
   ref,
   ...rest
 }: DropdownMenuSubContentProps) {
-  const contentRef = React.useRef<HTMLDivElement>(null);
-  const reduced = useReducedMotion();
-  React.useImperativeHandle(ref, () => contentRef.current as HTMLDivElement);
-
-  useGSAP(
-    () => {
-      const el = contentRef.current;
-      if (!el) return;
-      if (reduced) {
-        gsap.set(el, { opacity: 1, x: 0 });
-        return;
-      }
-      // slide 8px from the trigger side
-      const side = el.getAttribute("data-side") ?? "right";
-      const fromX = side === "left" ? 8 : -8;
-      gsap.fromTo(
-        el,
-        { opacity: 0, x: fromX },
-        { opacity: 1, x: 0, duration: 0.2, ease: "power3.out" }
-      );
-    },
-    { scope: contentRef }
-  );
+  const attachRef = useMenuCascade(ref, '[data-slot="dropdown-menu-item"]');
 
   return (
     <DropdownMenuPrimitive.Portal>
       <DropdownMenuPrimitive.SubContent
-        ref={contentRef}
+        ref={attachRef}
         data-slot="dropdown-menu-sub-content"
-        sideOffset={4}
-        className={cn(
-          "z-50 min-w-[9rem] overflow-hidden rounded-lg border border-border bg-background p-1 opacity-0 shadow-lg",
-          className
-        )}
+        sideOffset={6}
+        collisionPadding={8}
+        className={cn(menuSurface, "min-w-[10rem]", className)}
         {...rest}
       />
     </DropdownMenuPrimitive.Portal>
@@ -145,10 +129,14 @@ export function DropdownMenuItem({
       ref={ref}
       data-slot="dropdown-menu-item"
       className={cn(
-        "flex cursor-default select-none items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-none",
-        "transition-colors duration-100",
-        "data-[highlighted]:bg-muted data-[disabled]:opacity-50 data-[disabled]:pointer-events-none",
-        destructive && "text-destructive data-[highlighted]:bg-destructive/10",
+        "group/item relative flex cursor-default select-none items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm outline-none",
+        "transition-[background-color,color] duration-100",
+        "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground",
+        "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+        "data-[disabled]:opacity-50 data-[disabled]:pointer-events-none",
+        "active:scale-[0.98] active:transition-transform active:duration-75 motion-reduce:active:scale-100",
+        destructive &&
+          "text-destructive [&_svg]:text-destructive/70 data-[highlighted]:bg-destructive/10 data-[highlighted]:text-destructive",
         className
       )}
       {...rest}
@@ -172,9 +160,9 @@ export function DropdownMenuSubTrigger({
       ref={ref}
       data-slot="dropdown-menu-item"
       className={cn(
-        "flex cursor-default select-none items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm outline-none",
-        "transition-colors duration-100",
-        "data-[highlighted]:bg-muted data-[state=open]:bg-muted",
+        "group/sub flex cursor-default select-none items-center justify-between gap-2.5 rounded-lg px-2.5 py-2 text-sm outline-none",
+        "transition-[background-color,color] duration-100",
+        "data-[highlighted]:bg-accent data-[state=open]:bg-accent",
         className
       )}
       {...rest}
@@ -187,7 +175,7 @@ export function DropdownMenuSubTrigger({
         strokeWidth={2}
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="size-3.5 text-muted-foreground"
+        className="size-3.5 text-muted-foreground transition-transform duration-200 ease-out-expo group-data-[state=open]/sub:translate-x-0.5"
         aria-hidden="true"
       >
         <path d="M9 6l6 6-6 6" />
@@ -204,7 +192,7 @@ export function DropdownMenuLabel({
     <DropdownMenuPrimitive.Label
       data-slot="dropdown-menu-label"
       className={cn(
-        "px-2 py-1.5 text-xs font-medium text-muted-foreground",
+        "px-2.5 pb-1 pt-1.5 text-xs font-medium text-muted-foreground",
         className
       )}
       {...rest}
@@ -219,7 +207,7 @@ export function DropdownMenuSeparator({
   return (
     <DropdownMenuPrimitive.Separator
       data-slot="dropdown-menu-separator"
-      className={cn("mx-1 my-1 h-px bg-border", className)}
+      className={cn("-mx-1.5 my-1.5 h-px bg-border/70", className)}
       {...rest}
     />
   );
@@ -233,7 +221,8 @@ export function DropdownMenuShortcut({
     <span
       data-slot="dropdown-menu-shortcut"
       className={cn(
-        "ml-auto text-xs tracking-widest text-muted-foreground",
+        "ml-auto rounded border border-border/60 bg-muted/60 px-1.5 py-px font-mono text-[10px] tracking-wide text-muted-foreground",
+        "transition-colors duration-100 group-data-[highlighted]/item:border-border",
         className
       )}
       {...rest}

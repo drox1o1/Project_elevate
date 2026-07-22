@@ -11,19 +11,34 @@ const buttonVariants = cva(
   [
     "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg",
     "text-sm font-medium select-none",
-    "transition-[color,background-color,border-color,box-shadow,transform] duration-200",
-    "active:scale-[0.97] active:duration-100",
+    "transition-[color,background-color,border-color,box-shadow,transform,translate] duration-200 ease-out-expo",
+    "active:scale-[0.97] active:duration-75",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
     "disabled:opacity-50 disabled:pointer-events-none",
+    "motion-reduce:transition-none motion-reduce:active:scale-100 motion-reduce:hover:translate-y-0",
   ].join(" "),
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90",
-        outline: "border border-input bg-background hover:bg-muted",
+        default: [
+          "bg-primary text-primary-foreground",
+          "shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.12),var(--elevation-sm)]",
+          "hover:bg-primary/90 hover:-translate-y-px",
+          "hover:shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.12),var(--elevation-md)]",
+          "active:translate-y-0 active:shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.08),var(--elevation-xs)]",
+        ].join(" "),
+        outline: [
+          "border border-input bg-background shadow-xs",
+          "hover:bg-muted/60 hover:border-ring/25 hover:-translate-y-px hover:shadow-sm",
+          "active:translate-y-0 active:shadow-xs",
+        ].join(" "),
         ghost: "hover:bg-muted",
-        destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        destructive: [
+          "bg-destructive text-destructive-foreground",
+          "shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.15),var(--elevation-sm)]",
+          "hover:bg-destructive/90 hover:-translate-y-px",
+          "active:translate-y-0",
+        ].join(" "),
         link: "text-foreground underline-offset-4 hover:underline",
       },
       size: {

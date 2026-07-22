@@ -92,24 +92,51 @@ export function DialogContent({
           gsap.set(panel, { opacity: 1, scale: 1, y: 0 });
           return;
         }
-        gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.2 });
+        gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.3 });
         gsap.fromTo(
           panel,
-          { opacity: 0, scale: 0.96, y: 8 },
-          { opacity: 1, scale: 1, y: 0, duration: 0.25, ease: "power3.out" }
+          { opacity: 0, scale: 0.92, y: 20, filter: "blur(8px)" },
+          {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            filter: "blur(0px)",
+            duration: 0.45,
+            ease: "expo.out",
+          }
         );
+        // Content cascades in just behind the panel.
+        const parts = panel.querySelectorAll<HTMLElement>(
+          '[data-slot="dialog-header"] > *, [data-slot="dialog-footer"]'
+        );
+        if (parts.length) {
+          gsap.fromTo(
+            parts,
+            { opacity: 0, y: 8 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.4,
+              ease: "power3.out",
+              stagger: 0.05,
+              delay: 0.08,
+              clearProps: "opacity,transform",
+            }
+          );
+        }
         return;
       }
       if (reduced) {
         setRender(false);
         return;
       }
-      gsap.to(overlay, { opacity: 0, duration: 0.15, ease: "power2.in" });
+      gsap.to(overlay, { opacity: 0, duration: 0.18, ease: "power2.in" });
       gsap.to(panel, {
         opacity: 0,
         scale: 0.96,
-        y: 8,
-        duration: 0.15,
+        y: 10,
+        filter: "blur(4px)",
+        duration: 0.18,
         ease: "power2.in",
         onComplete: () => setRender(false),
       });
@@ -130,7 +157,7 @@ export function DialogContent({
         <DialogPrimitive.Overlay forceMount asChild>
           <div
             data-slot="dialog-overlay"
-            className="fixed inset-0 bg-black/50 opacity-0 backdrop-blur-[2px]"
+            className="fixed inset-0 bg-black/55 opacity-0 backdrop-blur-md"
           />
         </DialogPrimitive.Overlay>
         <DialogPrimitive.Content forceMount asChild {...rest}>
@@ -139,7 +166,7 @@ export function DialogContent({
             data-slot="dialog-content"
             className={cn(
               "fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 opacity-0",
-              "rounded-xl border border-border bg-background p-6 shadow-lg",
+              "rounded-2xl border border-border/70 bg-background p-6 shadow-overlay",
               "focus-visible:outline-none",
               className
             )}
