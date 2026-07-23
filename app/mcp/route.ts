@@ -14,7 +14,7 @@ import {
 } from "@/lib/agent-manifest";
 
 /**
- * DUKU Labs MCP server (read-only beta).
+ * DUKU Labs MCP server (open source, read-only).
  *
  * A stateless MCP server over streamable HTTP: every request is a single
  * JSON-RPC POST answered with application/json. No sessions, no SSE — that
@@ -23,9 +23,9 @@ import {
  *
  *   claude mcp add duku-labs --transport http https://labs.duku.design/mcp
  *
- * Anonymous callers get metadata for the whole catalog and source for
- * free-tier components; a `Authorization: Bearer <license-key>` header
- * (validated against DUKU_LICENSE_KEYS) unlocks pro source.
+ * DUKU Labs is MIT-licensed: every component's full metadata and source is
+ * served openly, to anonymous callers, with no license key or paywall. The
+ * `tier` field on a component is kept only as an informational label.
  */
 
 const PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26"];
@@ -36,20 +36,6 @@ interface JsonRpcRequest {
   id?: string | number | null;
   method?: string;
   params?: Record<string, unknown>;
-}
-
-function isAuthorized(req: NextRequest): boolean {
-  const keys = process.env.DUKU_LICENSE_KEYS;
-  // Dev mode: serve openly when no keys are configured.
-  if (!keys) return true;
-  const header = req.headers.get("authorization") ?? "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-  if (!token) return false;
-  return keys
-    .split(",")
-    .map((k) => k.trim())
-    .filter(Boolean)
-    .includes(token);
 }
 
 const CORS_HEADERS = {
@@ -118,7 +104,7 @@ const TOOLS = [
   {
     name: "get_component",
     description:
-      "Retrieve the full agent-readable schema for one component: props, interaction/motion behavior, dependencies, install command, quality guarantees and (when licensed or free-tier) the TypeScript source files.",
+      "Retrieve the full agent-readable schema for one component: props, interaction/motion behavior, dependencies, install command, quality guarantees and the full TypeScript source files (open source, always included).",
     inputSchema: {
       type: "object",
       properties: {
@@ -153,11 +139,7 @@ const TOOLS = [
   },
 ] as const;
 
-function callTool(
-  name: string,
-  args: Record<string, unknown>,
-  authorized: boolean
-) {
+function callTool(name: string, args: Record<string, unknown>) {
   switch (name) {
     case "search_components": {
       const query = typeof args.query === "string" ? args.query : "";
@@ -179,22 +161,15 @@ function callTool(
       const detail = getComponentDetail(name);
       if (!detail) return toolError(`Unknown component: ${name}`);
       const includeSource = args.include_source !== false;
-      const canReadSource = detail.tier === "free" || authorized;
-      const source =
-        includeSource && canReadSource
-          ? detail.files.map((f) => ({
-              path: f.path,
-              content: CONTENTS[f.path] ?? "",
-            }))
-          : undefined;
+      const source = includeSource
+        ? detail.files.map((f) => ({
+            path: f.path,
+            content: CONTENTS[f.path] ?? "",
+          }))
+        : undefined;
       return text({
         ...detail,
         ...(source ? { source } : {}),
-        ...(includeSource && !canReadSource
-          ? {
-              sourceUnavailable: `"${name}" is a Pro component. Source requires a DUKU Labs license key sent as an Authorization: Bearer header. Purchase: ${SITE_URL}/pricing`,
-            }
-          : {}),
       });
     }
     case "get_install_command": {
@@ -213,9 +188,7 @@ function callTool(
         npmDependencies: detail.dependencies,
         notes: [
           "Run the command from the target project root; it writes the component source into the project so the user owns and can edit it.",
-          detail.tier === "pro"
-            ? "Pro component: the registry endpoint requires an Authorization: Bearer <license-key> header when DUKU_LICENSE_KEYS is configured."
-            : "Free-tier component: no license key required.",
+          "DUKU Labs is MIT-licensed and fully open source: every component installs with no license key or paywall.",
           "Ask the user before running installation commands that modify their codebase.",
         ],
       });
@@ -260,7 +233,7 @@ function resourceList() {
   ];
 }
 
-function readResource(uri: string, authorized: boolean) {
+function readResource(uri: string) {
   const json = (value: unknown) => ({
     contents: [
       {
@@ -280,19 +253,12 @@ function readResource(uri: string, authorized: boolean) {
   if (match) {
     const detail = getComponentDetail(match[1]);
     if (!detail) return null;
-    const canReadSource = detail.tier === "free" || authorized;
     return json({
       ...detail,
-      ...(canReadSource
-        ? {
-            source: detail.files.map((f) => ({
-              path: f.path,
-              content: CONTENTS[f.path] ?? "",
-            })),
-          }
-        : {
-            sourceUnavailable: `Pro component; license key required. ${SITE_URL}/pricing`,
-          }),
+      source: detail.files.map((f) => ({
+        path: f.path,
+        content: CONTENTS[f.path] ?? "",
+      })),
     });
   }
   return null;
@@ -357,7 +323,7 @@ function getPrompt(name: string, args: Record<string, unknown>) {
 // ---------------------------------------------------------------------------
 // JSON-RPC dispatch
 
-function handleMessage(msg: JsonRpcRequest, authorized: boolean) {
+function handleMessage(msg: JsonRpcRequest) {
   const id = msg.id ?? null;
   const params = msg.params ?? {};
 
@@ -384,7 +350,7 @@ function handleMessage(msg: JsonRpcRequest, authorized: boolean) {
     case "tools/call": {
       const name = String(params.name ?? "");
       const args = (params.arguments ?? {}) as Record<string, unknown>;
-      return rpcResult(id, callTool(name, args, authorized));
+      return rpcResult(id, callTool(name, args));
     }
     case "resources/list":
       return rpcResult(id, { resources: resourceList() });
@@ -392,7 +358,7 @@ function handleMessage(msg: JsonRpcRequest, authorized: boolean) {
       return rpcResult(id, { resourceTemplates: [] });
     case "resources/read": {
       const uri = String(params.uri ?? "");
-      const resource = readResource(uri, authorized);
+      const resource = readResource(uri);
       if (!resource) return rpcError(id, -32002, `Resource not found: ${uri}`);
       return rpcResult(id, resource);
     }
@@ -421,7 +387,6 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const authorized = isAuthorized(req);
   const messages = Array.isArray(body) ? body : [body];
   const responses = [];
   for (const raw of messages) {
@@ -432,7 +397,7 @@ export async function POST(req: NextRequest) {
     }
     // Notifications get no response body.
     if (msg.id === undefined) continue;
-    responses.push(handleMessage(msg, authorized));
+    responses.push(handleMessage(msg));
   }
 
   // Notification-only POST: acknowledge with 202 and no body.

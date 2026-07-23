@@ -1,8 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import registry from "@/registry.json";
 import fileContents from "@/registry/generated/file-contents.json";
-
-const PURCHASE_URL = "https://labs.duku.design/pricing";
 
 interface RegistryFile {
   path: string;
@@ -21,24 +19,13 @@ interface RegistryItem {
   meta?: { tier?: string };
 }
 
-function isAuthorized(req: NextRequest): boolean {
-  const keys = process.env.DUKU_LICENSE_KEYS;
-  // Dev mode: serve openly when no keys are configured.
-  if (!keys) return true;
-  const header = req.headers.get("authorization") ?? "";
-  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
-  if (!token) return false;
-  return keys
-    .split(",")
-    .map((k) => k.trim())
-    .filter(Boolean)
-    .includes(token);
-}
-
 const CONTENTS: Record<string, string> = fileContents;
 
+// DUKU Labs is MIT-licensed and fully open source: every registry item is
+// served openly, with no license key or paywall. The `tier` field on an item
+// is kept only as an informational label.
 export async function GET(
-  req: NextRequest,
+  _req: Request,
   { params }: { params: Promise<{ name: string }> }
 ) {
   const { name: rawName } = await params;
@@ -51,16 +38,6 @@ export async function GET(
     return NextResponse.json(
       { error: `Unknown component: ${name}` },
       { status: 404 }
-    );
-  }
-
-  if (item.meta?.tier !== "free" && !isAuthorized(req)) {
-    return NextResponse.json(
-      {
-        error: "A DUKU license key is required for this component.",
-        purchase: PURCHASE_URL,
-      },
-      { status: 401 }
     );
   }
 

@@ -1,10 +1,17 @@
 # DUKU Labs
 
-An agent-ready design engineering system for building sophisticated digital
-products. Production React components with the full interaction state matrix,
-engineered motion and design tokens — browsable by humans at
-[labs.duku.design](https://labs.duku.design) and discoverable by Claude Code,
-Codex and other MCP-compatible coding agents. Formerly DUKU UI.
+An **open-source** (MIT), agent-ready design engineering system for building
+sophisticated digital products. Production React components with the full
+interaction state matrix, engineered motion and design tokens — browsable by
+humans at [labs.duku.design](https://labs.duku.design) and discoverable by
+Claude Code, Codex and other MCP-compatible coding agents. Formerly DUKU UI.
+
+Every component, the design tokens and the MCP server are free under the
+[MIT License](LICENSE) — no tiers, no license keys, no paywall. The one thing
+we ask: before you connect over MCP or copy an install command on the site,
+tell us your email, company and role (owner, designer, developer, …) so we know
+who's building. See [`CHANGELOG.md`](CHANGELOG.md) and the
+[/open-source](https://labs.duku.design/open-source) page.
 
 ## Stack
 
@@ -58,9 +65,9 @@ It exposes:
 
 The agent-readable schema behind it lives in `lib/agent-manifest.ts`
 (registry.json + `lib/docs-data.ts` merged per component: props, interaction
-and motion behavior, dependencies, install command, quality guarantees).
-Anonymous callers get full metadata plus free-tier source; a license key sent
-as `Authorization: Bearer` unlocks Pro source when `DUKU_LICENSE_KEYS` is set.
+and motion behavior, dependencies, install command, quality guarantees). Every
+caller — anonymous or not — gets full metadata and complete source: DUKU Labs
+is open source, so there is no license key or `Authorization` header to send.
 
 ## Development
 
@@ -77,11 +84,17 @@ npm run registry:gen   # regenerate registry.json, file contents + public/r
 npx shadcn@latest add https://labs.duku.design/r/<name>.json
 ```
 
-`app/r/[name]/route.ts` serves every registry item with file contents inlined.
-The free tier (core primitives + kinetic-heading and magnetic-button, tagged
-`meta.tier: "free"` in registry.json) is committed statically under
-`public/r/`. When `DUKU_LICENSE_KEYS` (comma-separated) is set, all other
-items require `Authorization: Bearer <key>`; unset means open dev mode.
+`app/r/[name]/route.ts` serves every registry item with file contents inlined —
+openly, with no license key. The core primitives (plus kinetic-heading and
+magnetic-button, tagged `meta.tier: "free"` in registry.json) are also committed
+statically under `public/r/`. The `meta.tier` field is retained only as an
+informational label; it no longer restricts access to source.
+
+## License
+
+DUKU Labs is released under the [MIT License](LICENSE). Use it in personal and
+commercial products, modify it, redistribute it. Components install as source
+into your project — they're yours to keep and change.
 
 ## Layout
 

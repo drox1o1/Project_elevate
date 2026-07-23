@@ -6,6 +6,7 @@ import { AgentDemo } from "@/components/site/agent-demo";
 import { AccessForm } from "@/components/site/access-form";
 import { AsciiShowcase } from "@/components/site/ascii-showcase";
 import { HeroIntro } from "@/components/site/hero-intro";
+import { IdentifyGate } from "@/components/site/identify-gate";
 import { InstallTabs } from "@/components/site/install-tabs";
 import { PreviewPanel } from "@/components/site/preview";
 import { ScrollFade } from "@/components/site/scroll-fade";
@@ -257,12 +258,13 @@ export default function HomePage() {
         <div className="mx-auto max-w-3xl px-4 py-20">
           <ScrollFade>
             <h2 className="font-pixel text-xl uppercase tracking-wide sm:text-2xl">
-              Free while in beta.
+              Open source. Yours to keep.
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Every component — signature workflows included — is free to
-              integrate right now. In exchange, tell us what you&apos;re
-              building: it decides which components we design next.
+              Every component — signature workflows included — is MIT-licensed
+              and free to integrate. All we ask before we hand over the connect
+              commands: your email, company and role. It tells us who&apos;s
+              building and decides which components we design next.
             </p>
             <div className="mt-8">
               <AccessForm />
@@ -280,10 +282,17 @@ export default function HomePage() {
             </h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
               Connect your agent once, or install components directly — either
-              way the source lands in your project and belongs to you.
+              way the source lands in your project and belongs to you. It&apos;s
+              all open source under MIT; just tell us who&apos;s building first.
             </p>
             <div className="mt-8">
-              <InstallTabs />
+              <IdentifyGate
+                intent="install-tabs"
+                title="Tell us who you are to connect"
+                description="DUKU Labs is open source and free. Drop your email, company and role and the connect commands appear right here."
+              >
+                <InstallTabs />
+              </IdentifyGate>
             </div>
           </ScrollFade>
         </div>

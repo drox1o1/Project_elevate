@@ -10,7 +10,7 @@ const LINKS = [
   { href: "/", label: "Home" },
   { href: "/components/button", label: "Components" },
   { href: "/connect", label: "MCP" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/open-source", label: "Open source" },
 ];
 
 export function SiteNav() {
@@ -19,8 +19,8 @@ export function SiteNav() {
     ? "/components/button"
     : pathname === "/connect"
       ? "/connect"
-      : pathname === "/pricing"
-        ? "/pricing"
+      : pathname === "/open-source"
+        ? "/open-source"
         : "/";
 
   return (

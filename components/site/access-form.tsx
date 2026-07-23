@@ -19,23 +19,42 @@ const PURPOSES = [
   "Side project",
 ] as const;
 
+const ROLES = [
+  "Owner",
+  "Founder",
+  "Designer",
+  "Developer",
+  "Product manager",
+  "Engineering lead",
+  "Student",
+  "Other",
+] as const;
+
 const MCP_CMD = "claude mcp add duku-labs --transport http https://labs.duku.design/mcp";
 const CLI_CMD = "npx shadcn@latest add https://labs.duku.design/r/kyc-flow.json";
 
 /**
- * The lead magnet: everything is free while we're in beta — we just want
- * to know who's building what. Success morphs straight into the install
- * commands, so the reward for telling us is immediate.
+ * The identify step: DUKU Labs is open source and free — we just want to know
+ * who's building. We take email, company and role (owner, designer, …), then
+ * the form morphs straight into the connect commands, so the reward for
+ * telling us is immediate. Success also records a shared identity in
+ * localStorage so the MCP/install gates elsewhere step aside.
  */
 export function AccessForm({ className }: { className?: string }) {
   const reduced = useReducedMotion();
   const rootRef = React.useRef<HTMLDivElement>(null);
 
   const [email, setEmail] = React.useState("");
+  const [company, setCompany] = React.useState("");
+  const [role, setRole] = React.useState("");
   const [building, setBuilding] = React.useState("");
   const [purposes, setPurposes] = React.useState<string[]>([]);
-  const [role, setRole] = React.useState("");
-  const [errors, setErrors] = React.useState<{ email?: string; building?: string }>({});
+  const [errors, setErrors] = React.useState<{
+    email?: string;
+    company?: string;
+    role?: string;
+    building?: string;
+  }>({});
   const [pending, setPending] = React.useState(false);
   const [done, setDone] = React.useState(false);
   const [serverError, setServerError] = React.useState<string | null>(null);
@@ -47,6 +66,8 @@ export function AccessForm({ className }: { className?: string }) {
     e.preventDefault();
     const next: typeof errors = {};
     if (!/^\S+@\S+\.\S+$/.test(email)) next.email = "Enter a valid email.";
+    if (company.trim().length < 2) next.company = "Company or project name.";
+    if (!ROLES.includes(role as (typeof ROLES)[number])) next.role = "Select your role.";
     if (building.trim().length < 3) next.building = "A sentence is plenty — what are you making?";
     setErrors(next);
     if (Object.keys(next).length) return;
@@ -57,10 +78,18 @@ export function AccessForm({ className }: { className?: string }) {
       const res = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, building, purposes, role: role || undefined }),
+        body: JSON.stringify({ email, company, role, building, purposes, intent: "access-form" }),
       });
       const json = await res.json();
       if (!json.ok) throw new Error(json.error ?? "Something went wrong.");
+      try {
+        window.localStorage.setItem(
+          "duku:identity",
+          JSON.stringify({ email, company, role })
+        );
+      } catch {
+        // Non-fatal: the reward still shows this session.
+      }
       // Blur-morph the form into the reward panel.
       if (!reduced && rootRef.current) {
         await new Promise<void>((resolve) => {
@@ -100,8 +129,8 @@ export function AccessForm({ className }: { className?: string }) {
             ▚ Access granted
           </p>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Everything below is yours — all {""}components, free while we&apos;re
-            in beta. We&apos;ll email you when new domain packs land.
+            Everything is yours — the whole catalog and the MCP server, open
+            source under MIT. We&apos;ll email you when new domain packs land.
           </p>
           <div className="mt-4 flex flex-col gap-2">
             <p className="font-pixel text-[10px] uppercase tracking-widest text-muted-foreground">
@@ -136,14 +165,44 @@ export function AccessForm({ className }: { className?: string }) {
                 }}
               />
             </Field>
-            <Field label="Role / company (optional)">
+            <Field label="Company / project" state={errors.company ? "error" : null} message={errors.company}>
               <Input
-                value={role}
-                placeholder="Design engineer @ …"
-                onChange={(e) => setRole(e.target.value)}
+                value={company}
+                invalid={!!errors.company}
+                autoComplete="organization"
+                placeholder="Acme, Inc."
+                onChange={(e) => {
+                  setCompany(e.target.value);
+                  setErrors((x) => ({ ...x, company: undefined }));
+                }}
               />
             </Field>
           </div>
+
+          <Field label="Who are you?" state={errors.role ? "error" : null} message={errors.role}>
+            <select
+              value={role}
+              aria-invalid={!!errors.role}
+              onChange={(e) => {
+                setRole(e.target.value);
+                setErrors((x) => ({ ...x, role: undefined }));
+              }}
+              className={cn(
+                "h-9 w-full rounded-none border bg-background px-3 text-sm text-foreground outline-none transition-colors",
+                "focus-visible:ring-2 focus-visible:ring-ring",
+                errors.role ? "border-destructive" : "border-input"
+              )}
+            >
+              <option value="" disabled>
+                Select your role…
+              </option>
+              {ROLES.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </Field>
 
           <Field
             label="What product are you building?"
@@ -199,11 +258,11 @@ export function AccessForm({ className }: { className?: string }) {
 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="max-w-[36ch] text-[11px] leading-4 text-muted-foreground">
-              Free while in beta. No card, no key — your answers shape which
+              Open source, MIT. No card, no key — your answers shape which
               components we build next.
             </p>
             <Button type="submit" loading={pending}>
-              Get free access
+              Get the commands
             </Button>
           </div>
         </form>
