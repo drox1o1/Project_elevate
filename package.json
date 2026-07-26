@@ -1,7 +1,25 @@
 {
   "name": "duku-labs",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
+  "license": "MIT",
+  "description": "An open-source, agent-ready design engineering system: production React components with the full interaction state matrix, engineered motion and design tokens, discoverable over MCP.",
+  "author": "Durgesh Kukreti (DUKU Labs)",
+  "homepage": "https://labs.duku.design",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/drox1o1/project_elevate.git"
+  },
+  "keywords": [
+    "react",
+    "shadcn",
+    "registry",
+    "components",
+    "design-system",
+    "mcp",
+    "tailwindcss",
+    "open-source"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

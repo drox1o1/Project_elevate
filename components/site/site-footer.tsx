@@ -64,8 +64,8 @@ export function SiteFooter() {
             {[
               ["/components/kyc-flow", "Components"],
               ["/connect", "Connect to MCP"],
-              ["/pricing", "Pricing"],
-              ["/#access", "Get free access"],
+              ["/open-source", "Open source"],
+              ["/#access", "Get the components"],
             ].map(([href, label]) => (
               <li key={href}>
                 <Link
@@ -121,7 +121,7 @@ export function SiteFooter() {
             © {new Date().getFullYear()} DUKU · MADE WITH HUMAN TASTE
           </p>
           <p className="font-pixel text-[10px] tracking-wider text-muted-foreground">
-            FREE WHILE IN BETA
+            OPEN SOURCE · MIT
           </p>
         </div>
       </div>

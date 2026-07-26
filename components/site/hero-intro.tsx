@@ -91,7 +91,7 @@ export function HeroIntro() {
       </p>
       <div data-hero="cta" className="mt-8 flex flex-wrap items-center justify-center gap-4 opacity-0">
         <Link href="/#access">
-          <MagneticButton>Get free access</MagneticButton>
+          <MagneticButton>Get the components</MagneticButton>
         </Link>
         <Link
           href="/connect"
@@ -104,7 +104,7 @@ export function HeroIntro() {
         data-hero="proof"
         className="mt-6 font-pixel text-[10px] uppercase tracking-widest text-muted-foreground opacity-0"
       >
-        Real products · every state · yours to customise
+        Open source · MIT · every state · yours to customise
       </p>
     </div>
   );

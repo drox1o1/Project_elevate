@@ -8,17 +8,18 @@ import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 import { StreamText } from "@/registry/default/ai/stream-text";
 import { ThinkingIndicator } from "@/registry/default/ai/thinking-indicator";
 import { Badge } from "@/registry/default/ui/badge";
-import { SignupCard } from "@/registry/default/blocks/signup-card";
-
-const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+import {
+  OptionChain,
+  generateOptionChain,
+} from "@/registry/default/fintech/option-chain";
 
 const PROMPT =
-  "Add a signup flow with live validation, a password strength meter and a success morph. Use DUKU Labs.";
+  "Add a NIFTY option chain with live Greeks, an expiry switch and an order ticket. Use DUKU Labs.";
 
 const MATCHES = [
-  { name: "signup-card", confidence: "0.96" },
-  { name: "field", confidence: "0.84" },
-  { name: "otp-input", confidence: "0.73" },
+  { name: "option-chain", confidence: "0.97" },
+  { name: "greeks-panel", confidence: "0.82" },
+  { name: "order-ticket", confidence: "0.74" },
 ];
 
 /** GSAP mount entrance: rise from below, optional back-out pop. */
@@ -119,8 +120,9 @@ function CheckDraw() {
 
 /**
  * The hero's scripted agent session: prompt → MCP discovery → install →
- * the real, working SignupCard. Every artifact shown is real — the search
- * results mirror what the /mcp endpoint returns for this prompt.
+ * the real, working OptionChain. Every artifact shown is real — the search
+ * results mirror what the /mcp endpoint returns for this prompt, and the
+ * chain's premiums and Greeks are computed with Black-Scholes.
  */
 export function AgentDemo() {
   const reduced = useReducedMotion();
@@ -128,6 +130,24 @@ export function AgentDemo() {
   const [step, setStep] = React.useState(0);
   const [replayKey, setReplayKey] = React.useState(0);
   const cardRef = React.useRef<HTMLDivElement>(null);
+
+  // Live-ticking NIFTY spot so the rendered chain reads as "for real".
+  const [spot, setSpot] = React.useState(24_812.4);
+  const [expiry, setExpiry] = React.useState("17 Jul");
+  const dte = { "17 Jul": 4, "24 Jul": 11, "31 Jul": 18 }[expiry] ?? 7;
+
+  React.useEffect(() => {
+    if (reduced || step < 5) return;
+    const id = setInterval(() => {
+      setSpot((s) => +(s + (Math.random() - 0.5) * 18).toFixed(2));
+    }, 1600);
+    return () => clearInterval(id);
+  }, [reduced, step]);
+
+  const rows = React.useMemo(
+    () => generateOptionChain({ spot, span: 4, dte }),
+    [spot, dte]
+  );
 
   React.useEffect(() => {
     setStep(reduced ? 5 : 0);
@@ -193,7 +213,7 @@ export function AgentDemo() {
         </button>
       </div>
 
-      <div key={replayKey} className="grid gap-6 p-5 lg:grid-cols-[1fr_auto]">
+      <div key={replayKey} className="grid gap-6 p-5">
         <div className="flex min-w-0 flex-col gap-4 font-mono text-[13px] leading-6">
           <div className="rounded-lg bg-muted/60 px-3.5 py-2.5 text-foreground">
             {reduced ? (
@@ -237,7 +257,7 @@ export function AgentDemo() {
           {step >= 3 ? (
             <Rise>
               <span className="text-muted-foreground">
-                → get_component signup-card ·{" "}
+                → get_component option-chain ·{" "}
                 <span className="text-foreground">
                   props · states · motion spec · source
                 </span>
@@ -248,7 +268,7 @@ export function AgentDemo() {
           {step >= 4 ? (
             <Rise>
               <span className="break-all text-muted-foreground">
-                $ npx shadcn@latest add labs.duku.design/r/signup-card.json
+                $ npx shadcn@latest add labs.duku.design/r/option-chain.json
                 {step >= 5 ? (
                   <span className="ml-2 whitespace-nowrap text-success">
                     <CheckDraw /> installed
@@ -259,19 +279,21 @@ export function AgentDemo() {
           ) : null}
         </div>
 
-        <div className="flex items-start justify-center lg:w-[360px]">
+        <div className="flex items-start justify-center">
           {step >= 5 ? (
-            <div ref={cardRef} className="w-full opacity-0">
-              <SignupCard
-                title="Create your account"
-                onSubmit={() => wait(1100)}
-                onOAuth={() => {}}
+            <div ref={cardRef} className="w-full min-w-0 opacity-0">
+              <OptionChain
+                rows={rows}
+                spot={spot}
+                expiries={["17 Jul", "24 Jul", "31 Jul"]}
+                expiry={expiry}
+                onExpiryChange={setExpiry}
               />
             </div>
           ) : (
             <div
               aria-hidden="true"
-              className="hidden h-[420px] w-full rounded-2xl border border-dashed border-border lg:flex lg:items-center lg:justify-center"
+              className="hidden h-[300px] w-full items-center justify-center rounded-2xl border border-dashed border-border lg:flex"
             >
               <span className="text-xs text-muted-foreground">
                 Working interface renders here

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CopyButton } from "@/registry/default/ui/kbd";
 import { Badge } from "@/registry/default/ui/badge";
 import { ScrollFade } from "@/components/site/scroll-fade";
+import { IdentifyGate } from "@/components/site/identify-gate";
 
 export const metadata: Metadata = {
   title: "Connect to MCP",
@@ -84,7 +85,7 @@ export default function ConnectPage() {
       <ScrollFade className="flex flex-col gap-14" y={20}>
       <header>
         <Badge variant="outline" className="mb-4">
-          MCP beta · read-only registry
+          Open source · MIT · read-only registry
         </Badge>
         <h1 className="text-3xl font-semibold tracking-tight">
           Connect DUKU Labs to your coding agent
@@ -94,44 +95,53 @@ export default function ConnectPage() {
           implement components inside your product. MCP gives the agent
           structured context and callable tools — the agent still needs access
           to your project and your permission to edit files, install
-          dependencies and run commands.
+          dependencies and run commands. DUKU Labs is free and open source; we
+          only ask who you are before handing over the connection.
         </p>
       </header>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold tracking-tight">Claude Code</h2>
-        <CommandBlock command="claude mcp add duku-labs --transport http https://labs.duku.design/mcp" />
-      </section>
+      <IdentifyGate
+        intent="connect-page"
+        title="Tell us who you are to connect"
+        description="Email, company and role — that's it. Everything below is open source under MIT, no key required."
+      >
+        <div className="flex flex-col gap-14">
+          <section className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold tracking-tight">Claude Code</h2>
+            <CommandBlock command="claude mcp add duku-labs --transport http https://labs.duku.design/mcp" />
+          </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold tracking-tight">Codex</h2>
-        <CommandBlock command="codex mcp add duku-labs --url https://labs.duku.design/mcp" />
-        <p className="text-xs text-muted-foreground">
-          The Codex CLI and IDE extension share MCP configuration, so adding
-          the server once covers both.
-        </p>
-      </section>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold tracking-tight">Codex</h2>
+            <CommandBlock command="codex mcp add duku-labs --url https://labs.duku.design/mcp" />
+            <p className="text-xs text-muted-foreground">
+              The Codex CLI and IDE extension share MCP configuration, so adding
+              the server once covers both.
+            </p>
+          </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold tracking-tight">
-          Claude Desktop, Cursor, VS Code and other clients
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Add the server to your client&apos;s MCP configuration file:
-        </p>
-        <JsonBlock json={MCP_JSON} />
-      </section>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold tracking-tight">
+              Claude Desktop, Cursor, VS Code and other clients
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Add the server to your client&apos;s MCP configuration file:
+            </p>
+            <JsonBlock json={MCP_JSON} />
+          </section>
 
-      <section className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold tracking-tight">
-          Test the connection
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          The endpoint answers plain JSON-RPC, so you can verify it from a
-          terminal before wiring up a client:
-        </p>
-        <JsonBlock json={CURL_TEST} />
-      </section>
+          <section className="flex flex-col gap-3">
+            <h2 className="text-lg font-semibold tracking-tight">
+              Test the connection
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              The endpoint answers plain JSON-RPC, so you can verify it from a
+              terminal before wiring up a client:
+            </p>
+            <JsonBlock json={CURL_TEST} />
+          </section>
+        </div>
+      </IdentifyGate>
 
       <section>
         <h2 className="text-lg font-semibold tracking-tight">
@@ -194,24 +204,23 @@ export default function ConnectPage() {
       </section>
 
       <section>
-        <h2 className="text-lg font-semibold tracking-tight">Authentication</h2>
+        <h2 className="text-lg font-semibold tracking-tight">
+          Open source, no key
+        </h2>
         <p className="mt-3 text-sm leading-6 text-muted-foreground">
-          Anonymous connections can search the full catalog, read every
-          component&apos;s metadata and fetch source for free-tier components.
-          A{" "}
+          Every connection — anonymous or not — can search the full catalog,
+          read every component&apos;s metadata and fetch the complete source.
+          DUKU Labs is{" "}
           <Link
-            href="/pricing"
+            href="/open-source"
             className="font-medium text-foreground underline-offset-4 hover:underline"
           >
-            Pro or Team license
-          </Link>{" "}
-          unlocks Pro component source: send your license key as an{" "}
-          <code className="font-mono text-[13px]">
-            Authorization: Bearer
-          </code>{" "}
-          header. Treat the key like a password — keep it out of screenshots,
-          logs and committed config files (use an environment variable
-          reference instead).
+            MIT-licensed and fully open source
+          </Link>
+          : there is no license key, paywall or{" "}
+          <code className="font-mono text-[13px]">Authorization</code> header to
+          send. Install a component and the source lands in your project as
+          yours to edit.
         </p>
       </section>
       </ScrollFade>
