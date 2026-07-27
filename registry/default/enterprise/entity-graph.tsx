@@ -166,8 +166,8 @@ export function EntityGraph({
       {...rest}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">Entity graph</h3>
-        <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
+        <h3 className="type-title text-foreground">Entity graph</h3>
+        <div className="flex flex-wrap gap-2 type-caption text-muted-foreground">
           {(Object.keys(TYPE_META) as EntityType[]).map((t) => (
             <span key={t} className="flex items-center gap-1">
               <svg viewBox="0 0 8 8" className="size-2" aria-hidden="true">
@@ -304,22 +304,22 @@ export function EntityGraph({
             <div className="flex items-center justify-between gap-2">
               <p className="font-medium text-foreground">
                 {sel.label}
-                <span className="ml-2 text-[11px] font-normal text-muted-foreground">
+                <span className="ml-2 type-meta font-normal text-muted-foreground">
                   {TYPE_META[sel.type].label}
                 </span>
               </p>
               <button
                 type="button"
                 onClick={() => setSelected(null)}
-                className="text-[11px] text-muted-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="type-meta text-muted-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 Show all
               </button>
             </div>
             {sel.detail ? (
-              <p className="mt-0.5 text-[12px] leading-5 text-muted-foreground">{sel.detail}</p>
+              <p className="mt-0.5 type-meta leading-5 text-muted-foreground">{sel.detail}</p>
             ) : null}
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 type-meta text-muted-foreground">
               {edges
                 .filter((e) => e.from === sel.id || e.to === sel.id)
                 .map((e) =>
@@ -331,7 +331,7 @@ export function EntityGraph({
             </p>
           </>
         ) : (
-          <p className="text-[12px] text-muted-foreground">
+          <p className="type-meta text-muted-foreground">
             Select an entity to isolate its neighbourhood. Dashed red rings and
             edges mark risk links.
           </p>

@@ -151,7 +151,7 @@ function StepRail({ step }: { step: number }) {
           >
             <span
               className={cn(
-                "flex size-6 items-center justify-center rounded-full border-2 text-[10px] font-semibold transition-colors duration-300",
+                "flex size-6 items-center justify-center rounded-full border-2 type-caption font-semibold transition-colors duration-300",
                 done
                   ? "border-primary bg-primary text-primary-foreground"
                   : active
@@ -163,7 +163,7 @@ function StepRail({ step }: { step: number }) {
             </span>
             <span
               className={cn(
-                "text-[10px] font-medium",
+                "type-caption font-medium",
                 active ? "text-foreground" : "text-muted-foreground"
               )}
             >
@@ -251,7 +251,7 @@ function DocCapture({
       <span className="text-xs font-medium text-foreground">{label}</span>
       {state === "idle" ? (
         <>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="type-meta text-muted-foreground">
             Align inside the frame — we check focus and glare
           </span>
           <Button size="sm" variant="outline" onClick={onCapture}>
@@ -264,14 +264,14 @@ function DocCapture({
           <span className="relative h-1.5 w-full overflow-hidden rounded-full bg-muted">
             <span className="absolute inset-y-0 w-1/3 animate-duku-shimmer rounded-full bg-primary/60" />
           </span>
-          <span className="text-[11px] text-muted-foreground">
+          <span className="type-meta text-muted-foreground">
             Checking edges, blur and glare…
           </span>
         </>
       ) : null}
       {state === "glare" ? (
         <>
-          <span className="text-[11px] text-warning">
+          <span className="type-meta text-warning">
             Glare detected — tilt the document away from the light
           </span>
           <Button size="sm" variant="outline" onClick={onCapture}>
@@ -280,7 +280,7 @@ function DocCapture({
         </>
       ) : null}
       {state === "done" ? (
-        <span className="flex items-center gap-1.5 text-[11px] font-medium text-success">
+        <span className="flex items-center gap-1.5 type-meta font-medium text-success">
           <CheckIcon /> Quality passed
         </span>
       ) : null}
@@ -377,7 +377,7 @@ function LivenessCheck({
       >
         {done ? "Liveness confirmed" : running ? prompt : "Ready when you are"}
       </p>
-      <p className="max-w-xs text-center text-[11px] leading-4 text-muted-foreground">
+      <p className="max-w-xs text-center type-meta leading-4 text-muted-foreground">
         Frames are processed on-device for this check and never stored. This
         demo simulates the camera.
       </p>
@@ -624,7 +624,7 @@ export function KycFlow({
                 onCapture={() => capture("back")}
               />
             </div>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="type-meta text-muted-foreground">
               No camera? You can also upload a scan — the same quality checks
               apply.
             </p>
@@ -681,7 +681,7 @@ export function KycFlow({
                   className="flex items-center justify-between gap-2 px-3 py-2.5"
                 >
                   <div className="min-w-0">
-                    <dt className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                    <dt className="type-overline text-muted-foreground">
                       {k}
                     </dt>
                     <dd className="truncate text-sm text-foreground">{v}</dd>

@@ -134,7 +134,7 @@ export function GroundedAnswer({
       )}
       {...rest}
     >
-      <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+      <p className="type-overline text-muted-foreground">
         Question
       </p>
       <p className="text-sm font-medium text-foreground">{question}</p>
@@ -146,7 +146,7 @@ export function GroundedAnswer({
             key={i}
             data-claim
             className={cn(
-              "rounded-lg px-3 py-2 text-[13px] leading-6",
+              "rounded-lg px-3 py-2 type-label leading-6",
               c.confidence < 0.8 ? "bg-warning/5" : "bg-muted/40"
             )}
           >
@@ -171,14 +171,14 @@ export function GroundedAnswer({
             ))}
             <span
               className={cn(
-                "ml-1 align-middle text-[10px] tabular-nums",
+                "ml-1 align-middle type-caption numeric",
                 c.confidence < 0.8 ? "font-medium text-warning" : "text-muted-foreground"
               )}
             >
               {(c.confidence * 100).toFixed(0)}%
             </span>
             {c.contradiction ? (
-              <p className="mt-1 border-l-2 border-warning pl-2 text-[11px] leading-4 text-warning">
+              <p className="mt-1 border-l-2 border-warning pl-2 type-meta leading-4 text-warning">
                 Sources disagree: {c.contradiction}
               </p>
             ) : null}
@@ -188,14 +188,14 @@ export function GroundedAnswer({
 
       {/* Missing evidence */}
       {missingEvidence.length > 0 ? (
-        <p className="mt-2 rounded-lg border border-dashed border-border px-3 py-1.5 text-[11px] leading-4 text-muted-foreground">
+        <p className="mt-2 rounded-lg border border-dashed border-border px-3 py-1.5 type-meta leading-4 text-muted-foreground">
           <span className="font-medium text-foreground">Not covered by any source:</span>{" "}
           {missingEvidence.join(" ")}
         </p>
       ) : null}
 
       {/* Sources */}
-      <p className="mt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+      <p className="mt-3 type-overline text-muted-foreground">
         Sources
       </p>
       <ol className="mt-1.5 flex flex-col gap-1.5">
@@ -214,17 +214,17 @@ export function GroundedAnswer({
               </span>
               {s.title}
             </p>
-            <p className="mt-0.5 text-[11px] italic leading-4 text-muted-foreground">
+            <p className="mt-0.5 type-meta italic leading-4 text-muted-foreground">
               “{s.quote}”
             </p>
-            <p className="mt-0.5 text-[10px] text-muted-foreground">{s.meta}</p>
+            <p className="mt-0.5 type-caption text-muted-foreground">{s.meta}</p>
           </li>
         ))}
       </ol>
 
       {/* Feedback */}
       <div className="mt-3 flex items-center justify-between border-t border-border pt-2">
-        <span className="text-[10px] text-muted-foreground">
+        <span className="type-caption text-muted-foreground">
           Confidence is per claim, not per answer — low-confidence claims are tinted.
         </span>
         <div className="flex gap-1" aria-live="polite">
@@ -238,13 +238,13 @@ export function GroundedAnswer({
                   setFeedback(v === "yes");
                   onFeedback?.(v === "yes");
                 }}
-                className="rounded-md border border-border px-2 py-1 text-[11px] text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="rounded-md border border-border px-2 py-1 type-meta text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {v === "yes" ? "Helpful" : "Not helpful"}
               </button>
             ))
           ) : (
-            <span className="text-[11px] text-success">Thanks — recorded.</span>
+            <span className="type-meta text-success">Thanks — recorded.</span>
           )}
         </div>
       </div>

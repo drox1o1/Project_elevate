@@ -151,7 +151,7 @@ export function SipSimulator({
     <label className="flex flex-col gap-1 text-xs">
       <span className="flex justify-between text-muted-foreground">
         {label}
-        <span className="font-medium tabular-nums text-foreground">{fmt(value)}</span>
+        <span className="font-medium numeric text-foreground">{fmt(value)}</span>
       </span>
       <input
         type="range"
@@ -178,17 +178,17 @@ export function SipSimulator({
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="type-overline text-muted-foreground">
             Projected corpus · {years}y
           </p>
-          <p className="text-2xl font-semibold tracking-tight text-foreground">
+          <p className="type-metric text-foreground">
             <NumberFlow value={Math.round(final.value)} prefix="₹" locale="en-IN" trend />
           </p>
         </div>
-        <div className="text-right text-[11px] text-muted-foreground">
+        <div className="text-right type-meta text-muted-foreground">
           <p>
             Real value (at {inflationPct}% inflation):{" "}
-            <span className="font-medium tabular-nums text-foreground">{lakh(realValue)}</span>
+            <span className="font-medium numeric text-foreground">{lakh(realValue)}</span>
           </p>
           {goal ? (
             <p>
@@ -279,12 +279,12 @@ export function SipSimulator({
           }}
         />
       </div>
-      <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+      <div className="mt-1 flex justify-between type-meta text-muted-foreground">
         <span>
-          Invested <span className="font-medium tabular-nums text-foreground">{lakh(final.invested)}</span>
+          Invested <span className="font-medium numeric text-foreground">{lakh(final.invested)}</span>
         </span>
         <span>
-          Growth <span className="font-medium tabular-nums text-market-up">{lakh(growth)}</span> ({growthShare}%)
+          Growth <span className="font-medium numeric text-market-up">{lakh(growth)}</span> ({growthShare}%)
         </span>
       </div>
 
@@ -295,7 +295,7 @@ export function SipSimulator({
         {slider("Expected return", returnPct, setReturnPct, 4, 18, 0.5, (v) => `${v}% p.a.`)}
         {slider("Annual step-up", stepUpPct, setStepUpPct, 0, 15, 1, (v) => `${v}%`)}
       </div>
-      <p className="mt-3 text-[10px] leading-4 text-muted-foreground">
+      <p className="mt-3 type-caption leading-4 text-muted-foreground">
         Illustration with constant returns — actual returns vary. Not
         investment advice.
       </p>

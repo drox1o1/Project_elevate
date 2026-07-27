@@ -162,15 +162,15 @@ export function FundCompare({
             <span className="size-1.5 rounded-full bg-primary" />A
           </span>
           <p className="text-sm font-semibold leading-5 text-foreground">{a.name}</p>
-          <p className="text-[10px] text-muted-foreground">{a.category}</p>
+          <p className="type-caption text-muted-foreground">{a.category}</p>
         </div>
-        <span className="pt-1 text-[10px] font-medium uppercase text-muted-foreground">vs</span>
+        <span className="pt-1 type-overline text-muted-foreground">vs</span>
         <div className="text-right">
           <span className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-info/10 px-1.5 py-0.5 text-[9px] font-medium text-foreground">
             B<span className="size-1.5 rounded-full bg-info" />
           </span>
           <p className="text-sm font-semibold leading-5 text-foreground">{b.name}</p>
-          <p className="text-[10px] text-muted-foreground">{b.category}</p>
+          <p className="type-caption text-muted-foreground">{b.category}</p>
         </div>
       </div>
 
@@ -181,12 +181,12 @@ export function FundCompare({
           const vb = m.value(b);
           return (
             <div key={m.key}>
-              <div className="grid grid-cols-[1fr_auto_1fr] items-baseline gap-2 text-xs tabular-nums">
+              <div className="grid grid-cols-[1fr_auto_1fr] items-baseline gap-2 text-xs numeric">
                 <span className="flex items-center gap-1.5 font-medium text-foreground">
                   {winDot(va, vb, m.higherBetter)}
                   {m.format(m.key === "dd" ? va : va)}
                 </span>
-                <span className="text-center text-[10px] text-muted-foreground">
+                <span className="text-center type-caption text-muted-foreground">
                   {m.label}
                   <span className="hidden sm:inline"> · {m.hint}</span>
                 </span>
@@ -225,13 +225,13 @@ export function FundCompare({
       {/* Exit load + overlap */}
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
         <div className="rounded-xl border border-border/70 bg-background px-3 py-2 text-xs shadow-xs">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Exit load</p>
-          <p className="mt-0.5 tabular-nums text-foreground">
+          <p className="type-overline text-muted-foreground">Exit load</p>
+          <p className="mt-0.5 numeric text-foreground">
             {a.exitLoad} <span className="text-muted-foreground">vs</span> {b.exitLoad}
           </p>
         </div>
         <div className="rounded-xl border border-border/70 bg-background px-3 py-2 text-xs shadow-xs">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+          <p className="type-overline text-muted-foreground">
             Portfolio overlap
           </p>
           <div className="mt-1.5 flex items-center gap-2">
@@ -255,17 +255,17 @@ export function FundCompare({
                 }}
               />
             </span>
-            <span className="font-medium tabular-nums text-foreground">{overlapPct}%</span>
+            <span className="font-medium numeric text-foreground">{overlapPct}%</span>
           </div>
           {overlapPct > 50 ? (
-            <p className="mt-1 text-[10px] leading-4 text-warning">
+            <p className="mt-1 type-caption leading-4 text-warning">
               High overlap — holding both adds little diversification.
             </p>
           ) : null}
         </div>
       </div>
 
-      <p className="mt-3 text-[11px] text-muted-foreground">
+      <p className="mt-3 type-meta text-muted-foreground">
         <span className="font-medium text-foreground">{winsA >= METRICS.length / 2 ? a.name : b.name}</span>{" "}
         leads on {Math.max(winsA, METRICS.length - winsA)} of {METRICS.length} metrics ·
         past returns don&apos;t guarantee future ones · not advice

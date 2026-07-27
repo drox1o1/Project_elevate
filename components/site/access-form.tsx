@@ -104,18 +104,18 @@ export function AccessForm({ className }: { className?: string }) {
             in beta. We&apos;ll email you when new domain packs land.
           </p>
           <div className="mt-4 flex flex-col gap-2">
-            <p className="font-pixel text-[10px] uppercase tracking-widest text-muted-foreground">
+            <p className="font-pixel st type-overline text-muted-foreground">
               Connect your agent
             </p>
             <div className="flex items-center justify-between gap-2 overflow-x-auto rounded-none border border-border bg-muted/50 py-1.5 pl-3 pr-1.5">
-              <code className="whitespace-nowrap font-mono text-[12px] text-foreground">{MCP_CMD}</code>
+              <code className="whitespace-nowrap font-mono type-meta text-foreground">{MCP_CMD}</code>
               <CopyButton value={MCP_CMD} />
             </div>
-            <p className="mt-1 font-pixel text-[10px] uppercase tracking-widest text-muted-foreground">
+            <p className="mt-1 font-pixel st type-overline text-muted-foreground">
               Or install a component
             </p>
             <div className="flex items-center justify-between gap-2 overflow-x-auto rounded-none border border-border bg-muted/50 py-1.5 pl-3 pr-1.5">
-              <code className="whitespace-nowrap font-mono text-[12px] text-foreground">{CLI_CMD}</code>
+              <code className="whitespace-nowrap font-mono type-meta text-foreground">{CLI_CMD}</code>
               <CopyButton value={CLI_CMD} />
             </div>
           </div>
@@ -177,7 +177,7 @@ export function AccessForm({ className }: { className?: string }) {
                     aria-pressed={on}
                     onClick={() => togglePurpose(p)}
                     className={cn(
-                      "border px-2.5 py-1 font-pixel text-[10px] uppercase tracking-wider transition-colors duration-150",
+                      "border px-2.5 py-1 font-pixel type-overline tracking-[0.1em] transition-colors duration-150",
                       on
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-border bg-background text-muted-foreground hover:text-foreground",
@@ -198,7 +198,7 @@ export function AccessForm({ className }: { className?: string }) {
           ) : null}
 
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="max-w-[36ch] text-[11px] leading-4 text-muted-foreground">
+            <p className="max-w-[36ch] type-meta leading-4 text-muted-foreground">
               Free while in beta. No card, no key — your answers shape which
               components we build next.
             </p>

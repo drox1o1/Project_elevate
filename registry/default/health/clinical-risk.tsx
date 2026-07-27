@@ -132,7 +132,7 @@ export function ClinicalRisk({
       )}
       {...rest}
     >
-      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <h3 className="type-title text-foreground">{title}</h3>
 
       {/* Gauge */}
       <div className="mt-2 flex items-center gap-4">
@@ -173,7 +173,7 @@ export function ClinicalRisk({
             />
           </svg>
           <div className="absolute inset-x-0 bottom-0 text-center">
-            <span ref={scoreRef} className="text-2xl font-semibold tabular-nums text-foreground">
+            <span ref={scoreRef} className="type-metric numeric text-foreground">
               0
             </span>
             <span className="text-xs text-muted-foreground">/100</span>
@@ -181,7 +181,7 @@ export function ClinicalRisk({
         </div>
         <div>
           <p className={cn("text-sm font-semibold", band.cls)}>{band.label} risk</p>
-          <p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+          <p className="mt-0.5 type-meta leading-4 text-muted-foreground">
             Decision support for clinician review — not a diagnosis.
           </p>
         </div>
@@ -189,7 +189,7 @@ export function ClinicalRisk({
 
       {/* Factors: protective ← | → adverse */}
       <div className="mt-4">
-        <div className="flex justify-between text-[10px] uppercase tracking-wide text-muted-foreground">
+        <div className="flex justify-between type-overline text-muted-foreground">
           <span>Protective</span>
           <span>Adverse</span>
         </div>
@@ -228,7 +228,7 @@ export function ClinicalRisk({
       </div>
 
       {missingData.length > 0 ? (
-        <p className="mt-3 rounded-lg bg-muted/60 px-2.5 py-1.5 text-[11px] leading-4 text-muted-foreground">
+        <p className="mt-3 rounded-lg bg-muted/60 px-2.5 py-1.5 type-meta leading-4 text-muted-foreground">
           <span className="font-semibold text-foreground">Missing data:</span>{" "}
           {missingData.join(", ")} — the score has wider uncertainty until these
           are available.
@@ -236,7 +236,7 @@ export function ClinicalRisk({
       ) : null}
 
       {recommendation ? (
-        <p className="mt-2 text-[12px] leading-5 text-foreground">{recommendation}</p>
+        <p className="mt-2 type-meta leading-5 text-foreground">{recommendation}</p>
       ) : null}
 
       <div className="mt-3 flex gap-2">

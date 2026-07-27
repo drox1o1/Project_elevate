@@ -96,7 +96,7 @@ function Row({
       onClick={() => onSelect?.(side, level)}
       aria-label={`${side} ${nf2.format(level.price)}, quantity ${nf.format(level.qty)}, ${level.orders} orders`}
       className={cn(
-        "relative grid w-full grid-cols-[1fr_auto_auto] items-center gap-2 rounded-md px-2 py-1 text-right font-mono text-[12px] tabular-nums transition-colors duration-150",
+        "relative grid w-full grid-cols-[1fr_auto_auto] items-center gap-2 rounded-md px-2 py-1 text-right font-mono type-meta numeric transition-colors duration-150",
         "hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
         best && "font-semibold"
       )}
@@ -176,10 +176,10 @@ export function MarketDepth({
       {...rest}
     >
       <div className="flex items-baseline justify-between gap-2 px-1">
-        <span className="text-sm font-semibold text-foreground">{symbol}</span>
+        <span className="type-title text-foreground">{symbol}</span>
         <span
           className={cn(
-            "flex items-center gap-1 font-mono text-base font-semibold tabular-nums transition-colors duration-500",
+            "flex items-center gap-1 font-mono text-base font-semibold numeric transition-colors duration-500",
             flash === "up" && "text-market-up",
             flash === "down" && "text-market-down",
             !flash && "text-foreground"
@@ -210,12 +210,12 @@ export function MarketDepth({
           style={{ background: "linear-gradient(90deg, var(--ask), color-mix(in oklab, var(--ask) 60%, transparent))" }}
         />
       </div>
-      <div className="mt-1 flex justify-between px-1 text-[10px] text-muted-foreground">
+      <div className="mt-1 flex justify-between px-1 type-caption text-muted-foreground">
         <span>Buyers {bidShare}%</span>
         <span>Sellers {100 - bidShare}%</span>
       </div>
 
-      <div className="mt-2 grid grid-cols-[auto_auto_1fr] px-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+      <div className="mt-2 grid grid-cols-[auto_auto_1fr] px-2 type-overline text-muted-foreground">
         <span>Orders</span>
         <span className="ml-6">Qty</span>
         <span className="text-right">Price</span>
@@ -228,13 +228,13 @@ export function MarketDepth({
         ))}
       </div>
 
-      <div className="my-1.5 flex items-center justify-between rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1.5 text-[11px]">
+      <div className="my-1.5 flex items-center justify-between rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1.5 type-meta">
         <span className="text-muted-foreground">
-          Spread <span className="font-mono tabular-nums text-foreground">{nf2.format(spread)}</span>
+          Spread <span className="font-mono numeric text-foreground">{nf2.format(spread)}</span>
         </span>
         {atp ? (
           <span className="text-muted-foreground">
-            ATP <span className="font-mono tabular-nums text-foreground">{nf2.format(atp)}</span>
+            ATP <span className="font-mono numeric text-foreground">{nf2.format(atp)}</span>
           </span>
         ) : null}
       </div>
@@ -245,7 +245,7 @@ export function MarketDepth({
         ))}
       </div>
 
-      <p className="mt-2 px-1 text-[10px] text-muted-foreground">
+      <p className="mt-2 px-1 type-caption text-muted-foreground">
         Tap a level to prefill an order · simulated feed
       </p>
     </div>

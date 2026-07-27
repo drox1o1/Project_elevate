@@ -150,7 +150,7 @@ export function ToolCallInspector({
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">
+        <h3 className="type-title text-foreground">
           Tool calls <span className="text-muted-foreground">({calls.length})</span>
         </h3>
         <LayoutGroup id={uid}>
@@ -162,7 +162,7 @@ export function ToolCallInspector({
                 aria-selected={(v === "raw") === raw}
                 onClick={() => setRaw(v === "raw")}
                 className={cn(
-                  "relative rounded-lg px-3 py-1 text-[11px] font-medium capitalize transition-colors duration-200",
+                  "relative rounded-lg px-3 py-1 type-meta font-medium capitalize transition-colors duration-200",
                   (v === "raw") === raw ? "text-foreground" : "text-muted-foreground hover:text-foreground",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 )}
@@ -226,7 +226,7 @@ export function ToolCallInspector({
                         retry
                       </span>
                     ) : null}
-                    <span className="ml-auto shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground">
+                    <span className="ml-auto shrink-0 font-mono type-caption numeric text-muted-foreground">
                       {c.durationMs >= 1000 ? `${(c.durationMs / 1000).toFixed(1)}s` : `${c.durationMs}ms`}
                     </span>
                   </div>
@@ -241,7 +241,7 @@ export function ToolCallInspector({
                       }}
                     />
                   </div>
-                  <p className="mt-1.5 text-[11px] leading-4 text-muted-foreground">
+                  <p className="mt-1.5 type-meta leading-4 text-muted-foreground">
                     {raw ? (
                       <code className="font-mono">{JSON.stringify(c.args)}</code>
                     ) : (
@@ -292,7 +292,7 @@ function CallDetail({
     <div ref={ref} className="overflow-hidden">
       <div className="border-t border-border/60 py-2 pl-3.5 pr-3">
         {raw ? (
-          <pre className="overflow-x-auto rounded-lg bg-muted/60 p-2 font-mono text-[10px] leading-4 text-foreground">
+          <pre className="overflow-x-auto rounded-lg bg-muted/60 p-2 font-mono type-caption leading-4 text-foreground">
             {JSON.stringify(
               { tool: call.tool, args: call.args, ...(call.result ? { result: call.result } : {}), ...(call.error ? { error: call.error } : {}) },
               null,
@@ -300,7 +300,7 @@ function CallDetail({
             )}
           </pre>
         ) : (
-          <div className="flex flex-col gap-1 text-[11px] leading-4">
+          <div className="flex flex-col gap-1 type-meta leading-4">
             {call.result != null ? (
               <p className="text-foreground">
                 <span className="font-medium">Result:</span>{" "}

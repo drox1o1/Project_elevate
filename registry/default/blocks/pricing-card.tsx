@@ -144,7 +144,7 @@ export function PricingCard({
       ) : null}
 
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">{plan}</h3>
+        <h3 className="type-title text-foreground">{plan}</h3>
         {/* billing toggle: two-option sliding pill */}
         <div
           data-slot="billing-toggle"

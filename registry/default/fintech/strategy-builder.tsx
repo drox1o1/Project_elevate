@@ -331,7 +331,7 @@ export function StrategyBuilder({
         </span>
         <span
           className={cn(
-            "w-24 shrink-0 text-right font-semibold tabular-nums",
+            "w-24 shrink-0 text-right font-semibold numeric",
             pnlAtScrub >= 0 ? "text-market-up" : "text-market-down"
           )}
         >
@@ -353,8 +353,8 @@ export function StrategyBuilder({
         ] as const).map(([label, value, cls, accent]) => (
           <div key={label} className="relative overflow-hidden rounded-xl border border-border/60 bg-background/60 px-3 py-2 shadow-xs">
             <span aria-hidden="true" className="absolute inset-y-2 left-0 w-0.5 rounded-full opacity-70" style={{ background: accent }} />
-            <p className="pl-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
-            <p className={cn("pl-1.5 font-semibold tabular-nums", cls)}>{value}</p>
+            <p className="pl-1.5 type-overline text-muted-foreground">{label}</p>
+            <p className={cn("pl-1.5 font-semibold numeric", cls)}>{value}</p>
           </div>
         ))}
       </div>
@@ -369,7 +369,7 @@ export function StrategyBuilder({
             <span className="flex items-center gap-2">
               <span
                 className={cn(
-                  "rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase ring-1 ring-inset",
+                  "rounded-md px-1.5 py-0.5 type-overline font-semibold ring-1 ring-inset",
                   l.side === "buy"
                     ? "bg-market-up/10 text-market-up ring-market-up/20"
                     : "bg-market-down/10 text-market-down ring-market-down/20"
@@ -381,14 +381,14 @@ export function StrategyBuilder({
                 {inr(l.strike)} {l.type.toUpperCase()}
               </span>
             </span>
-            <span className="tabular-nums text-muted-foreground">
+            <span className="numeric text-muted-foreground">
               ₹{l.premium.toFixed(2)} · Δ {l.delta.toFixed(2)}
             </span>
           </li>
         ))}
       </ul>
 
-      <p className="mt-2 flex flex-wrap justify-between gap-2 text-[11px] tabular-nums text-muted-foreground">
+      <p className="mt-2 flex flex-wrap justify-between gap-2 type-meta numeric text-muted-foreground">
         <span>
           Net Δ {totals.delta.toFixed(2)} · Θ ₹{(totals.theta * lotSize).toFixed(0)}/day · V ₹
           {(totals.vega * lotSize).toFixed(0)}/1% IV

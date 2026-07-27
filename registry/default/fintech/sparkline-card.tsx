@@ -170,7 +170,7 @@ export function SparklineCard({
         {delta != null ? (
           <span
             data-slot="delta"
-            className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-xs font-medium tabular-nums"
+            className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-xs font-medium numeric"
             style={{
               color: "var(--trend)",
               borderColor: "color-mix(in oklab, var(--trend) 30%, transparent)",
@@ -197,7 +197,7 @@ export function SparklineCard({
         <span
           ref={numberRef}
           data-slot="value"
-          className="text-[1.75rem] font-semibold leading-none tracking-tight text-foreground tabular-nums"
+          className="type-display text-foreground numeric"
         />
       </div>
       <svg

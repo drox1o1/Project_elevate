@@ -188,7 +188,7 @@ export function TransactionList({
                 <span
                   data-slot="amount"
                   className={cn(
-                    "shrink-0 text-sm font-semibold tabular-nums transition-transform duration-200 group-hover:-translate-x-0.5 motion-reduce:group-hover:translate-x-0",
+                    "shrink-0 text-sm font-semibold numeric transition-transform duration-200 group-hover:-translate-x-0.5 motion-reduce:group-hover:translate-x-0",
                     credit ? "text-market-up" : "text-foreground"
                   )}
                 >

@@ -201,10 +201,10 @@ export function CardPayment({
               </div>
               <BrandMark brand={brand} />
             </div>
-            <div className="relative font-mono text-lg tracking-[0.12em] tabular-nums text-white/95 [text-shadow:0_1px_2px_rgb(0_0_0/0.25)]">
+            <div className="relative font-mono text-lg tracking-[0.12em] numeric text-white/95 [text-shadow:0_1px_2px_rgb(0_0_0/0.25)]">
               {displayNumber}
             </div>
-            <div className="relative flex items-end justify-between text-[11px] uppercase tracking-wide">
+            <div className="type-overline relative flex items-end justify-between ">
               <span className="max-w-[65%] truncate">
                 <span className="block text-[8px] text-white/50">Card holder</span>
                 {name || "YOUR NAME"}
@@ -223,7 +223,7 @@ export function CardPayment({
           >
             <div className="mt-4 h-9 w-full bg-black/70" />
             <div className="mt-4 px-4">
-              <div className="flex h-8 items-center justify-end rounded bg-white px-2 font-mono text-sm tabular-nums text-zinc-900">
+              <div className="flex h-8 items-center justify-end rounded bg-white px-2 font-mono text-sm numeric text-zinc-900">
                 {cvv.padEnd(meta.cvvLen, "•")}
               </div>
               <p className="mt-1 text-right text-[9px] text-white/60">CVV</p>
@@ -246,7 +246,7 @@ export function CardPayment({
             void pay();
           }}
         >
-          <label className="flex flex-col gap-1.5 text-[11px] font-medium text-muted-foreground">
+          <label className="flex flex-col gap-1.5 type-meta font-medium text-muted-foreground">
             Card number
             <div className="relative">
               <input
@@ -256,7 +256,7 @@ export function CardPayment({
                 placeholder="1234 5678 9012 3456"
                 value={group(number, meta.gaps)}
                 onChange={(e) => setDigits(e.target.value)}
-                className={cn(field, "font-mono tabular-nums", number && !numberValid && "border-destructive/60")}
+                className={cn(field, "font-mono numeric", number && !numberValid && "border-destructive/60")}
               />
               {number && numberValid ? (
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className="absolute right-3 top-1/2 size-4 -translate-y-1/2 text-success" aria-hidden="true"><path d="M5 13l4 4L19 7" /></svg>
@@ -264,7 +264,7 @@ export function CardPayment({
             </div>
           </label>
 
-          <label className="flex flex-col gap-1.5 text-[11px] font-medium text-muted-foreground">
+          <label className="flex flex-col gap-1.5 type-meta font-medium text-muted-foreground">
             Cardholder name
             <input
               autoComplete="cc-name"
@@ -277,7 +277,7 @@ export function CardPayment({
           </label>
 
           <div className="flex gap-3">
-            <label className="flex flex-1 flex-col gap-1.5 text-[11px] font-medium text-muted-foreground">
+            <label className="flex flex-1 flex-col gap-1.5 type-meta font-medium text-muted-foreground">
               Expiry
               <input
                 inputMode="numeric"
@@ -286,10 +286,10 @@ export function CardPayment({
                 placeholder="MM/YY"
                 value={expiry}
                 onChange={(e) => setExp(e.target.value)}
-                className={cn(field, "font-mono tabular-nums", expiry.length === 5 && !expiryValid && "border-destructive/60")}
+                className={cn(field, "font-mono numeric", expiry.length === 5 && !expiryValid && "border-destructive/60")}
               />
             </label>
-            <label className="flex flex-1 flex-col gap-1.5 text-[11px] font-medium text-muted-foreground">
+            <label className="flex flex-1 flex-col gap-1.5 type-meta font-medium text-muted-foreground">
               CVV
               <input
                 inputMode="numeric"
@@ -300,7 +300,7 @@ export function CardPayment({
                 onFocus={() => setFlipped(true)}
                 onBlur={() => setFlipped(false)}
                 onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, meta.cvvLen))}
-                className={cn(field, "font-mono tabular-nums")}
+                className={cn(field, "font-mono numeric")}
               />
             </label>
           </div>
@@ -334,7 +334,7 @@ export function CardPayment({
               </>
             )}
           </button>
-          <p className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground">
+          <p className="flex items-center justify-center gap-1.5 type-caption text-muted-foreground">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="size-3" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
             Encrypted. Demo only — do not enter a real card.
           </p>
@@ -375,11 +375,11 @@ function PaidState({
           />
         </svg>
       </span>
-      <p className="text-sm font-semibold text-foreground">
+      <p className="type-title text-foreground">
         Paid {currency}
         {format(amount)}
       </p>
-      <p className="text-[11px] text-muted-foreground">
+      <p className="type-meta text-muted-foreground">
         Charged to card ending {last4}. A receipt is on its way.
       </p>
       <style>{`@keyframes duku-draw { to { stroke-dashoffset: 0 } }`}</style>

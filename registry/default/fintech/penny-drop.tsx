@@ -174,8 +174,8 @@ export function PennyDrop({
       {...rest}
     >
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">Verify bank account</h3>
-        <span className="flex items-center gap-1.5 rounded-full bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground ring-1 ring-inset ring-border/50">
+        <h3 className="type-title text-foreground">Verify bank account</h3>
+        <span className="flex items-center gap-1.5 rounded-full bg-muted/60 px-2 py-0.5 type-caption font-medium text-muted-foreground ring-1 ring-inset ring-border/50">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="size-3" aria-hidden="true"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6z" /></svg>
           Penny drop
         </span>
@@ -189,7 +189,7 @@ export function PennyDrop({
             void verify();
           }}
         >
-          <label className="flex flex-col gap-1.5 text-[11px] font-medium text-muted-foreground">
+          <label className="flex flex-col gap-1.5 type-meta font-medium text-muted-foreground">
             Account number
             <input
               inputMode="numeric"
@@ -197,10 +197,10 @@ export function PennyDrop({
               placeholder="0000 0000 0000"
               value={account}
               onChange={(e) => setAccount(e.target.value.replace(/\D/g, "").slice(0, 18))}
-              className={cn(field, "font-mono tabular-nums")}
+              className={cn(field, "font-mono numeric")}
             />
           </label>
-          <label className="flex flex-col gap-1.5 text-[11px] font-medium text-muted-foreground">
+          <label className="flex flex-col gap-1.5 type-meta font-medium text-muted-foreground">
             <span className="flex items-center justify-between">
               IFSC
               {bank ? (
@@ -231,7 +231,7 @@ export function PennyDrop({
           >
             Verify account
           </button>
-          <p className="text-[10px] leading-4 text-muted-foreground">
+          <p className="type-caption leading-4 text-muted-foreground">
             We deposit ₹1 to confirm the account is real and read back the registered
             name. Demo only.
           </p>
@@ -240,7 +240,7 @@ export function PennyDrop({
         <div className="mt-4">
           {/* Account summary */}
           <div className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 px-3 py-2 text-xs shadow-xs">
-            <span className="font-mono tabular-nums text-foreground">
+            <span className="font-mono numeric text-foreground">
               ••{account.slice(-4)}
             </span>
             <span className="text-muted-foreground">{bank ?? ifsc}</span>
@@ -301,12 +301,12 @@ export function PennyDrop({
               )}
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                <span className="type-overline text-muted-foreground">
                   Account holder
                 </span>
                 <span
                   className={cn(
-                    "flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ring-1 ring-inset",
+                    "flex items-center gap-1 rounded-full px-2 py-0.5 type-caption font-semibold ring-1 ring-inset",
                     result.status === "verified"
                       ? "bg-success/12 text-success ring-success/25"
                       : "bg-warning/12 text-warning ring-warning/25"
@@ -323,19 +323,19 @@ export function PennyDrop({
                 </span>
               </div>
               <p className="mt-1 text-base font-semibold text-foreground">{result.beneficiaryName}</p>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="type-meta text-muted-foreground">
                 {result.bank} · ••{account.slice(-4)}
                 {expectedName ? ` · ${Math.round(result.matchScore * 100)}% match to “${expectedName}”` : ""}
               </p>
               {result.status === "mismatch" ? (
-                <p className="mt-1.5 text-[11px] leading-4 text-warning">
+                <p className="mt-1.5 type-meta leading-4 text-warning">
                   The registered name differs from what you entered. Confirm before sending money.
                 </p>
               ) : null}
               <button
                 type="button"
                 onClick={reset}
-                className="mt-3 text-[11px] font-medium text-muted-foreground underline-offset-2 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="mt-3 type-meta font-medium text-muted-foreground underline-offset-2 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 Verify another account
               </button>
@@ -343,10 +343,10 @@ export function PennyDrop({
           ) : status === "failed" ? (
             <div className="mt-2 rounded-2xl border border-destructive/40 bg-destructive/[0.06] p-3.5 text-xs text-destructive shadow-xs">
               <p className="font-medium">Verification failed</p>
-              <p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+              <p className="mt-0.5 type-meta leading-4 text-muted-foreground">
                 The ₹1 deposit could not be placed. Check the account and IFSC, then retry.
               </p>
-              <button type="button" onClick={reset} className="mt-2 text-[11px] font-medium text-foreground underline-offset-2 hover:underline">
+              <button type="button" onClick={reset} className="mt-2 type-meta font-medium text-foreground underline-offset-2 hover:underline">
                 Try again
               </button>
             </div>

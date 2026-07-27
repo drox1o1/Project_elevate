@@ -149,8 +149,8 @@ export function BankLinking({
       {...rest}
     >
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">{stepTitle}</h3>
-        <span className="text-[11px] tabular-nums text-muted-foreground">
+        <h3 className="type-title text-foreground">{stepTitle}</h3>
+        <span className="type-meta numeric text-muted-foreground">
           {Math.min(step + 1, 5)}/5
         </span>
       </div>
@@ -180,13 +180,13 @@ export function BankLinking({
                 <span
                   aria-hidden="true"
                   className={cn(
-                    "flex size-9 items-center justify-center rounded-full text-[12px] font-bold text-white shadow-sm ring-1 ring-inset ring-white/15 transition-transform duration-200 group-hover/bank:scale-105 motion-reduce:group-hover/bank:scale-100",
+                    "flex size-9 items-center justify-center rounded-full type-meta font-bold text-white shadow-sm ring-1 ring-inset ring-white/15 transition-transform duration-200 group-hover/bank:scale-105 motion-reduce:group-hover/bank:scale-100",
                     b.tone
                   )}
                 >
                   {b.name[0]}
                 </span>
-                <span className="text-[11px] font-medium text-foreground">{b.name}</span>
+                <span className="type-meta font-medium text-foreground">{b.name}</span>
               </button>
             ))}
           </div>
@@ -210,7 +210,7 @@ export function BankLinking({
                 </li>
               ))}
             </ul>
-            <p className="text-[11px] leading-4 text-muted-foreground">
+            <p className="type-meta leading-4 text-muted-foreground">
               We never see your bank credentials — the OTP goes to the number
               your bank has on record.
             </p>
@@ -229,12 +229,12 @@ export function BankLinking({
           <div className="flex flex-col items-center gap-3">
             <p className="text-xs text-muted-foreground">
               Enter the 6-digit code sent by {bank.name}
-              <span className="ml-1 rounded bg-muted px-1 py-0.5 font-mono text-[10px]">
+              <span className="ml-1 rounded bg-muted px-1 py-0.5 font-mono type-caption">
                 demo: {validOtp}
               </span>
             </p>
             <OTPInput key={otpAttempt} length={6} error={otpError} onComplete={submitOtp} />
-            <p aria-live="polite" className="min-h-4 text-[11px]">
+            <p aria-live="polite" className="min-h-4 type-meta">
               {verifying ? (
                 <span className="text-muted-foreground">Verifying…</span>
               ) : otpError ? (
@@ -276,7 +276,7 @@ export function BankLinking({
                           {a.label} {a.masked}
                         </span>
                         {a.balance ? (
-                          <span className="text-[11px] tabular-nums text-muted-foreground">
+                          <span className="type-meta numeric text-muted-foreground">
                             {a.balance}
                           </span>
                         ) : null}
@@ -323,8 +323,8 @@ export function BankLinking({
                 {bank.name[0]}
               </span>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground">{bank.name}</p>
-                <p className="text-[11px] text-muted-foreground">
+                <p className="type-title text-foreground">{bank.name}</p>
+                <p className="type-meta text-muted-foreground">
                   {picked.length} account{picked.length === 1 ? "" : "s"} · synced just now
                 </p>
               </div>
@@ -332,7 +332,7 @@ export function BankLinking({
                 Healthy
               </Badge>
             </div>
-            <dl className="flex flex-col gap-1 rounded-xl border border-border bg-background p-3 text-[11px] tabular-nums text-muted-foreground">
+            <dl className="flex flex-col gap-1 rounded-xl border border-border bg-background p-3 type-meta numeric text-muted-foreground">
               <div className="flex justify-between">
                 <dt>Consent valid until</dt>
                 <dd className="text-foreground">

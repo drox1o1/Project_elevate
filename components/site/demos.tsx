@@ -1152,7 +1152,7 @@ function GreeksPanelDemo() {
             aria-label="Spot price"
             className="flex-1"
           />
-          <span className="w-14 text-right font-medium tabular-nums text-foreground">
+          <span className="w-14 text-right font-medium numeric text-foreground">
             {new Intl.NumberFormat("en-IN").format(spot)}
           </span>
         </label>

@@ -161,8 +161,8 @@ export function InvestigationTimeline({
     >
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-        <span className="text-[11px] text-muted-foreground">
+        <h3 className="type-title text-foreground">{title}</h3>
+        <span className="type-meta text-muted-foreground">
           {actors.length} actors · {events.length} events
         </span>
       </div>
@@ -177,7 +177,7 @@ export function InvestigationTimeline({
               aria-pressed={filter === s}
               onClick={() => setFilter(s)}
               className={cn(
-                "relative rounded-full px-3 py-1 text-[11px] font-medium transition-colors duration-200",
+                "relative rounded-full px-3 py-1 type-meta font-medium transition-colors duration-200",
                 filter === s ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               )}
@@ -229,7 +229,7 @@ export function InvestigationTimeline({
               <div className="min-w-0 flex-1 pb-3">
                 {/* gap marker */}
                 {e.gapDaysBefore && filter === "all" ? (
-                  <p className="mb-2 flex items-center gap-1.5 rounded-lg border border-dashed border-border/70 bg-muted/30 px-2.5 py-1 text-[10px] uppercase tracking-wide text-muted-foreground">
+                  <p className="mb-2 flex items-center gap-1.5 rounded-lg border border-dashed border-border/70 bg-muted/30 px-2.5 py-1 type-overline text-muted-foreground">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="size-3" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
                     {e.gapDaysBefore} days with no recorded activity
                   </p>
@@ -241,9 +241,9 @@ export function InvestigationTimeline({
                   onClick={() => setOpenId((o) => (o === e.id ? null : e.id))}
                   className="w-full rounded-lg text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  <p className="text-[10px] tabular-nums text-muted-foreground">{e.time}</p>
+                  <p className="type-caption numeric text-muted-foreground">{e.time}</p>
                   <p className="text-sm font-medium leading-5 text-foreground">{e.title}</p>
-                  <p className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[10px]">
+                  <p className="mt-0.5 flex flex-wrap items-center gap-1.5 type-caption">
                     <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-foreground">
                       {e.actor}
                     </span>
@@ -270,7 +270,7 @@ export function InvestigationTimeline({
                 {open ? (
                   <EvidencePanel event={e} reduced={reduced} />
                 ) : (
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  <p className="mt-0.5 type-meta text-muted-foreground">
                     {e.evidence.length} evidence item{e.evidence.length > 1 ? "s" : ""} — click to review
                   </p>
                 )}
@@ -286,7 +286,7 @@ export function InvestigationTimeline({
         </p>
       ) : null}
 
-      <p className="mt-1 border-t border-border pt-2 text-[10px] text-muted-foreground">
+      <p className="mt-1 border-t border-border pt-2 type-caption text-muted-foreground">
         Amber dots and bars mark lower-confidence interpretations. Gaps are
         shown, not hidden — absence of evidence is part of the case.
       </p>
@@ -321,13 +321,13 @@ function EvidencePanel({
     <div ref={ref} className="overflow-hidden">
       <ul className="mt-1.5 flex flex-col gap-1 rounded-xl border border-border/60 bg-background/60 p-3 shadow-xs">
         {event.evidence.map((ev) => (
-          <li key={ev} className="flex items-start gap-1.5 text-[11px] text-foreground">
+          <li key={ev} className="flex items-start gap-1.5 type-meta text-foreground">
             <span aria-hidden="true" className="mt-1 size-1 shrink-0 rounded-full bg-muted-foreground" />
             {ev}
           </li>
         ))}
         {event.note ? (
-          <li className="mt-1 border-t border-border pt-1.5 text-[11px] italic text-muted-foreground">
+          <li className="mt-1 border-t border-border pt-1.5 type-meta italic text-muted-foreground">
             Analyst note: {event.note}
           </li>
         ) : null}

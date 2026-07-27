@@ -155,7 +155,7 @@ export function NumberFlow({
       ref={rootRef}
       data-slot="number-flow"
       className={cn(
-        "relative inline-block tabular-nums transition-colors duration-200",
+        "relative inline-block numeric transition-colors duration-200",
         flash === "up" && "text-emerald-600 dark:text-emerald-400",
         flash === "down" && "text-red-600 dark:text-red-400",
         className
@@ -170,7 +170,7 @@ export function NumberFlow({
       <span
         ref={mirrorRef}
         aria-hidden="true"
-        className="invisible absolute left-0 top-0 whitespace-pre tabular-nums"
+        className="invisible absolute left-0 top-0 whitespace-pre numeric"
       >
         {formatted}
       </span>

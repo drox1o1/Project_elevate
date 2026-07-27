@@ -155,7 +155,7 @@ export function AuditLog({
     >
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">Audit log</h3>
+        <h3 className="type-title text-foreground">Audit log</h3>
         <div className="flex items-center gap-2">
           {tampered ? (
             <Badge variant="destructive" pulse>
@@ -167,7 +167,7 @@ export function AuditLog({
           <button
             type="button"
             onClick={() => onExport?.(visible)}
-            className="rounded-md border border-border px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-md border border-border px-2 py-1 type-meta font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Export {visible.length}
           </button>
@@ -184,7 +184,7 @@ export function AuditLog({
               aria-pressed={actionFilter === a}
               onClick={() => setActionFilter(a)}
               className={cn(
-                "relative rounded-full px-3 py-1 text-[11px] font-medium capitalize transition-colors duration-200",
+                "relative rounded-full px-3 py-1 type-meta font-medium capitalize transition-colors duration-200",
                 actionFilter === a ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               )}
@@ -234,7 +234,7 @@ export function AuditLog({
                 >
                   <span
                     className={cn(
-                      "shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-semibold uppercase",
+                      "shrink-0 rounded-md px-1.5 py-0.5 type-overline font-semibold",
                       ACTION_META[e.action]
                     )}
                   >
@@ -244,7 +244,7 @@ export function AuditLog({
                     <span className="block truncate text-xs font-medium text-foreground">
                       {e.resource}
                     </span>
-                    <span className="block truncate text-[10px] text-muted-foreground">
+                    <span className="block truncate type-caption text-muted-foreground">
                       {e.actor} · {e.timestamp}
                       {e.integrity === "tampered" ? (
                         <span className="ml-1 font-semibold text-destructive">
@@ -303,9 +303,9 @@ function EventDetail({ event, reduced }: { event: AuditEvent; reduced: boolean }
         {event.changes?.length ? (
           <dl className="flex flex-col gap-1">
             {event.changes.map((c) => (
-              <div key={c.field} className="grid grid-cols-[auto_1fr] items-baseline gap-x-2 text-[11px]">
+              <div key={c.field} className="grid grid-cols-[auto_1fr] items-baseline gap-x-2 type-meta">
                 <dt className="font-mono text-muted-foreground">{c.field}</dt>
-                <dd className="flex flex-wrap items-baseline gap-1 font-mono tabular-nums">
+                <dd className="flex flex-wrap items-baseline gap-1 font-mono numeric">
                   <span className="rounded bg-destructive/10 px-1 text-destructive line-through decoration-destructive/50">
                     {c.before}
                   </span>
@@ -317,7 +317,7 @@ function EventDetail({ event, reduced }: { event: AuditEvent; reduced: boolean }
           </dl>
         ) : null}
         {event.ip ? (
-          <p className="mt-1.5 text-[10px] text-muted-foreground">
+          <p className="mt-1.5 type-caption text-muted-foreground">
             {event.ip} · {event.device}
           </p>
         ) : null}

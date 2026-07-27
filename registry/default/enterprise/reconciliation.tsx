@@ -141,7 +141,7 @@ export function Reconciliation({
     >
       {/* Header + meter */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">
+        <h3 className="type-title text-foreground">
           Bank reconciliation · July
         </h3>
         <Button
@@ -169,7 +169,7 @@ export function Reconciliation({
           }}
         />
       </div>
-      <p className="mt-1 text-[11px] tabular-nums text-muted-foreground">
+      <p className="mt-1 type-meta numeric text-muted-foreground">
         {accepted}/{pairs.length} matched · {open.length} awaiting review
       </p>
 
@@ -178,7 +178,7 @@ export function Reconciliation({
         {open.length === 0 ? (
           <div className="rounded-2xl border border-success/40 bg-success/[0.06] px-3 py-8 text-center shadow-xs">
             <p className="text-sm font-medium text-success">All matched</p>
-            <p className="mt-0.5 text-[11px] text-muted-foreground">
+            <p className="mt-0.5 type-meta text-muted-foreground">
               Decisions are logged to the audit trail with your user and timestamp.
             </p>
           </div>
@@ -197,11 +197,11 @@ export function Reconciliation({
                 <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto_1fr]">
                   {/* Ledger side */}
                   <div className="min-w-0 rounded-xl border border-border/50 bg-muted/40 px-3 py-2.5">
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    <p className="type-overline text-muted-foreground">
                       Ledger · {p.ledger.ref}
                     </p>
                     <p className="truncate text-xs font-medium text-foreground">{p.ledger.desc}</p>
-                    <p className="font-mono text-sm tabular-nums text-foreground">₹{inr(p.ledger.amount)}</p>
+                    <p className="font-mono text-sm numeric text-foreground">₹{inr(p.ledger.amount)}</p>
                   </div>
                   {/* Confidence link with connectors */}
                   <div className="relative flex items-center justify-center py-1">
@@ -209,7 +209,7 @@ export function Reconciliation({
                     <span aria-hidden="true" className="absolute left-1/2 top-1/2 hidden h-px w-3 -translate-y-1/2 bg-border sm:block" />
                     <span
                       className={cn(
-                        "relative rounded-full px-2 py-0.5 text-[10px] font-semibold tabular-nums ring-1 ring-inset",
+                        "relative rounded-full px-2 py-0.5 type-caption font-semibold numeric ring-1 ring-inset",
                         high
                           ? "bg-success/12 text-success ring-success/25"
                           : p.confidence >= 0.8
@@ -222,15 +222,15 @@ export function Reconciliation({
                   </div>
                   {/* Statement side */}
                   <div className="min-w-0 rounded-xl border border-border/50 bg-muted/40 px-3 py-2.5 sm:text-right">
-                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                    <p className="type-overline text-muted-foreground">
                       Statement · {p.statement.ref}
                     </p>
                     <p className="truncate text-xs font-medium text-foreground">{p.statement.desc}</p>
-                    <p className="font-mono text-sm tabular-nums text-foreground">₹{inr(p.statement.amount)}</p>
+                    <p className="font-mono text-sm numeric text-foreground">₹{inr(p.statement.amount)}</p>
                   </div>
                 </div>
                 <div className="mt-3 flex items-center justify-between gap-2">
-                  <p className="text-[11px] tabular-nums">
+                  <p className="type-meta numeric">
                     {diff === 0 ? (
                       <span className="flex items-center gap-1 text-muted-foreground">
                         <span className="size-1.5 rounded-full bg-success" />

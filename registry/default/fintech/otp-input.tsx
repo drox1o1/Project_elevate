@@ -124,7 +124,7 @@ export function OTPInput({
             data-slot="otp-cell"
             aria-hidden="true"
             className={cn(
-              "flex h-[52px] w-11 items-center justify-center rounded-lg border border-input bg-background text-lg font-semibold tabular-nums",
+              "flex h-[52px] w-11 items-center justify-center rounded-lg border border-input bg-background text-lg font-semibold numeric",
               "transition-[color,border-color,box-shadow] duration-200",
               isActive && "border-ring ring-2 ring-ring/25",
               flash && "border-ring ring-2 ring-ring/25",

@@ -161,7 +161,7 @@ export function GreeksPanel({
       {/* Header */}
       <div className="relative flex flex-wrap items-center gap-2">
         <span
-          className="rounded-lg px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide ring-1 ring-inset"
+          className="type-overline rounded-lg px-2 py-0.5 font-semibold ring-1 ring-inset"
           style={{
             color: `hsl(${sideHue})`,
             background: `hsl(${sideHue} / 0.12)`,
@@ -170,10 +170,10 @@ export function GreeksPanel({
         >
           {side}
         </span>
-        <span className="text-sm font-semibold tabular-nums text-foreground">
+        <span className="text-sm font-semibold numeric text-foreground">
           {new Intl.NumberFormat("en-IN").format(strike)}
         </span>
-        <span className="rounded-full bg-muted/70 px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
+        <span className="rounded-full bg-muted/70 px-1.5 py-0.5 type-caption font-medium text-muted-foreground">
           {moneyness}
         </span>
         <span className="text-xs text-muted-foreground">
@@ -183,7 +183,7 @@ export function GreeksPanel({
 
       {/* Premium hero */}
       <div className="relative mt-3 flex items-baseline gap-2">
-        <span className="text-[2.5rem] font-semibold leading-none tracking-tight text-foreground">
+        <span className="type-display text-foreground">
           <NumberFlow value={g.price} prefix="₹" decimals={2} locale="en-IN" trend />
         </span>
         <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -206,12 +206,12 @@ export function GreeksPanel({
             >
               {row.symbol}
             </span>
-            <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="type-overline text-muted-foreground">
               {row.label}
             </p>
             <p
               className={cn(
-                "mt-0.5 text-xl font-semibold tabular-nums",
+                "mt-0.5 text-xl font-semibold numeric",
                 row.negative ? "text-market-down" : "text-foreground"
               )}
             >
@@ -234,17 +234,17 @@ export function GreeksPanel({
                 }}
               />
             </div>
-            <p className="mt-2 text-[11px] leading-4 text-muted-foreground">
+            <p className="mt-2 type-meta leading-4 text-muted-foreground">
               {row.description}
             </p>
           </li>
         ))}
       </ul>
 
-      <p className="relative mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-[11px] text-muted-foreground">
+      <p className="relative mt-4 flex items-center justify-between border-t border-border/60 pt-3 type-meta text-muted-foreground">
         <span>
           Θ per lot ({lotSize}):{" "}
-          <span className="font-medium tabular-nums text-foreground">
+          <span className="font-medium numeric text-foreground">
             ₹{(g.theta * lotSize).toFixed(0)}/day
           </span>
         </span>

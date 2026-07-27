@@ -156,7 +156,7 @@ export function OrderTicket({
     set: (v: string) => void,
     disabled = false
   ) => (
-    <label className="flex min-w-0 flex-1 flex-col gap-1.5 text-[11px] font-medium text-muted-foreground">
+    <label className="flex min-w-0 flex-1 flex-col gap-1.5 type-meta font-medium text-muted-foreground">
       {label}
       <input
         inputMode="decimal"
@@ -165,7 +165,7 @@ export function OrderTicket({
         aria-label={label}
         onChange={(e) => set(e.target.value.replace(/[^0-9.]/g, ""))}
         className={cn(
-          "h-10 w-full min-w-0 rounded-xl border border-input bg-background px-3 font-mono text-sm tabular-nums text-foreground shadow-xs",
+          "h-10 w-full min-w-0 rounded-xl border border-input bg-background px-3 font-mono text-sm numeric text-foreground shadow-xs",
           "transition-[border-color,box-shadow] duration-200 hover:border-ring/30",
           "focus-visible:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/25",
           disabled && "opacity-50"
@@ -194,8 +194,8 @@ export function OrderTicket({
 
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
-        <span className="text-sm font-semibold text-foreground">{symbol}</span>
-        <span className="flex items-center gap-1.5 font-mono text-xs tabular-nums">
+        <span className="type-title text-foreground">{symbol}</span>
+        <span className="flex items-center gap-1.5 font-mono text-xs numeric">
           <span className="rounded-md bg-bid/10 px-1.5 py-0.5 text-bid">{nf2.format(bestBid)}</span>
           <span className="text-muted-foreground">/</span>
           <span className="rounded-md bg-ask/10 px-1.5 py-0.5 text-ask">{nf2.format(bestAsk)}</span>
@@ -240,7 +240,7 @@ export function OrderTicket({
                 aria-selected={type === t.key}
                 onClick={() => setType(t.key)}
                 className={cn(
-                  "relative flex-1 rounded-lg px-1 py-1.5 text-[11px] font-medium transition-colors duration-200",
+                  "relative flex-1 rounded-lg px-1 py-1.5 type-meta font-medium transition-colors duration-200",
                   type === t.key ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 )}
@@ -259,7 +259,7 @@ export function OrderTicket({
 
           {/* Qty + prices */}
           <div className="mt-4 flex gap-2">
-            <label className="flex w-28 flex-col gap-1.5 text-[11px] font-medium text-muted-foreground">
+            <label className="flex w-28 flex-col gap-1.5 type-meta font-medium text-muted-foreground">
               Lots ({lotSize}/lot)
               <div className="flex h-10 items-stretch gap-1 rounded-xl border border-input bg-background p-1 shadow-xs">
                 <button
@@ -270,7 +270,7 @@ export function OrderTicket({
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" className="size-3.5" aria-hidden="true"><path d="M5 12h14" /></svg>
                 </button>
-                <span className="flex flex-1 items-center justify-center font-mono text-sm tabular-nums text-foreground">
+                <span className="flex flex-1 items-center justify-center font-mono text-sm numeric text-foreground">
                   {lots}
                 </span>
                 <button
@@ -297,7 +297,7 @@ export function OrderTicket({
             <span className="text-muted-foreground">Margin required</span>
             <span
               className={cn(
-                "text-sm font-semibold tabular-nums",
+                "text-sm font-semibold numeric",
                 overMargin ? "text-destructive" : "text-foreground"
               )}
             >
@@ -315,7 +315,7 @@ export function OrderTicket({
               }}
             />
           </div>
-          <p className="mt-1.5 text-[11px] tabular-nums text-muted-foreground">
+          <p className="mt-1.5 type-meta numeric text-muted-foreground">
             Available ₹{inr(availableMargin)}
             {overMargin ? (
               <span className="ml-1 font-medium text-destructive">
@@ -329,13 +329,13 @@ export function OrderTicket({
             type="button"
             aria-expanded={chargesOpen}
             onClick={() => setChargesOpen((o) => !o)}
-            className="mt-3 flex w-full items-center justify-between rounded-lg py-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="mt-3 flex w-full items-center justify-between rounded-lg py-1 type-meta text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span>Charges ≈ ₹{inr(charges)}</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={cn("size-3.5 transition-transform duration-300", chargesOpen && "rotate-180")} aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
           </button>
           <div ref={chargesRef} className="overflow-hidden" style={{ height: 0, opacity: 0 }}>
-            <dl className="flex flex-col gap-1 rounded-xl bg-muted/50 p-2.5 text-[11px] tabular-nums text-muted-foreground">
+            <dl className="flex flex-col gap-1 rounded-xl bg-muted/50 p-2.5 type-meta numeric text-muted-foreground">
               <div className="flex justify-between"><dt>Brokerage</dt><dd>₹{brokerage}</dd></div>
               <div className="flex justify-between"><dt>STT</dt><dd>₹{inr(stt)}</dd></div>
               <div className="flex justify-between"><dt>Exchange + GST + stamp</dt><dd>₹{inr(other)}</dd></div>
@@ -366,7 +366,7 @@ export function OrderTicket({
                 {needsPrice ? ` @ ₹${price}` : " @ market"}
                 {needsTrigger ? ` · trigger ₹${trigger}` : ""}
               </p>
-              <p className="text-[11px] tabular-nums text-muted-foreground">
+              <p className="type-meta numeric text-muted-foreground">
                 Margin ₹{inr(margin)} + charges ₹{inr(charges)}
               </p>
               <div className="flex gap-2">
@@ -470,7 +470,7 @@ function FillState({
           }}
         />
       </div>
-      <p className="text-xs tabular-nums text-muted-foreground">
+      <p className="text-xs numeric text-muted-foreground">
         {filled}/{qty} {symbol}
         {stage === "filling" && pct < 100 ? " · working the rest at your limit" : ""}
       </p>

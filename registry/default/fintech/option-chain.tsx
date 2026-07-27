@@ -143,7 +143,7 @@ function TickNum({
   return (
     <span
       className={cn(
-        "tabular-nums transition-colors duration-500",
+        "numeric transition-colors duration-500",
         dir === "up" && "text-market-up",
         dir === "down" && "text-market-down",
         className
@@ -335,9 +335,9 @@ export function OptionChain({
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full min-w-max border-collapse text-right text-[13px]">
+        <table className="w-full min-w-max border-collapse text-right type-label">
           <thead>
-            <tr className="border-b border-border text-[11px] uppercase tracking-wide text-muted-foreground">
+            <tr className="border-b border-border type-overline text-muted-foreground">
               <th
                 colSpan={columns.length}
                 className="px-3 pb-1 pt-2 text-center font-medium text-bid"
@@ -352,7 +352,7 @@ export function OptionChain({
                 Puts
               </th>
             </tr>
-            <tr className="border-b border-border text-[11px] text-muted-foreground">
+            <tr className="border-b border-border type-meta text-muted-foreground">
               {columns.map((c) => (
                 <th key={`c-${c.key}`} className="px-3 py-1.5 font-medium">
                   {c.label}
@@ -414,7 +414,7 @@ export function OptionChain({
                     ))}
                     <td
                       className={cn(
-                        "px-3 py-1.5 text-center font-semibold tabular-nums",
+                        "px-3 py-1.5 text-center font-semibold numeric",
                         isAtm && "text-foreground"
                       )}
                     >
@@ -462,7 +462,7 @@ export function OptionChain({
           </tbody>
         </table>
       </div>
-      <p className="border-t border-border px-3 py-2 text-[11px] text-muted-foreground">
+      <p className="border-t border-border px-3 py-2 type-meta text-muted-foreground">
         Lot size {lotSize} · click a strike for depth and orders · simulated
         data
       </p>
@@ -524,15 +524,15 @@ function DepthPanel({
           Δ {q.delta.toFixed(2)} · Θ {q.theta.toFixed(2)}
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-2 text-center text-[13px] tabular-nums">
+      <div className="grid grid-cols-2 gap-2 text-center type-label numeric">
         <div className="rounded-md bg-bid/10 px-2 py-1.5">
-          <p className="text-[10px] uppercase text-muted-foreground">
+          <p className="type-overline text-muted-foreground">
             Bid × {q.bidQty}
           </p>
           <p className="font-medium text-bid">{nf2.format(q.bid)}</p>
         </div>
         <div className="rounded-md bg-ask/10 px-2 py-1.5">
-          <p className="text-[10px] uppercase text-muted-foreground">
+          <p className="type-overline text-muted-foreground">
             Ask × {q.askQty}
           </p>
           <p className="font-medium text-ask">{nf2.format(q.ask)}</p>

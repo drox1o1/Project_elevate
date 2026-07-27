@@ -148,7 +148,7 @@ export function FieldMessage({
         role={displayState === "error" ? "alert" : undefined}
         aria-live={displayState === "success" ? "polite" : undefined}
         className={cn(
-          "flex items-start gap-1.5 pt-1.5 text-[13px] leading-snug",
+          "flex items-start gap-1.5 pt-1.5 type-label leading-snug",
           displayState === "error" && "text-destructive",
           displayState === "success" &&
             "text-emerald-600 dark:text-emerald-400",

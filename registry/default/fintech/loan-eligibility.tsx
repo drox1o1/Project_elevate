@@ -34,7 +34,7 @@ function Slider({
     <label className="flex flex-col gap-1.5 text-xs">
       <span className="flex justify-between text-muted-foreground">
         {label}
-        <span className="font-semibold tabular-nums text-foreground">{format(value)}</span>
+        <span className="font-semibold numeric text-foreground">{format(value)}</span>
       </span>
       <span className="relative flex h-5 items-center">
         <span className="pointer-events-none absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-muted ring-1 ring-inset ring-border/50" />
@@ -181,10 +181,10 @@ export function LoanEligibility({
       {/* Headline EMI */}
       <div className="flex items-baseline justify-between gap-2">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="type-overline text-muted-foreground">
             Monthly EMI
           </p>
-          <p className="text-2xl font-semibold tracking-tight text-foreground">
+          <p className="type-metric text-foreground">
             <NumberFlow value={Math.round(monthly)} prefix="₹" locale="en-IN" trend />
           </p>
         </div>
@@ -217,7 +217,7 @@ export function LoanEligibility({
             style={{ left: `${foirLimit * 100}%` }}
           />
         </div>
-        <p className="mt-1 text-[11px] tabular-nums text-muted-foreground">
+        <p className="mt-1 type-meta numeric text-muted-foreground">
           Obligations {(foir * 100).toFixed(0)}% of income · lenders cap near{" "}
           {(foirLimit * 100).toFixed(0)}%
           {foir > foirLimit && maxEligible > 0 ? (
@@ -246,7 +246,7 @@ export function LoanEligibility({
                   aria-selected={band === b.key}
                   onClick={() => setBand(b.key)}
                   className={cn(
-                    "relative rounded-lg px-2.5 py-1 text-[11px] font-medium tabular-nums transition-colors duration-200",
+                    "relative rounded-lg px-2.5 py-1 type-meta font-medium numeric transition-colors duration-200",
                     band === b.key ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   )}
@@ -268,7 +268,7 @@ export function LoanEligibility({
       </div>
 
       {/* Cost breakdown */}
-      <dl className="mt-5 flex flex-col gap-1.5 rounded-2xl border border-border/60 bg-background/60 p-3.5 text-xs tabular-nums shadow-xs">
+      <dl className="mt-5 flex flex-col gap-1.5 rounded-2xl border border-border/60 bg-background/60 p-3.5 text-xs numeric shadow-xs">
         <div className="flex justify-between">
           <dt className="text-muted-foreground">Interest rate ({BANDS.find((b) => b.key === band)?.range})</dt>
           <dd className="text-foreground">{rate.toFixed(2)}% p.a.</dd>
@@ -285,19 +285,19 @@ export function LoanEligibility({
 
       {/* Documents */}
       <div className="mt-3">
-        <p className="text-[11px] font-medium text-foreground">You&apos;ll need</p>
+        <p className="type-meta font-medium text-foreground">You&apos;ll need</p>
         <ul className="mt-1 flex flex-wrap gap-1.5">
           {DOCUMENTS.map((d) => (
             <li
               key={d}
-              className="rounded-full bg-muted px-2.5 py-1 text-[10px] text-muted-foreground ring-1 ring-inset ring-border/50"
+              className="rounded-full bg-muted px-2.5 py-1 type-caption text-muted-foreground ring-1 ring-inset ring-border/50"
             >
               {d}
             </li>
           ))}
         </ul>
       </div>
-      <p className="mt-2 text-[10px] text-muted-foreground">
+      <p className="mt-2 type-caption text-muted-foreground">
         Indicative only — the lender&apos;s own bureau pull and policy decide.
       </p>
     </div>

@@ -221,7 +221,7 @@ export function DropdownMenuShortcut({
     <span
       data-slot="dropdown-menu-shortcut"
       className={cn(
-        "ml-auto rounded border border-border/60 bg-muted/60 px-1.5 py-px font-mono text-[10px] tracking-wide text-muted-foreground",
+        "ml-auto rounded border border-border/60 bg-muted/60 px-1.5 py-px font-mono type-caption tracking-wide text-muted-foreground",
         "transition-colors duration-100 group-data-[highlighted]/item:border-border",
         className
       )}

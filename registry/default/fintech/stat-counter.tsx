@@ -93,12 +93,12 @@ export function StatCounter({
         <span
           ref={numberRef}
           data-slot="value"
-          className="text-4xl font-semibold tracking-tight text-foreground tabular-nums"
+          className="text-4xl font-semibold tracking-tight text-foreground numeric"
         />
         {delta != null ? (
           <span
             data-slot="delta"
-            className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-medium tabular-nums ring-1 ring-inset"
+            className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-medium numeric ring-1 ring-inset"
             style={{
               color: deltaPositive ? "var(--market-up)" : "var(--market-down)",
               background: deltaPositive

@@ -179,7 +179,7 @@ export function VitalsMonitor({
       {...rest}
     >
       <div className="flex items-center justify-between gap-2 px-1">
-        <span className="text-sm font-semibold text-foreground">{patient}</span>
+        <span className="type-title text-foreground">{patient}</span>
         {inAlarm ? (
           <span className="flex items-center gap-1.5 rounded-full bg-risk-high/10 px-2 py-0.5 text-xs font-semibold text-risk-high" role="alert">
             <span className="relative flex size-2">
@@ -228,11 +228,11 @@ export function VitalsMonitor({
         {/* HR read-out, on a soft scrim so the trace never fights it */}
         <div className="absolute right-2 top-1.5 rounded-xl bg-[hsl(230_25%_7%)]/80 px-2.5 py-1 text-right backdrop-blur-sm">
           <span className="text-[9px] font-medium uppercase tracking-[0.15em] text-white/40">HR</span>
-          <div className="-mt-0.5 flex items-baseline justify-end gap-1 font-semibold tabular-nums" style={{ color: trace }}>
+          <div className="-mt-0.5 flex items-baseline justify-end gap-1 font-semibold numeric" style={{ color: trace }}>
             <span className="text-2xl leading-none">
               <NumberFlow value={hr} />
             </span>
-            <span className="text-[10px] text-white/40">bpm</span>
+            <span className="type-caption text-white/40">bpm</span>
           </div>
         </div>
       </div>
@@ -250,22 +250,22 @@ export function VitalsMonitor({
               t.bad ? "border-risk-high/40 bg-risk-high/[0.06]" : "border-border/60 bg-background/60"
             )}
           >
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="type-overline text-muted-foreground">
               {t.label}
             </p>
             <p
               className={cn(
-                "mt-0.5 text-lg font-semibold leading-none tabular-nums",
+                "mt-0.5 text-lg font-semibold leading-none numeric",
                 t.bad ? "text-risk-high" : "text-foreground"
               )}
             >
               {t.value}
             </p>
-            <p className="mt-1 text-[10px] text-muted-foreground">{t.unit}</p>
+            <p className="mt-1 type-caption text-muted-foreground">{t.unit}</p>
           </div>
         ))}
       </div>
-      <p className="mt-2.5 px-1 text-[10px] text-muted-foreground">
+      <p className="mt-2.5 px-1 type-caption text-muted-foreground">
         Simulated telemetry for demonstration — not a medical device.
       </p>
     </div>

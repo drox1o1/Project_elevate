@@ -228,6 +228,15 @@
     }
   }
 
+  @keyframes duku-sheet-in {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
   @keyframes duku-shimmer {
     from {
       transform: translateX(-100%);
@@ -290,6 +299,85 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* ---- Type scale -----------------------------------------------------
+
+   One scale, seven steps. Tracking tightens as size grows and opens up
+   as it shrinks, which is what keeps large numbers from feeling loose
+   and 11px labels from feeling cramped. Every step also fixes its own
+   line-height, so vertical rhythm survives a font swap.
+
+   display  hero metric on a card         2.25rem  -0.03em
+   metric   secondary hero number         1.5rem   -0.02em
+   title    card / section heading        0.9375rem -0.011em  600
+   body     prose and descriptions        0.875rem -0.006em
+   label    form labels, row text         0.8125rem -0.003em
+   meta     supporting text under a value 0.75rem   0
+   caption  the smallest readable text    0.6875rem +0.01em
+   overline uppercase micro-label         0.6875rem +0.08em  500
+
+   Numeric steps add tabular figures and a slashed zero so columns of
+   money line up and 0/O never read the same.                          */
+
+@utility type-display {
+  font-size: 2.25rem;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+
+@utility type-metric {
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+@utility type-title {
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  letter-spacing: -0.011em;
+  font-weight: 600;
+}
+
+@utility type-body {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  letter-spacing: -0.006em;
+}
+
+@utility type-label {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  letter-spacing: -0.003em;
+}
+
+@utility type-meta {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+@utility type-caption {
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+@utility type-overline {
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* Numerals that behave: fixed-width figures, slashed zero, so money
+   columns align and 0 never reads as O. Pair with any type step. */
+@utility numeric {
+  font-variant-numeric: numeric slashed-zero;
+  font-feature-settings: "tnum" 1, "zero" 1;
 }
 
 /* ---- Pixel art direction ------------------------------------------- */

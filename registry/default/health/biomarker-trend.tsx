@@ -152,8 +152,8 @@ export function BiomarkerTrend({
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">{name}</h3>
-          <p className="text-[11px] text-muted-foreground">
+          <h3 className="type-title text-foreground">{name}</h3>
+          <p className="type-meta text-muted-foreground">
             Lab range {fmtVal(range.low)}–{fmtVal(range.high)} {displayUnit}
             {baseline ? ` · your baseline ${fmtVal(baseline)}` : ""}
           </p>
@@ -161,7 +161,7 @@ export function BiomarkerTrend({
         <div className="flex items-center gap-2">
           <span
             className={cn(
-              "text-xs font-medium tabular-nums",
+              "text-xs font-medium numeric",
               trendPct <= 0 ? "text-success" : "text-warning"
             )}
           >
@@ -172,7 +172,7 @@ export function BiomarkerTrend({
               type="button"
               aria-pressed={useAlt}
               onClick={() => setUseAlt((a) => !a)}
-              className="rounded-md border border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="rounded-md border border-border px-2 py-0.5 type-meta font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {displayUnit}
             </button>
@@ -353,7 +353,7 @@ export function BiomarkerTrend({
           )}
         >
           <div className="flex items-baseline justify-between gap-2">
-            <span className="font-semibold tabular-nums text-foreground">
+            <span className="font-semibold numeric text-foreground">
               {fmtVal(sel.value)} {displayUnit}
             </span>
             <span className="text-xs text-muted-foreground">
@@ -364,7 +364,7 @@ export function BiomarkerTrend({
               })}
             </span>
           </div>
-          <p className="mt-1 text-[12px] leading-5 text-muted-foreground">
+          <p className="mt-1 type-meta leading-5 text-muted-foreground">
             {selAbnormal ? (
               <>
                 Above the laboratory range. Single readings vary with fasting

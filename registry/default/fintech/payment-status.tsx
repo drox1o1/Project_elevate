@@ -149,11 +149,11 @@ export function PaymentStatus({
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-2xl font-semibold tracking-tight tabular-nums text-foreground">
+          <p className="type-metric numeric text-foreground">
             {currency}
             {new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2 }).format(amount)}
           </p>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">
+          <p className="mt-0.5 type-meta text-muted-foreground">
             {reference} · {method}
           </p>
         </div>
@@ -169,7 +169,7 @@ export function PaymentStatus({
       </ol>
 
       {scenario === "failed" && progress >= failAt ? (
-        <p className="mt-2 rounded-lg bg-destructive/10 px-2.5 py-1.5 text-[11px] leading-4 text-destructive">
+        <p className="mt-2 rounded-lg bg-destructive/10 px-2.5 py-1.5 type-meta leading-4 text-destructive">
           No funds were captured. The authorisation hold releases
           automatically within 24 hours — safe to retry with another method.
         </p>
@@ -248,7 +248,7 @@ function StageRow({ stage, last }: { stage: Stage; last: boolean }) {
         >
           {stage.label}
         </p>
-        <p className="text-[11px] leading-4 text-muted-foreground">{stage.detail}</p>
+        <p className="type-meta leading-4 text-muted-foreground">{stage.detail}</p>
       </div>
     </li>
   );

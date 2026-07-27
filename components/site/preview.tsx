@@ -11,7 +11,7 @@ export function PreviewPanel({ slug }: { slug: string }) {
   const Demo = DEMOS[slug];
 
   return (
-    <div className="relative flex min-h-[380px] w-full items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-background p-8 shadow-sm">
+    <div className="relative flex min-h-[320px] w-full min-w-0 items-center justify-center overflow-hidden rounded-2xl border border-border/70 bg-background p-4 shadow-sm sm:min-h-[380px] sm:p-8">
       {/* Dot-grid canvas with a soft top glow: the stage reads as a surface,
           not a void. */}
       <div
@@ -53,7 +53,7 @@ export function PreviewPanel({ slug }: { slug: string }) {
               : { opacity: 0, scale: 0.98, filter: "blur(4px)", transition: { duration: 0.12 } }
           }
           transition={{ type: "spring", stiffness: 380, damping: 32 }}
-          className="relative flex w-full items-center justify-center"
+          className="relative flex w-full min-w-0 items-center justify-center overflow-x-auto [scrollbar-width:thin]"
         >
           {Demo ? (
             <Demo />

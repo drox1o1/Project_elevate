@@ -355,7 +355,7 @@ export function AsciiShowcase({
       <div ref={wrapRef} className="h-72 w-full font-pixel sm:h-80" aria-hidden="true">
         <canvas ref={canvasRef} className="block h-full w-full" />
       </div>
-      <div className="pointer-events-none absolute bottom-2 right-3 font-pixel text-[10px] uppercase tracking-widest text-muted-foreground">
+      <div className="pointer-events-none absolute bottom-2 right-3 font-pixel st type-overline text-muted-foreground">
         {label}
       </div>
       <p className="sr-only">

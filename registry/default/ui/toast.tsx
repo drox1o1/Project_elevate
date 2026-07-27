@@ -314,7 +314,7 @@ function ToastView({
           {data.description != null ? (
             <p
               data-slot="toast-description"
-              className="mt-0.5 text-[13px] leading-snug text-muted-foreground"
+              className="mt-0.5 type-label leading-snug text-muted-foreground"
             >
               {data.description}
             </p>

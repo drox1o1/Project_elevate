@@ -148,7 +148,7 @@ export function ExpenseFeed({
               aria-pressed={filter === c}
               onClick={() => setFilter(c as ExpenseCategory | "all")}
               className={cn(
-                "relative flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium transition-colors duration-200",
+                "relative flex items-center gap-1.5 rounded-full px-3 py-1 type-meta font-medium transition-colors duration-200",
                 filter === c ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               )}
@@ -183,7 +183,7 @@ export function ExpenseFeed({
         ) : null}
         {days.map((day) => (
           <div key={day}>
-            <p className="px-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="px-1 type-overline text-muted-foreground">
               {day}
             </p>
             <ul className="mt-1 flex flex-col gap-1">
@@ -207,7 +207,7 @@ export function ExpenseFeed({
                         <span
                           aria-hidden="true"
                           className={cn(
-                            "flex size-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white",
+                            "flex size-7 shrink-0 items-center justify-center rounded-full type-caption font-bold text-white",
                             meta.dot
                           )}
                         >
@@ -217,7 +217,7 @@ export function ExpenseFeed({
                           <p className="truncate text-sm font-medium text-foreground">
                             {i.merchant}
                           </p>
-                          <p className="flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground">
+                          <p className="flex flex-wrap items-center gap-1.5 type-caption text-muted-foreground">
                             {meta.label}
                             {i.recurringMonth ? (
                               <Badge variant="secondary" className="px-1 py-0 text-[9px]">
@@ -244,7 +244,7 @@ export function ExpenseFeed({
                         </div>
                         <span
                           className={cn(
-                            "shrink-0 font-mono text-sm tabular-nums",
+                            "shrink-0 font-mono text-sm numeric",
                             i.amount > 0 ? "font-semibold text-market-up" : "text-foreground"
                           )}
                         >

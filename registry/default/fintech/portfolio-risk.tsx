@@ -159,16 +159,16 @@ export function PortfolioRisk({
       {/* ---- Hero: value + day P&L ---------------------------------- */}
       <div className="relative flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-[0.1em] text-muted-foreground">
+          <p className="tracking-[0.1em] type-overline text-muted-foreground">
             Portfolio value
           </p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
-            <span className="text-4xl font-semibold leading-none tracking-tight text-foreground tabular-nums">
+            <span className="text-4xl font-semibold leading-none tracking-tight text-foreground numeric">
               <NumberFlow value={total} prefix="₹" locale="en-IN" />
             </span>
             <span
               className={cn(
-                "inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium tabular-nums ring-1 ring-inset",
+                "inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium numeric ring-1 ring-inset",
                 dayPnl >= 0
                   ? "bg-market-up/10 text-market-up ring-market-up/20"
                   : "bg-market-down/10 text-market-down ring-market-down/20"
@@ -199,23 +199,23 @@ export function PortfolioRisk({
         {/* Risk chips */}
         <div className="flex items-stretch gap-5 rounded-2xl border border-border/60 bg-background/60 px-4 py-2.5 backdrop-blur-sm">
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="type-overline text-muted-foreground">
               Beta
             </p>
-            <p className="mt-0.5 text-lg font-semibold tabular-nums text-foreground">
+            <p className="mt-0.5 text-lg font-semibold numeric text-foreground">
               <NumberFlow value={beta} decimals={2} />
             </p>
-            <p className="text-[10px] text-muted-foreground">vs NIFTY 50</p>
+            <p className="type-caption text-muted-foreground">vs NIFTY 50</p>
           </div>
           <div className="w-px bg-border/60" />
           <div>
-            <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="type-overline text-muted-foreground">
               VaR 95% · 1d
             </p>
-            <p className="mt-0.5 text-lg font-semibold tabular-nums text-risk-high">
+            <p className="mt-0.5 text-lg font-semibold numeric text-risk-high">
               ₹<NumberFlow value={Math.round(var95)} locale="en-IN" />
             </p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="type-caption text-muted-foreground">
               {((var95 / total) * 100).toFixed(1)}% of value
             </p>
           </div>
@@ -225,9 +225,9 @@ export function PortfolioRisk({
       {/* ---- Allocation: one segmented bar + interactive legend ------ */}
       <div className="relative mt-7">
         <div className="flex items-baseline justify-between">
-          <h3 className="text-sm font-semibold text-foreground">Allocation</h3>
+          <h3 className="type-title text-foreground">Allocation</h3>
           {concentrated ? (
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-warning">
+            <span className="inline-flex items-center gap-1.5 type-meta font-medium text-warning">
               <span className="relative flex size-1.5">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-warning/60" />
                 <span className="relative inline-flex size-1.5 rounded-full bg-warning" />
@@ -300,7 +300,7 @@ export function PortfolioRisk({
                 <span className="text-xs font-medium text-foreground">{s.sector}</span>
                 <span
                   className={cn(
-                    "text-xs tabular-nums",
+                    "text-xs numeric",
                     over ? "font-semibold text-warning" : "text-muted-foreground"
                   )}
                 >
@@ -326,7 +326,7 @@ export function PortfolioRisk({
               <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
               <path d="M12 9v4M12 17h.01" />
             </svg>
-            <p className="text-[13px] leading-5 text-foreground">
+            <p className="type-label leading-5 text-foreground">
               <span className="font-semibold">{topConcentration.sector}</span> is{" "}
               {(topConcentration.share * 100).toFixed(0)}% of the portfolio, above your{" "}
               {(concentrationLimit * 100).toFixed(0)}% limit. Trimming it lowers single-sector risk.
@@ -339,12 +339,12 @@ export function PortfolioRisk({
       <div className="relative mt-7 rounded-2xl border border-border/60 bg-background/50 p-4">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-foreground">Stress test</h3>
-            <span className="text-[11px] text-muted-foreground">β-scaled impact</span>
+            <h3 className="type-title text-foreground">Stress test</h3>
+            <span className="type-meta text-muted-foreground">β-scaled impact</span>
           </div>
           <span
             className={cn(
-              "rounded-lg px-2 py-1 text-xs font-semibold tabular-nums ring-1 ring-inset transition-colors duration-300",
+              "rounded-lg px-2 py-1 text-xs font-semibold numeric ring-1 ring-inset transition-colors duration-300",
               shock === 0
                 ? "bg-muted/60 text-muted-foreground ring-border/60"
                 : stressDown
@@ -410,12 +410,12 @@ export function PortfolioRisk({
         </div>
 
         <div className="mt-4 flex items-end justify-between">
-          <span className="text-[11px] text-muted-foreground">
+          <span className="type-meta text-muted-foreground">
             Estimated portfolio impact
           </span>
           <span
             className={cn(
-              "text-2xl font-semibold tabular-nums transition-colors duration-300",
+              "type-metric numeric transition-colors duration-300",
               shock === 0
                 ? "text-muted-foreground"
                 : shockImpact >= 0
@@ -432,7 +432,7 @@ export function PortfolioRisk({
         </div>
 
         {shock <= -5 ? (
-          <p className="mt-3 rounded-xl bg-muted/60 px-3 py-2 text-[11px] leading-4 text-foreground">
+          <p className="mt-3 rounded-xl bg-muted/60 px-3 py-2 type-meta leading-4 text-foreground">
             <span className="font-semibold">Hedge idea:</span> a NIFTY put ~5% below spot
             (β-weighted ₹{inr(Math.round(total * beta))} exposure) caps this scenario near ₹
             {inr(Math.round(Math.abs(shockImpact) * 0.4))}. Educational, not advice.

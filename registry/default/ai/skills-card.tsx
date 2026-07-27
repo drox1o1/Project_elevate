@@ -145,7 +145,7 @@ export function SkillsCard({
       >
         <span className="flex items-baseline gap-2">
           <span className="text-sm font-medium text-foreground">{title}</span>
-          <span className="text-xs text-muted-foreground tabular-nums">
+          <span className="text-xs text-muted-foreground numeric">
             {skills.length}
           </span>
         </span>

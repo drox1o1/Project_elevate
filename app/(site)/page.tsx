@@ -88,7 +88,7 @@ export default function HomePage() {
       {/* The whole product, in pixels */}
       <section className="mx-auto max-w-5xl px-4 pb-6">
         <AsciiShowcase />
-        <p className="mt-3 text-center font-pixel text-[10px] uppercase tracking-widest text-muted-foreground">
+        <p className="mt-3 text-center font-pixel st type-overline text-muted-foreground">
           The whole product, drawn in pixels — option chains, KYC, vitals, swaps, agents
         </p>
       </section>
@@ -144,7 +144,7 @@ export default function HomePage() {
               <span className="text-sm font-semibold text-foreground">
                 {title}
               </span>
-              <p className="mt-1.5 text-[13px] leading-snug text-muted-foreground">
+              <p className="mt-1.5 type-label leading-snug text-muted-foreground">
                 {detail}
               </p>
             </div>
@@ -183,7 +183,7 @@ export default function HomePage() {
                     <Badge variant="outline">Roadmap</Badge>
                   )}
                 </div>
-                <p className="mt-1.5 text-[13px] leading-snug text-muted-foreground">
+                <p className="mt-1.5 type-label leading-snug text-muted-foreground">
                   {c.detail}
                 </p>
               </div>
@@ -209,7 +209,7 @@ export default function HomePage() {
               const doc = getDoc(slug);
               if (!doc) return null;
               return (
-                <div key={slug} className="flex flex-col gap-3">
+                <div key={slug} className="flex min-w-0 flex-col gap-3">
                   <div className="flex items-baseline justify-between gap-2">
                     <Link
                       href={`/components/${slug}`}
@@ -306,7 +306,7 @@ export default function HomePage() {
                 <h3 className="text-sm font-semibold text-foreground">
                   {p.title}
                 </h3>
-                <p className="mt-2 text-[13px] leading-6 text-muted-foreground">
+                <p className="mt-2 type-label leading-6 text-muted-foreground">
                   {p.detail}
                 </p>
               </div>
@@ -346,7 +346,7 @@ export default function HomePage() {
                         </span>
                         {d.free ? <Badge variant="success">Free</Badge> : null}
                       </div>
-                      <p className="mt-1.5 line-clamp-2 text-[13px] leading-snug text-muted-foreground">
+                      <p className="mt-1.5 line-clamp-2 type-label leading-snug text-muted-foreground">
                         {d.description}
                       </p>
                     </Link>

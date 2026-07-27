@@ -149,8 +149,8 @@ export function MedicationTimeline({
       {...rest}
     >
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">Medications · last 4 weeks</h3>
-        <span className="text-[11px] text-muted-foreground">tap a row for details</span>
+        <h3 className="type-title text-foreground">Medications · last 4 weeks</h3>
+        <span className="type-meta text-muted-foreground">tap a row for details</span>
       </div>
 
       <div className="relative mt-4 flex flex-col gap-5">
@@ -196,7 +196,7 @@ export function MedicationTimeline({
                 </span>
                 <span
                   className={cn(
-                    "text-[11px] tabular-nums",
+                    "type-meta numeric",
                     stats.pct >= 90 ? "text-success" : stats.pct >= 75 ? "text-warning" : "text-risk-high"
                   )}
                 >
@@ -244,7 +244,7 @@ export function MedicationTimeline({
                 ) : null}
               </div>
               {isSel ? (
-                <p className="mt-1 px-1 text-[11px] leading-4 text-muted-foreground">
+                <p className="mt-1 px-1 type-meta leading-4 text-muted-foreground">
                   {stats.taken}/{stats.past} doses taken.{" "}
                   {m.adherence.includes("missed")
                     ? "Missed doses shown in amber — don't double up; take the next scheduled dose."
@@ -261,14 +261,14 @@ export function MedicationTimeline({
           {interactions.map((ix) => (
             <p
               key={`${ix.a}-${ix.b}`}
-              className="rounded-lg border border-info/30 bg-info/5 px-2.5 py-1.5 text-[11px] leading-4 text-foreground"
+              className="rounded-lg border border-info/30 bg-info/5 px-2.5 py-1.5 type-meta leading-4 text-foreground"
             >
               <span className="font-semibold">{ix.a} + {ix.b}:</span> {ix.note}
             </p>
           ))}
         </div>
       ) : null}
-      <p className="mt-3 text-[10px] text-muted-foreground">
+      <p className="mt-3 type-caption text-muted-foreground">
         Legend: green taken · amber missed · hollow upcoming. Informational —
         follow your prescriber&apos;s instructions.
       </p>
