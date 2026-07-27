@@ -1749,6 +1749,37 @@
       }
     },
     {
+      "name": "chart-trading",
+      "type": "registry:block",
+      "title": "Chart Trading",
+      "description": "Chart-first trading terminal: candles stagger in per timeframe, a draggable order line sets the limit on the chart, the depth rail breathes with the book, and pre-trade checks score spread, liquidity, impact cost, book pressure, range position and volatility against your side.",
+      "dependencies": [
+        "gsap",
+        "@gsap/react"
+      ],
+      "registryDependencies": [
+        "https://labs.duku.design/r/button.json",
+        "https://labs.duku.design/r/number-flow.json"
+      ],
+      "files": [
+        {
+          "path": "registry/default/fintech/chart-trading.tsx",
+          "type": "registry:block"
+        },
+        {
+          "path": "registry/default/lib/use-reduced-motion.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/use-controllable-state.ts",
+          "type": "registry:lib"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
       "name": "penny-drop",
       "type": "registry:block",
       "title": "Penny Drop",

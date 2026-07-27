@@ -154,6 +154,7 @@ const items = [
   ["grounded-answer", "Grounded Answer", "Answer with per-claim citations that light up the exact source quote, surfaced contradictions and stated gaps.", "ai", "registry:ui", GSAP, [], ["rm"]],
   // ---- Phase 12: payments & verification
   ["card-payment", "Card Payment", "Add-card and pay: a live 3D card face detects the brand as you type, flips for the CVV, validates Luhn and expiry, and the pay button runs a processing → paid morph.", "fintech", "registry:block", MOTION, [], ["rm"]],
+  ["chart-trading", "Chart Trading", "Chart-first trading terminal: candles stagger in per timeframe, a draggable order line sets the limit on the chart, the depth rail breathes with the book, and pre-trade checks score spread, liquidity, impact cost, book pressure, range position and volatility against your side.", "fintech", "registry:block", GSAP, ["button", "number-flow"], ["rm", "cs"]],
   ["penny-drop", "Penny Drop", "Penny-drop bank verification: a ₹1 deposit confirms the account and returns the holder name, with staged progress and a name-match read (verified or mismatch).", "fintech", "registry:block", GSAP, [], ["rm"]],
   // ---- Phase 7: blocks
   ["signup-card", "Signup Card", "The flagship block: full validation, strength meter, success morph.", "blocks", "registry:block", GSAP, ["button", "input", "field", "field-message", "checkbox", "alert"], ["rm"], KF.fadeIn],

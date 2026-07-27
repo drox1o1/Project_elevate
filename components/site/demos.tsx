@@ -124,6 +124,13 @@ import { ApprovalGate } from "@/registry/default/ai/approval-gate";
 import { GroundedAnswer, DEMO_ANSWER } from "@/registry/default/ai/grounded-answer";
 import { CardPayment } from "@/registry/default/fintech/card-payment";
 import { PennyDrop } from "@/registry/default/fintech/penny-drop";
+import {
+  ChartTrading,
+  generateCandles,
+  generateBook,
+  type Candle,
+  type BookLevel,
+} from "@/registry/default/fintech/chart-trading";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -1522,7 +1529,113 @@ function PennyDropDemo() {
   );
 }
 
+const OPEN = 1543.4;
+
+/** Quantities walk; the levels stay a half-spread either side of the tape. */
+function reprice(levels: BookLevel[], mid: number, dir: 1 | -1) {
+  return levels.map((l, i) => ({
+    price: +(mid + dir * 0.05 * (i + 1)).toFixed(2),
+    qty: Math.max(280, Math.round(l.qty * (1 + (Math.random() - 0.5) * 0.18))),
+  }));
+}
+
+function ChartTradingDemo() {
+  const reduced = useReducedMotion();
+  const [tf, setTf] = React.useState("5m");
+  const [tape, setTape] = React.useState(() => ({
+    last: OPEN,
+    ...generateBook(OPEN),
+  }));
+  const { last, bids, asks } = tape;
+
+  // One series per timeframe, all landing on the same close, so switching
+  // reads as a zoom on the same session rather than a different stock.
+  const series = React.useMemo<Record<string, Candle[]>>(
+    () => ({
+      "1m": generateCandles({ base: OPEN, count: 56, seed: 21, vol: 0.0014, drift: 0.0001, stepMinutes: 1 }),
+      "5m": generateCandles({ base: OPEN, count: 46, seed: 12, vol: 0.0032, drift: 0.00028, stepMinutes: 5 }),
+      "15m": generateCandles({ base: OPEN, count: 25, seed: 23, vol: 0.0055, drift: 0.0006, stepMinutes: 15 }),
+      "1D": generateCandles({
+        base: OPEN,
+        count: 40,
+        seed: 11,
+        vol: 0.011,
+        drift: 0.0011,
+        labelFor: (i, count) => `D-${count - 1 - i}`,
+      }),
+    }),
+    []
+  );
+
+  /* One tick moves the last price and re-quotes the book around it, so the
+     chart, the ladder and the checks never disagree. */
+  React.useEffect(() => {
+    if (reduced) return;
+    const id = setInterval(() => {
+      setTape((t) => {
+        const next = +(t.last + (Math.random() - 0.5) * 0.3).toFixed(2);
+        return {
+          last: next,
+          bids: reprice(t.bids, next, -1),
+          asks: reprice(t.asks, next, 1),
+        };
+      });
+    }, 1600);
+    return () => clearInterval(id);
+  }, [reduced]);
+
+  const candles = React.useMemo(() => {
+    const base = series[tf] ?? series["5m"];
+    const live = base.slice();
+    const tail = live[live.length - 1];
+    live[live.length - 1] = {
+      ...tail,
+      c: last,
+      h: Math.max(tail.h, last),
+      l: Math.min(tail.l, last),
+    };
+    return live;
+  }, [series, tf, last]);
+
+  /* The day range belongs to the session, not to the chart zoom — so it is
+     read off the intraday series even when you're looking at 1D candles. */
+  const session = series["5m"];
+  const dayHigh = Math.max(last, ...session.map((c) => c.h));
+  const dayLow = Math.min(last, ...session.map((c) => c.l));
+  const dayVolume = session.reduce((s, c) => s + c.v, 0);
+
+  return (
+    <ChartTrading
+      symbol="HDFCBANK"
+      candles={candles}
+      lastPrice={last}
+      bids={bids}
+      asks={asks}
+      prevClose={1536.75}
+      vwap={1542.1}
+      volume={dayVolume}
+      dayHigh={dayHigh}
+      dayLow={dayLow}
+      lotSize={500}
+      maxLots={20}
+      upperCircuit={1690.4}
+      lowerCircuit={1383.1}
+      timeframe={tf}
+      onTimeframeChange={setTf}
+      className="max-w-full"
+      onPlace={(o) =>
+        toast({
+          title: `${o.side === "buy" ? "Bought" : "Sold"} ${o.qty} HDFCBANK @ ₹${o.price.toFixed(2)}`,
+          description: `${o.type} order · working on the chart`,
+          variant: "success",
+        })
+      }
+    />
+  );
+}
+
 export const DEMOS: Record<string, React.ComponentType> = {
+  "chart-trading": ChartTradingDemo,
   "card-payment": CardPaymentDemo,
   "penny-drop": PennyDropDemo,
   "investigation-timeline": InvestigationTimelineDemo,

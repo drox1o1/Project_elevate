@@ -1220,6 +1220,34 @@ DOCS.push(
       { prop: "expectedName", type: "string", description: "Name you expect the account to belong to; drives the match read." },
       { prop: "onVerify", type: "(input) => Promise<PennyDropResult>", description: "Resolve the check against your API; defaults to a deterministic demo." },
     ],
+  },
+  {
+    slug: "chart-trading",
+    title: "Chart Trading",
+    description:
+      "Trading from the chart itself. Candles stagger in and re-draw on every timeframe switch, the order line is dragged straight onto the price you want, the depth rail breathes with the resting book, and a pre-trade panel re-scores spread, liquidity at your price, impact cost, book pressure, day-range position and volatility against the side you are about to take — a risky read makes you confirm before it will place.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/chart-trading.tsx",
+    interactions: [
+      { action: "Switch timeframe", result: "The candle set re-staggers in (scaleY from the midpoint, 0.012s each) and the VWAP line re-draws from the left" },
+      { action: "Hover the chart", result: "Crosshair follows the pointer via quickTo; the pinned OHLC legend reads the candle under it and the right axis shows the price at the pointer" },
+      { action: "Drag the order line", result: "The limit price snaps to the tick as you drag; every pre-trade check re-scores live and the ticket total follows" },
+      { action: "Click a depth level", result: "The order line tweens to that price — the rail's quantity bars breathe to each new resting size (0.7s power2.out)" },
+      { action: "Flip buy ↔ sell", result: "The line, the place button and every side-dependent check recolor and the check rows re-cascade" },
+      { action: "Place with a flagged check", result: "The button becomes a confirm step naming the failed check; confirming pops an order marker onto the chart at that level" },
+      { action: "Keyboard the order line", result: "Focus the price handle: arrows nudge a tick, shift ten, PageUp/Down twenty, Home returns to the last traded price" },
+    ],
+    props: [
+      { prop: "symbol / exchange / lastPrice / prevClose", type: "string / string / number / number", description: "Instrument identity and the tape that drives the change read and LTP flash." },
+      { prop: "candles", type: "Candle[]", description: "{ label, o, h, l, c, v } oldest first for the active timeframe; generateCandles() ships for demos." },
+      { prop: "bids / asks", type: "BookLevel[]", description: "Best-first ladders feeding the depth rail and every liquidity check; generateBook(mid) ships for demos." },
+      { prop: "vwap / volume / dayHigh / dayLow", type: "number", description: "Session figures for the header and the range checks. VWAP draws as a dashed line; volume and the day range default to the candles on screen, so pass them to keep the read stable across timeframes." },
+      { prop: "upperCircuit / lowerCircuit", type: "number", description: "Adds the circuit-headroom check when both are given." },
+      { prop: "timeframes / timeframe / defaultTimeframe / onTimeframeChange", type: "string[] / string / string / (tf) => void", defaultValue: '["1m","5m","15m","1D"]', description: "Controlled or uncontrolled timeframe selection." },
+      { prop: "lotSize / maxLots / tick", type: "number", defaultValue: "1 / 50 / 0.05", description: "Quantity per lot, the stepper ceiling and the price increment the order line snaps to." },
+      { prop: "onLimitPriceChange", type: "(price: number) => void", description: "Fires whenever the order line lands on a new tick." },
+      { prop: "onPlace", type: "(order: ChartOrder) => void", description: "Fires after placement with side, type, qty and effective price." },
+    ],
   }
 );
 
