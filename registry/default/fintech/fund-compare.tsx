@@ -150,7 +150,7 @@ export function FundCompare({
       ref={rootRef}
       data-slot="fund-compare"
       className={cn(
-        "w-full max-w-xl rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-xl rounded-2xl border border-border/70 bg-card p-4 shadow-sm",
         className
       )}
       {...rest}
@@ -158,13 +158,19 @@ export function FundCompare({
       {/* Fund headers */}
       <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2">
         <div>
+          <span className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-medium text-foreground">
+            <span className="size-1.5 rounded-full bg-primary" />A
+          </span>
           <p className="text-sm font-semibold leading-5 text-foreground">{a.name}</p>
-          <p className="text-[10px] text-muted-foreground">{a.category}</p>
+          <p className="type-caption text-muted-foreground">{a.category}</p>
         </div>
-        <span className="pt-1 text-[10px] font-medium uppercase text-muted-foreground">vs</span>
+        <span className="pt-1 type-overline text-muted-foreground">vs</span>
         <div className="text-right">
+          <span className="mb-1 inline-flex items-center gap-1.5 rounded-full bg-info/10 px-1.5 py-0.5 text-[9px] font-medium text-foreground">
+            B<span className="size-1.5 rounded-full bg-info" />
+          </span>
           <p className="text-sm font-semibold leading-5 text-foreground">{b.name}</p>
-          <p className="text-[10px] text-muted-foreground">{b.category}</p>
+          <p className="type-caption text-muted-foreground">{b.category}</p>
         </div>
       </div>
 
@@ -175,12 +181,12 @@ export function FundCompare({
           const vb = m.value(b);
           return (
             <div key={m.key}>
-              <div className="grid grid-cols-[1fr_auto_1fr] items-baseline gap-2 text-xs tabular-nums">
+              <div className="grid grid-cols-[1fr_auto_1fr] items-baseline gap-2 text-xs numeric">
                 <span className="flex items-center gap-1.5 font-medium text-foreground">
                   {winDot(va, vb, m.higherBetter)}
                   {m.format(m.key === "dd" ? va : va)}
                 </span>
-                <span className="text-center text-[10px] text-muted-foreground">
+                <span className="text-center type-caption text-muted-foreground">
                   {m.label}
                   <span className="hidden sm:inline"> · {m.hint}</span>
                 </span>
@@ -190,11 +196,25 @@ export function FundCompare({
                 </span>
               </div>
               <div className="mt-1 grid grid-cols-2 gap-1" aria-hidden="true">
-                <div className="flex justify-end overflow-hidden rounded-l-full bg-muted">
-                  <span data-bar={Math.min(1, m.norm(va))} className="block h-1.5 rounded-l-full bg-primary" style={{ width: 0 }} />
+                <div className="flex justify-end overflow-hidden rounded-l-full bg-muted/70 ring-1 ring-inset ring-border/40">
+                  <span
+                    data-bar={Math.min(1, m.norm(va))}
+                    className="block h-1.5 rounded-l-full"
+                    style={{
+                      width: 0,
+                      background: "linear-gradient(270deg, var(--primary), color-mix(in oklab, var(--primary) 45%, transparent))",
+                    }}
+                  />
                 </div>
-                <div className="flex overflow-hidden rounded-r-full bg-muted">
-                  <span data-bar={Math.min(1, m.norm(vb))} className="block h-1.5 rounded-r-full bg-info" style={{ width: 0 }} />
+                <div className="flex overflow-hidden rounded-r-full bg-muted/70 ring-1 ring-inset ring-border/40">
+                  <span
+                    data-bar={Math.min(1, m.norm(vb))}
+                    className="block h-1.5 rounded-r-full"
+                    style={{
+                      width: 0,
+                      background: "linear-gradient(90deg, var(--info), color-mix(in oklab, var(--info) 45%, transparent))",
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -204,14 +224,14 @@ export function FundCompare({
 
       {/* Exit load + overlap */}
       <div className="mt-4 grid gap-2 sm:grid-cols-2">
-        <div className="rounded-xl border border-border bg-background px-3 py-2 text-xs">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Exit load</p>
-          <p className="mt-0.5 tabular-nums text-foreground">
+        <div className="rounded-xl border border-border/70 bg-background px-3 py-2 text-xs shadow-xs">
+          <p className="type-overline text-muted-foreground">Exit load</p>
+          <p className="mt-0.5 numeric text-foreground">
             {a.exitLoad} <span className="text-muted-foreground">vs</span> {b.exitLoad}
           </p>
         </div>
-        <div className="rounded-xl border border-border bg-background px-3 py-2 text-xs">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        <div className="rounded-xl border border-border/70 bg-background px-3 py-2 text-xs shadow-xs">
+          <p className="type-overline text-muted-foreground">
             Portfolio overlap
           </p>
           <div className="mt-1.5 flex items-center gap-2">
@@ -225,24 +245,27 @@ export function FundCompare({
             >
               <span
                 data-bar={overlapPct / 100}
-                className={cn(
-                  "block h-full rounded-full",
-                  overlapPct > 50 ? "bg-warning" : "bg-primary"
-                )}
-                style={{ width: 0 }}
+                className="block h-full rounded-full"
+                style={{
+                  width: 0,
+                  background:
+                    overlapPct > 50
+                      ? "linear-gradient(90deg, color-mix(in oklab, var(--warning) 50%, transparent), var(--warning))"
+                      : "linear-gradient(90deg, color-mix(in oklab, var(--primary) 50%, transparent), var(--primary))",
+                }}
               />
             </span>
-            <span className="font-medium tabular-nums text-foreground">{overlapPct}%</span>
+            <span className="font-medium numeric text-foreground">{overlapPct}%</span>
           </div>
           {overlapPct > 50 ? (
-            <p className="mt-1 text-[10px] leading-4 text-warning">
+            <p className="mt-1 type-caption leading-4 text-warning">
               High overlap — holding both adds little diversification.
             </p>
           ) : null}
         </div>
       </div>
 
-      <p className="mt-3 text-[11px] text-muted-foreground">
+      <p className="mt-3 type-meta text-muted-foreground">
         <span className="font-medium text-foreground">{winsA >= METRICS.length / 2 ? a.name : b.name}</span>{" "}
         leads on {Math.max(winsA, METRICS.length - winsA)} of {METRICS.length} metrics ·
         past returns don&apos;t guarantee future ones · not advice

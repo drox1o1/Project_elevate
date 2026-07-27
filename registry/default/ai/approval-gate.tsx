@@ -114,7 +114,7 @@ export function ApprovalGate({
       ref={rootRef}
       data-slot="approval-gate"
       className={cn(
-        "w-full max-w-md rounded-2xl border bg-card p-4 transition-colors duration-300",
+        "w-full max-w-md rounded-3xl border bg-card p-5 shadow-md transition-colors duration-300",
         meta.border,
         className
       )}
@@ -123,7 +123,7 @@ export function ApprovalGate({
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="type-overline text-muted-foreground">
             Agent requests approval
           </p>
           <p className="text-sm font-semibold leading-5 text-foreground">{action}</p>
@@ -147,19 +147,19 @@ export function ApprovalGate({
             onChange={(e) => setDraft(e.target.value)}
             rows={4}
             aria-label="Edit the payload before approving"
-            className="w-full rounded-lg border border-input bg-background p-2.5 text-[12px] leading-5 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="w-full rounded-lg border border-input bg-background p-2.5 type-meta leading-5 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
         ) : (
           <blockquote
             className={cn(
-              "rounded-lg border-l-2 bg-muted/50 px-3 py-2 text-[12px] leading-5",
-              draft !== payload ? "border-info text-foreground" : "border-border text-foreground",
+              "rounded-xl border border-l-2 bg-muted/40 px-3.5 py-2.5 type-meta leading-5 shadow-xs",
+              draft !== payload ? "border-l-info border-border/60 text-foreground" : "border-l-border border-border/60 text-foreground",
               state === "rejected" && "opacity-50"
             )}
           >
             {draft}
             {draft !== payload ? (
-              <span className="mt-1 block text-[10px] font-medium text-info">
+              <span className="mt-1 block type-caption font-medium text-info">
                 edited by reviewer
               </span>
             ) : null}
@@ -169,7 +169,7 @@ export function ApprovalGate({
 
       {/* Details */}
       {details.length > 0 ? (
-        <dl className="mt-2 flex flex-col gap-0.5 text-[11px] tabular-nums">
+        <dl className="mt-2 flex flex-col gap-0.5 type-meta numeric">
           {details.map(([k, v]) => (
             <div key={k} className="flex justify-between gap-2">
               <dt className="text-muted-foreground">{k}</dt>
@@ -182,17 +182,19 @@ export function ApprovalGate({
       {/* Expiry / outcome */}
       {state === "pending" ? (
         <>
-          <div className="mt-3 h-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-muted ring-1 ring-inset ring-border/40" aria-hidden="true">
             <span
               ref={barRef}
-              className={cn(
-                "block h-full rounded-full",
-                remaining / expiresInSec > 0.33 ? "bg-agent-waiting" : "bg-destructive"
-              )}
-              style={{ width: "100%" }}
+              className="block h-full rounded-full"
+              style={{
+                width: "100%",
+                background: remaining / expiresInSec > 0.33
+                  ? "linear-gradient(90deg, color-mix(in oklab, var(--agent-waiting) 55%, transparent), var(--agent-waiting))"
+                  : "linear-gradient(90deg, color-mix(in oklab, var(--destructive) 55%, transparent), var(--destructive))",
+              }}
             />
           </div>
-          <p className="mt-1 text-[10px] tabular-nums text-muted-foreground">
+          <p className="mt-1 type-caption numeric text-muted-foreground">
             Expires in {remaining}s — the agent stays paused, nothing is sent
             without a decision.
           </p>
@@ -214,7 +216,7 @@ export function ApprovalGate({
                 <Button size="sm" variant="outline" onClick={() => setEditing(true)}>
                   Modify
                 </Button>
-                <Button size="sm" className="flex-1" onClick={() => decide("approved")}>
+                <Button size="sm" className="flex-1 bg-success text-white shadow-sm hover:bg-success/90" onClick={() => decide("approved")}>
                   Approve
                 </Button>
               </>
@@ -222,7 +224,7 @@ export function ApprovalGate({
           </div>
         </>
       ) : (
-        <p className="mt-3 rounded-lg bg-muted/50 px-2.5 py-1.5 text-[11px] leading-4 text-muted-foreground">
+        <p className="mt-3 rounded-lg bg-muted/50 px-2.5 py-1.5 type-meta leading-4 text-muted-foreground">
           {state === "approved" && "The agent is executing the approved action."}
           {state === "modified" && "The agent is executing your edited version — the original was not sent."}
           {state === "rejected" && "Nothing was sent. The agent will report the rejection and stop this branch."}

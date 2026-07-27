@@ -70,7 +70,7 @@ export function HeroIntro() {
         <img src="/duku_labs_light.svg" alt="DUKU Labs" className="h-9 w-auto dark:hidden sm:h-11" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/duku_labs_dark.svg" alt="DUKU Labs" className="hidden h-9 w-auto dark:block sm:h-11" />
-        <Badge variant="outline" pulse className="font-pixel text-[10px] uppercase tracking-widest">
+        <Badge variant="outline" pulse className="type-overline font-pixel st">
           Design engineering with AI
         </Badge>
       </div>
@@ -102,7 +102,7 @@ export function HeroIntro() {
       </div>
       <p
         data-hero="proof"
-        className="mt-6 font-pixel text-[10px] uppercase tracking-widest text-muted-foreground opacity-0"
+        className="mt-6 font-pixel st type-overline text-muted-foreground opacity-0"
       >
         Real products · every state · yours to customise
       </p>

@@ -143,22 +143,30 @@ export function MedicationTimeline({
       ref={rootRef}
       data-slot="medication-timeline"
       className={cn(
-        "w-full max-w-xl rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-xl rounded-2xl border border-border/70 bg-card p-4 shadow-sm",
         className
       )}
       {...rest}
     >
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">Medications · last 4 weeks</h3>
-        <span className="text-[11px] text-muted-foreground">tap a row for details</span>
+        <h3 className="type-title text-foreground">Medications · last 4 weeks</h3>
+        <span className="type-meta text-muted-foreground">tap a row for details</span>
       </div>
 
       <div className="relative mt-4 flex flex-col gap-5">
         {/* today line */}
         <span
           aria-hidden="true"
-          className="absolute bottom-0 top-0 w-px bg-info/60"
-          style={{ left: `${pct(today)}%` }}
+          className="absolute bottom-0 top-1 w-px"
+          style={{
+            left: `${pct(today)}%`,
+            background: "linear-gradient(180deg, var(--info), color-mix(in oklab, var(--info) 20%, transparent))",
+          }}
+        />
+        <span
+          aria-hidden="true"
+          className="absolute top-1 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-info"
+          style={{ left: `${pct(today)}%`, boxShadow: "0 0 6px color-mix(in oklab, var(--info) 70%, transparent)" }}
         />
         <span
           className="absolute -top-1 -translate-x-1/2 text-[9px] font-medium uppercase text-info"
@@ -188,7 +196,7 @@ export function MedicationTimeline({
                 </span>
                 <span
                   className={cn(
-                    "text-[11px] tabular-nums",
+                    "type-meta numeric",
                     stats.pct >= 90 ? "text-success" : stats.pct >= 75 ? "text-warning" : "text-risk-high"
                   )}
                 >
@@ -200,8 +208,12 @@ export function MedicationTimeline({
                 <span
                   data-course
                   aria-hidden="true"
-                  className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-primary/15"
-                  style={{ left: `${pct(m.startDay)}%`, width: `${pct(m.endDay) - pct(m.startDay)}%` }}
+                  className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full"
+                  style={{
+                    left: `${pct(m.startDay)}%`,
+                    width: `${pct(m.endDay) - pct(m.startDay)}%`,
+                    background: "linear-gradient(90deg, color-mix(in oklab, var(--info) 22%, transparent), color-mix(in oklab, var(--success) 18%, transparent))",
+                  }}
                 />
                 {m.adherence.map((a, i) => {
                   const day = m.startDay + i;
@@ -213,7 +225,7 @@ export function MedicationTimeline({
                       aria-hidden="true"
                       className={cn(
                         "absolute top-1/2 size-2 -translate-x-1/2 -translate-y-1/2 rounded-full",
-                        a === "taken" && "bg-success",
+                        a === "taken" && "bg-success ring-2 ring-success/20",
                         a === "missed" && "bg-warning ring-2 ring-warning/30",
                         a === "upcoming" && "border border-border bg-background"
                       )}
@@ -232,7 +244,7 @@ export function MedicationTimeline({
                 ) : null}
               </div>
               {isSel ? (
-                <p className="mt-1 px-1 text-[11px] leading-4 text-muted-foreground">
+                <p className="mt-1 px-1 type-meta leading-4 text-muted-foreground">
                   {stats.taken}/{stats.past} doses taken.{" "}
                   {m.adherence.includes("missed")
                     ? "Missed doses shown in amber — don't double up; take the next scheduled dose."
@@ -249,14 +261,14 @@ export function MedicationTimeline({
           {interactions.map((ix) => (
             <p
               key={`${ix.a}-${ix.b}`}
-              className="rounded-lg border border-info/30 bg-info/5 px-2.5 py-1.5 text-[11px] leading-4 text-foreground"
+              className="rounded-lg border border-info/30 bg-info/5 px-2.5 py-1.5 type-meta leading-4 text-foreground"
             >
               <span className="font-semibold">{ix.a} + {ix.b}:</span> {ix.note}
             </p>
           ))}
         </div>
       ) : null}
-      <p className="mt-3 text-[10px] text-muted-foreground">
+      <p className="mt-3 type-caption text-muted-foreground">
         Legend: green taken · amber missed · hollow upcoming. Informational —
         follow your prescriber&apos;s instructions.
       </p>

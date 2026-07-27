@@ -6,7 +6,7 @@ import { CopyButton } from "@/registry/default/ui/kbd";
 function CommandBlock({ command }: { command: string }) {
   return (
     <div className="flex items-center justify-between gap-2 overflow-x-auto rounded-lg border border-border bg-muted/50 py-1.5 pl-4 pr-1.5">
-      <code className="whitespace-nowrap font-mono text-[13px] text-foreground">
+      <code className="whitespace-nowrap font-mono type-label text-foreground">
         {command}
       </code>
       <CopyButton value={command} />
@@ -68,7 +68,7 @@ export function InstallTabs() {
                 <div className="absolute right-1.5 top-1.5">
                   <CopyButton value={MCP_JSON} />
                 </div>
-                <pre className="overflow-x-auto font-mono text-[13px] leading-6 text-foreground">
+                <pre className="overflow-x-auto font-mono type-label leading-6 text-foreground">
                   <code>{MCP_JSON}</code>
                 </pre>
               </div>

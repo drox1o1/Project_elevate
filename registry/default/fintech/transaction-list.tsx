@@ -95,7 +95,7 @@ export function TransactionList({
       ref={rootRef}
       data-slot="transaction-list"
       className={cn(
-        "w-full divide-y divide-border rounded-xl border border-border bg-card",
+        "w-full divide-y divide-border/70 overflow-hidden rounded-2xl border border-border/70 bg-card shadow-sm",
         className
       )}
       {...rest}
@@ -138,52 +138,78 @@ export function TransactionList({
               </span>
             </div>
           ))
-        : items.map((tx) => (
-            <div
-              key={tx.id}
-              data-slot="transaction-row"
-              className="flex items-center gap-3 px-4 py-3 opacity-0 transition-colors duration-200 hover:bg-muted/50"
-            >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground [&>svg]:size-4">
-                {tx.icon ?? (
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <rect x="2" y="5" width="20" height="14" rx="2" />
-                    <path d="M2 10h20" />
-                  </svg>
-                )}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-foreground">
-                  {tx.title}
-                </p>
-                {tx.subtitle ? (
-                  <p className="truncate text-xs text-muted-foreground">
-                    {tx.subtitle}
-                  </p>
-                ) : null}
-              </div>
-              <span
-                data-slot="amount"
-                className={cn(
-                  "shrink-0 text-sm font-medium tabular-nums",
-                  tx.amount >= 0
-                    ? "text-emerald-600 dark:text-emerald-400"
-                    : "text-foreground"
-                )}
+        : items.map((tx) => {
+            const credit = tx.amount >= 0;
+            return (
+              <div
+                key={tx.id}
+                data-slot="transaction-row"
+                className="group flex items-center gap-3 px-4 py-3 opacity-0 transition-colors duration-200 hover:bg-muted/40"
               >
-                {tx.amount >= 0 ? "+" : "−"}
-                {format(tx.amount)}
-              </span>
-            </div>
-          ))}
+                <span
+                  className={cn(
+                    "flex size-9 shrink-0 items-center justify-center rounded-full ring-1 ring-inset [&>svg]:size-4",
+                    credit
+                      ? "bg-market-up/10 text-market-up ring-market-up/20"
+                      : "bg-muted text-muted-foreground ring-border/50"
+                  )}
+                >
+                  {tx.icon ?? (
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      {credit ? (
+                        <path d="M12 19V5M5 12l7 7 7-7" />
+                      ) : (
+                        <>
+                          <rect x="2" y="5" width="20" height="14" rx="2" />
+                          <path d="M2 10h20" />
+                        </>
+                      )}
+                    </svg>
+                  )}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {tx.title}
+                  </p>
+                  {tx.subtitle ? (
+                    <p className="truncate text-xs text-muted-foreground">
+                      {tx.subtitle}
+                    </p>
+                  ) : null}
+                </div>
+                <span
+                  data-slot="amount"
+                  className={cn(
+                    "shrink-0 text-sm font-semibold numeric transition-transform duration-200 group-hover:-translate-x-0.5 motion-reduce:group-hover:translate-x-0",
+                    credit ? "text-market-up" : "text-foreground"
+                  )}
+                >
+                  {credit ? "+" : "−"}
+                  {format(tx.amount)}
+                </span>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  className="-ml-1 size-4 shrink-0 text-muted-foreground opacity-0 transition-all duration-200 group-hover:translate-x-0 group-hover:opacity-60 -translate-x-1 motion-reduce:transition-none"
+                >
+                  <path d="M9 6l6 6-6 6" />
+                </svg>
+              </div>
+            );
+          })}
     </div>
   );
 }

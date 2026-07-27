@@ -82,9 +82,9 @@ function Row({
       }
       gsap.to(barRef.current, {
         width: `${pct}%`,
-        duration: 0.45,
+        duration: 0.7,
         ease: "power2.out",
-        overwrite: true,
+        overwrite: "auto",
       });
     },
     { dependencies: [pct, reduced] }
@@ -96,7 +96,7 @@ function Row({
       onClick={() => onSelect?.(side, level)}
       aria-label={`${side} ${nf2.format(level.price)}, quantity ${nf.format(level.qty)}, ${level.orders} orders`}
       className={cn(
-        "relative grid w-full grid-cols-[1fr_auto_auto] items-center gap-2 rounded-md px-2 py-1 text-right font-mono text-[12px] tabular-nums transition-colors duration-150",
+        "relative grid w-full grid-cols-[1fr_auto_auto] items-center gap-2 rounded-md px-2 py-1 text-right font-mono type-meta numeric transition-colors duration-150",
         "hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
         best && "font-semibold"
       )}
@@ -104,11 +104,14 @@ function Row({
       <span
         ref={barRef}
         aria-hidden="true"
-        className={cn(
-          "absolute inset-y-0.5 rounded-sm opacity-15",
-          side === "bid" ? "right-0 bg-bid" : "left-0 bg-ask"
-        )}
-        style={{ width: 0 }}
+        className={cn("absolute inset-y-0.5 rounded-md", side === "bid" ? "right-0" : "left-0")}
+        style={{
+          width: 0,
+          background:
+            side === "bid"
+              ? "linear-gradient(270deg, color-mix(in oklab, var(--bid) 26%, transparent), color-mix(in oklab, var(--bid) 6%, transparent))"
+              : "linear-gradient(90deg, color-mix(in oklab, var(--ask) 26%, transparent), color-mix(in oklab, var(--ask) 6%, transparent))",
+        }}
       />
       <span className="relative text-left text-muted-foreground">
         {level.orders}
@@ -167,42 +170,52 @@ export function MarketDepth({
       ref={ref}
       data-slot="market-depth"
       className={cn(
-        "w-full max-w-sm rounded-xl border border-border bg-card p-3",
+        "w-full max-w-sm rounded-3xl border border-border/60 bg-card p-4 shadow-md",
         className
       )}
       {...rest}
     >
       <div className="flex items-baseline justify-between gap-2 px-1">
-        <span className="text-sm font-semibold text-foreground">{symbol}</span>
+        <span className="type-title text-foreground">{symbol}</span>
         <span
           className={cn(
-            "font-mono text-sm font-semibold tabular-nums transition-colors duration-500",
+            "flex items-center gap-1 font-mono text-base font-semibold numeric transition-colors duration-500",
             flash === "up" && "text-market-up",
-            flash === "down" && "text-market-down"
+            flash === "down" && "text-market-down",
+            !flash && "text-foreground"
           )}
         >
+          {flash ? (
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" className={cn("size-3.5", flash === "down" && "rotate-180")} aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" /></svg>
+          ) : null}
           {nf2.format(lastPrice)}
         </span>
       </div>
 
       {/* buyer/seller balance */}
       <div
-        className="mt-2 flex h-1.5 overflow-hidden rounded-full"
+        className="mt-2.5 flex h-2 overflow-hidden rounded-full ring-1 ring-inset ring-border/40"
         role="meter"
         aria-label="Buy-side share of visible depth"
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={bidShare}
       >
-        <span className="bg-bid transition-all duration-500" style={{ width: `${bidShare}%` }} />
-        <span className="flex-1 bg-ask" />
+        <span
+          className="transition-all duration-500"
+          style={{ width: `${bidShare}%`, background: "linear-gradient(90deg, color-mix(in oklab, var(--bid) 60%, transparent), var(--bid))" }}
+        />
+        <span
+          className="flex-1"
+          style={{ background: "linear-gradient(90deg, var(--ask), color-mix(in oklab, var(--ask) 60%, transparent))" }}
+        />
       </div>
-      <div className="mt-1 flex justify-between px-1 text-[10px] text-muted-foreground">
+      <div className="mt-1 flex justify-between px-1 type-caption text-muted-foreground">
         <span>Buyers {bidShare}%</span>
         <span>Sellers {100 - bidShare}%</span>
       </div>
 
-      <div className="mt-2 grid grid-cols-[auto_auto_1fr] px-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+      <div className="mt-2 grid grid-cols-[auto_auto_1fr] px-2 type-overline text-muted-foreground">
         <span>Orders</span>
         <span className="ml-6">Qty</span>
         <span className="text-right">Price</span>
@@ -211,28 +224,28 @@ export function MarketDepth({
       {/* Asks (worst to best, so the spread meets in the middle) */}
       <div className="mt-1 flex flex-col-reverse">
         {asks.map((a, i) => (
-          <Row key={a.price} side="ask" level={a} maxQty={maxQty} best={i === 0} onSelect={onLevelSelect} />
+          <Row key={`ask-${i}`} side="ask" level={a} maxQty={maxQty} best={i === 0} onSelect={onLevelSelect} />
         ))}
       </div>
 
-      <div className="my-1 flex items-center justify-between rounded-md bg-muted/60 px-2 py-1 text-[11px]">
+      <div className="my-1.5 flex items-center justify-between rounded-lg border border-border/50 bg-muted/50 px-2.5 py-1.5 type-meta">
         <span className="text-muted-foreground">
-          Spread <span className="font-mono tabular-nums text-foreground">{nf2.format(spread)}</span>
+          Spread <span className="font-mono numeric text-foreground">{nf2.format(spread)}</span>
         </span>
         {atp ? (
           <span className="text-muted-foreground">
-            ATP <span className="font-mono tabular-nums text-foreground">{nf2.format(atp)}</span>
+            ATP <span className="font-mono numeric text-foreground">{nf2.format(atp)}</span>
           </span>
         ) : null}
       </div>
 
       <div className="flex flex-col">
         {bids.map((b, i) => (
-          <Row key={b.price} side="bid" level={b} maxQty={maxQty} best={i === 0} onSelect={onLevelSelect} />
+          <Row key={`bid-${i}`} side="bid" level={b} maxQty={maxQty} best={i === 0} onSelect={onLevelSelect} />
         ))}
       </div>
 
-      <p className="mt-2 px-1 text-[10px] text-muted-foreground">
+      <p className="mt-2 px-1 type-caption text-muted-foreground">
         Tap a level to prefill an order · simulated feed
       </p>
     </div>

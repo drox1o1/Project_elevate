@@ -3,7 +3,6 @@
 import * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 
@@ -30,10 +29,12 @@ export function SelectTrigger({
       data-slot="select-trigger"
       aria-invalid={invalid || undefined}
       className={cn(
-        "group flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 text-sm",
-        "transition-[color,border-color,box-shadow] duration-200",
+        "group flex h-10 w-full items-center justify-between gap-2 rounded-lg border border-input bg-background px-3 text-sm shadow-xs",
+        "transition-[color,border-color,box-shadow,background-color] duration-200",
+        "hover:border-ring/30 hover:bg-muted/40",
         "placeholder:text-muted-foreground data-[placeholder]:text-muted-foreground",
         "focus-visible:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/25",
+        "data-[state=open]:border-ring data-[state=open]:ring-2 data-[state=open]:ring-ring/25",
         "disabled:opacity-50 disabled:pointer-events-none",
         invalid &&
           "border-destructive focus-visible:border-destructive focus-visible:ring-destructive/25",
@@ -51,7 +52,7 @@ export function SelectTrigger({
           strokeLinecap="round"
           strokeLinejoin="round"
           aria-hidden="true"
-          className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180"
+          className="size-4 shrink-0 text-muted-foreground transition-transform duration-300 ease-out-expo group-data-[state=open]:rotate-180"
         >
           <path d="M6 9l6 6 6-6" />
         </svg>
@@ -72,56 +73,55 @@ export function SelectContent({
   ref,
   ...rest
 }: SelectContentProps) {
-  const contentRef = React.useRef<HTMLDivElement>(null);
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
   const reduced = useReducedMotion();
   React.useImperativeHandle(ref, () => contentRef.current as HTMLDivElement);
 
-  // Entrance runs on every mount (Radix mounts content when opened).
-  useGSAP(
-    () => {
-      const el = contentRef.current;
-      if (!el) return;
-      if (reduced) {
-        gsap.set(el, { opacity: 1, scale: 1 });
-        return;
-      }
-      el.style.transformOrigin =
-        "var(--radix-select-content-transform-origin)";
+  /* The item cascade runs from a callback ref so it fires when the portal
+     DOM actually attaches — an effect on this (always-mounted) wrapper
+     runs while the menu is still closed and would never see the nodes.
+     Entrance/exit rides on CSS data-state animations so Radix holds the
+     tree through the exit keyframe. */
+  const attachRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      contentRef.current = node;
+      if (!node || reduced) return;
+      const items = Array.from(
+        node.querySelectorAll<HTMLElement>('[data-slot="select-item"]')
+      ).slice(0, 12);
+      if (!items.length) return;
       gsap.fromTo(
-        el,
-        { opacity: 0, scale: 0.96 },
-        { opacity: 1, scale: 1, duration: 0.25, ease: "power3.out" }
+        items,
+        { opacity: 0, y: 6, filter: "blur(3px)" },
+        {
+          opacity: 1,
+          y: 0,
+          filter: "blur(0px)",
+          duration: 0.35,
+          ease: "power3.out",
+          stagger: 0.025,
+          delay: 0.04,
+          clearProps: "opacity,transform,filter",
+        }
       );
-      const items = gsap.utils
-        .toArray<HTMLElement>(el.querySelectorAll('[data-slot="select-item"]'))
-        .slice(0, 10);
-      if (items.length) {
-        gsap.fromTo(
-          items,
-          { y: 4, opacity: 0 },
-          {
-            y: 0,
-            opacity: 1,
-            duration: 0.25,
-            ease: "power2.out",
-            stagger: 0.02,
-          }
-        );
-      }
     },
-    { scope: contentRef }
+    [reduced]
   );
 
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Content
-        ref={contentRef}
+        ref={attachRef}
         data-slot="select-content"
         position={position}
-        sideOffset={6}
+        sideOffset={8}
         className={cn(
-          "z-50 max-h-[min(24rem,var(--radix-select-content-available-height))] min-w-[var(--radix-select-trigger-width)] overflow-hidden rounded-lg border border-border bg-background p-1 shadow-lg",
-          "opacity-0",
+          "z-50 max-h-[min(24rem,var(--radix-select-content-available-height))] min-w-[var(--radix-select-trigger-width)]",
+          "overflow-hidden rounded-xl border border-border/70 bg-popover/90 p-1",
+          "shadow-popover backdrop-blur-xl supports-[backdrop-filter]:bg-popover/85",
+          "[transform-origin:var(--radix-select-content-transform-origin)]",
+          "data-[state=open]:animate-duku-menu-in data-[state=closed]:animate-duku-menu-out",
+          "motion-reduce:animate-none",
           className
         )}
         {...rest}
@@ -145,7 +145,7 @@ export function SelectLabel({ className, ref, ...rest }: SelectLabelProps) {
       ref={ref}
       data-slot="select-label"
       className={cn(
-        "px-2 py-1.5 text-xs font-medium text-muted-foreground",
+        "px-2.5 pb-1 pt-1.5 text-xs font-medium text-muted-foreground",
         className
       )}
       {...rest}
@@ -202,9 +202,10 @@ export function SelectItem({
       ref={ref}
       data-slot="select-item"
       className={cn(
-        "relative flex w-full cursor-default select-none items-center justify-between gap-2 rounded-md px-2 py-1.5 text-sm outline-none",
-        "transition-colors duration-100",
-        "data-[highlighted]:bg-muted data-[disabled]:opacity-50 data-[disabled]:pointer-events-none",
+        "relative flex w-full cursor-default select-none items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-sm outline-none",
+        "transition-[background-color,color] duration-100",
+        "data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
+        "data-[disabled]:opacity-50 data-[disabled]:pointer-events-none",
         className
       )}
       {...rest}
@@ -231,7 +232,7 @@ export function SelectSeparator({
     <SelectPrimitive.Separator
       ref={ref}
       data-slot="select-separator"
-      className={cn("mx-1 my-1 h-px bg-border", className)}
+      className={cn("-mx-1 my-1 h-px bg-border/70", className)}
       {...rest}
     />
   );

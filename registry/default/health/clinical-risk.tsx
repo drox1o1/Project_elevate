@@ -79,6 +79,7 @@ export function ClinicalRisk({
   const rootRef = React.useRef<HTMLDivElement>(null);
   const arcRef = React.useRef<SVGPathElement>(null);
   const scoreRef = React.useRef<HTMLSpanElement>(null);
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
 
   const band = riskBand(score);
@@ -126,12 +127,12 @@ export function ClinicalRisk({
       ref={rootRef}
       data-slot="clinical-risk"
       className={cn(
-        "w-full max-w-md rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-md rounded-2xl border border-border/70 bg-card p-4 shadow-sm",
         className
       )}
       {...rest}
     >
-      <h3 className="text-sm font-semibold text-foreground">{title}</h3>
+      <h3 className="type-title text-foreground">{title}</h3>
 
       {/* Gauge */}
       <div className="mt-2 flex items-center gap-4">
@@ -143,28 +144,36 @@ export function ClinicalRisk({
           aria-valuemax={100}
           aria-valuenow={score}
         >
-          <svg viewBox="0 0 100 60" className="w-32">
+          <svg viewBox="0 0 100 62" className="w-32 overflow-visible">
+            <defs>
+              <linearGradient id={`gauge-${uid}`} x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="var(--risk-low)" />
+                <stop offset="50%" stopColor="var(--risk-medium)" />
+                <stop offset="100%" stopColor="var(--risk-high)" />
+              </linearGradient>
+            </defs>
             <path
               d="M10,55 A45,45 0 0 1 90,55"
               fill="none"
-              strokeWidth={8}
+              strokeWidth={9}
               strokeLinecap="round"
-              className="stroke-muted"
+              className="stroke-muted/70"
             />
             <path
               ref={arcRef}
               d="M10,55 A45,45 0 0 1 90,55"
               fill="none"
-              strokeWidth={8}
+              strokeWidth={9}
               strokeLinecap="round"
               pathLength={1}
               strokeDasharray={1}
               strokeDashoffset={1}
-              className={band.stroke}
+              stroke={`url(#gauge-${uid})`}
+              style={{ filter: `drop-shadow(0 1px 4px color-mix(in oklab, ${band.label === "High" ? "var(--risk-high)" : band.label === "Moderate" ? "var(--risk-medium)" : "var(--risk-low)"} 45%, transparent))` }}
             />
           </svg>
           <div className="absolute inset-x-0 bottom-0 text-center">
-            <span ref={scoreRef} className="text-2xl font-semibold tabular-nums text-foreground">
+            <span ref={scoreRef} className="type-metric numeric text-foreground">
               0
             </span>
             <span className="text-xs text-muted-foreground">/100</span>
@@ -172,7 +181,7 @@ export function ClinicalRisk({
         </div>
         <div>
           <p className={cn("text-sm font-semibold", band.cls)}>{band.label} risk</p>
-          <p className="mt-0.5 text-[11px] leading-4 text-muted-foreground">
+          <p className="mt-0.5 type-meta leading-4 text-muted-foreground">
             Decision support for clinician review — not a diagnosis.
           </p>
         </div>
@@ -180,7 +189,7 @@ export function ClinicalRisk({
 
       {/* Factors: protective ← | → adverse */}
       <div className="mt-4">
-        <div className="flex justify-between text-[10px] uppercase tracking-wide text-muted-foreground">
+        <div className="flex justify-between type-overline text-muted-foreground">
           <span>Protective</span>
           <span>Adverse</span>
         </div>
@@ -190,17 +199,20 @@ export function ClinicalRisk({
             const width = (Math.abs(f.weight) / maxW) * 50;
             return (
               <li key={f.label} className="text-xs">
-                <div className="relative h-2.5 overflow-hidden rounded-full bg-muted/70">
-                  <span aria-hidden="true" className="absolute inset-y-0 left-1/2 w-px bg-border" />
+                <div className="relative h-2.5 overflow-hidden rounded-full bg-muted/70 ring-1 ring-inset ring-border/40">
+                  <span aria-hidden="true" className="absolute inset-y-0 left-1/2 z-10 w-px bg-border" />
                   <span
                     data-factor
                     className={cn(
                       "absolute inset-y-0 rounded-full",
-                      adverse
-                        ? "left-1/2 origin-left bg-risk-high/80"
-                        : "right-1/2 origin-right bg-risk-low/80"
+                      adverse ? "left-1/2 origin-left" : "right-1/2 origin-right"
                     )}
-                    style={{ width: `${width}%` }}
+                    style={{
+                      width: `${width}%`,
+                      background: adverse
+                        ? "linear-gradient(90deg, color-mix(in oklab, var(--risk-high) 55%, transparent), var(--risk-high))"
+                        : "linear-gradient(270deg, color-mix(in oklab, var(--risk-low) 55%, transparent), var(--risk-low))",
+                    }}
                   />
                 </div>
                 <div className="mt-0.5 flex justify-between gap-2">
@@ -216,7 +228,7 @@ export function ClinicalRisk({
       </div>
 
       {missingData.length > 0 ? (
-        <p className="mt-3 rounded-lg bg-muted/60 px-2.5 py-1.5 text-[11px] leading-4 text-muted-foreground">
+        <p className="mt-3 rounded-lg bg-muted/60 px-2.5 py-1.5 type-meta leading-4 text-muted-foreground">
           <span className="font-semibold text-foreground">Missing data:</span>{" "}
           {missingData.join(", ")} — the score has wider uncertainty until these
           are available.
@@ -224,7 +236,7 @@ export function ClinicalRisk({
       ) : null}
 
       {recommendation ? (
-        <p className="mt-2 text-[12px] leading-5 text-foreground">{recommendation}</p>
+        <p className="mt-2 type-meta leading-5 text-foreground">{recommendation}</p>
       ) : null}
 
       <div className="mt-3 flex gap-2">

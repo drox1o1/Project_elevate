@@ -229,18 +229,18 @@ export function CryptoSwap({
     <div
       ref={which === "pay" ? payRef : recvRef}
       className={cn(
-        "rounded-xl border bg-background p-3",
-        which === "pay" && insufficient ? "border-destructive" : "border-border"
+        "rounded-2xl border bg-background/60 p-3.5 shadow-xs transition-colors duration-200",
+        which === "pay" && insufficient ? "border-destructive/50" : "border-border/60"
       )}
     >
-      <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+      <div className="flex items-center justify-between type-meta text-muted-foreground">
         <span>{which === "pay" ? "You pay" : "You receive"}</span>
         <button
           type="button"
           onClick={which === "pay" ? () => setAmount(String(token.balance)) : undefined}
           disabled={which !== "pay"}
           className={cn(
-            "tabular-nums",
+            "numeric",
             which === "pay" &&
               "underline-offset-2 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           )}
@@ -257,10 +257,10 @@ export function CryptoSwap({
             value={amount}
             onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))}
             placeholder="0.0"
-            className="w-full min-w-0 bg-transparent text-2xl font-semibold tabular-nums text-foreground placeholder:text-muted-foreground/50 focus-visible:outline-none"
+            className="w-full min-w-0 bg-transparent type-metric numeric text-foreground placeholder:text-muted-foreground/50 focus-visible:outline-none"
           />
         ) : (
-          <span className="truncate text-2xl font-semibold tabular-nums text-foreground">
+          <span className="truncate type-metric numeric text-foreground">
             {amountIn > 0 ? fmt(amountOut, token.usd > 100 ? 5 : 2) : "0.0"}
           </span>
         )}
@@ -272,7 +272,7 @@ export function CryptoSwap({
           label={which === "pay" ? "Pay token" : "Receive token"}
         />
       </div>
-      <p className="mt-1 text-[11px] tabular-nums text-muted-foreground">
+      <p className="mt-1 type-meta numeric text-muted-foreground">
         ≈ ${fmt((which === "pay" ? amountIn : amountOut) * token.usd, 2)}
         {which === "pay" && insufficient ? (
           <span className="ml-2 font-medium text-destructive">
@@ -288,7 +288,7 @@ export function CryptoSwap({
       ref={rootRef}
       data-slot="crypto-swap"
       className={cn(
-        "w-full max-w-sm rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-sm rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
@@ -301,9 +301,9 @@ export function CryptoSwap({
               type="button"
               aria-label="Flip tokens"
               onClick={flip}
-              className="absolute left-1/2 top-1/2 z-10 flex size-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-lg border border-border bg-card text-muted-foreground shadow-sm transition-all duration-200 hover:text-foreground active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="group/flip absolute left-1/2 top-1/2 z-10 flex size-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-xl border-2 border-card bg-background text-muted-foreground shadow-md ring-1 ring-border/60 transition-[transform,color,box-shadow] duration-200 ease-out-expo hover:text-foreground hover:shadow-lg active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="size-4" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" className="size-4 transition-transform duration-300 ease-out-expo group-hover/flip:rotate-180 motion-reduce:group-hover/flip:rotate-0" aria-hidden="true">
                 <path d="M7 4v16m0 0-3-3m3 3 3-3M17 20V4m0 0-3 3m3-3 3 3" />
               </svg>
             </button>
@@ -317,10 +317,10 @@ export function CryptoSwap({
             onClick={() => setFeesOpen((o) => !o)}
             className="mt-3 flex w-full items-center justify-between rounded-lg px-1 py-1 text-xs text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <span className="tabular-nums">
+            <span className="numeric">
               1 {from.symbol} = {fmt(q.rate, q.rate < 0.01 ? 6 : 4)} {to.symbol}
             </span>
-            <span className="flex items-center gap-1 tabular-nums">
+            <span className="flex items-center gap-1 numeric">
               ${q.gasUsd.toFixed(2)} gas
               <svg
                 viewBox="0 0 24 24"
@@ -338,13 +338,13 @@ export function CryptoSwap({
             <dl className="flex flex-col gap-1.5 px-1 pb-1 pt-2 text-xs">
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Price impact</dt>
-                <dd className={cn("tabular-nums", q.priceImpact > 2 ? "text-warning" : "text-foreground")}>
+                <dd className={cn("numeric", q.priceImpact > 2 ? "text-warning" : "text-foreground")}>
                   {q.priceImpact.toFixed(2)}%
                 </dd>
               </div>
               <div className="flex justify-between">
                 <dt className="text-muted-foreground">Min received ({slippage}% slippage)</dt>
-                <dd className="tabular-nums text-foreground">
+                <dd className="numeric text-foreground">
                   {fmt(minReceived, 5)} {to.symbol}
                 </dd>
               </div>
@@ -358,7 +358,7 @@ export function CryptoSwap({
                       aria-pressed={slippage === s}
                       onClick={() => setSlippage(s)}
                       className={cn(
-                        "rounded px-1.5 py-0.5 tabular-nums transition-colors duration-150",
+                        "rounded px-1.5 py-0.5 numeric transition-colors duration-150",
                         slippage === s
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-muted-foreground hover:text-foreground",
@@ -378,7 +378,7 @@ export function CryptoSwap({
                       {i > 0 ? (
                         <span aria-hidden="true" className="text-muted-foreground">→</span>
                       ) : null}
-                      <span className="rounded bg-muted px-1 py-0.5 text-[10px] font-medium text-foreground">
+                      <span className="rounded bg-muted px-1 py-0.5 type-caption font-medium text-foreground">
                         {hop}
                       </span>
                     </React.Fragment>
@@ -408,7 +408,7 @@ export function CryptoSwap({
               </Button>
             )}
             {needsApproval && amountIn > 0 && !insufficient ? (
-              <p className="mt-1.5 text-center text-[11px] text-muted-foreground">
+              <p className="mt-1.5 text-center type-meta text-muted-foreground">
                 One-time token approval, then the swap transaction.
               </p>
             ) : null}
@@ -471,10 +471,10 @@ function TxTimeline({
   return (
     <div ref={ref} className="flex flex-col gap-4 py-2">
       <div className="text-center">
-        <p className="text-sm font-semibold text-foreground">
+        <p className="type-title text-foreground">
           {fmt(amountIn)} {from.symbol} → {fmt(amountOut, 5)} {to.symbol}
         </p>
-        <p className="mt-0.5 text-[11px] text-muted-foreground">
+        <p className="mt-0.5 type-meta text-muted-foreground">
           Swap complete · tx 0x3f8a…c21d
         </p>
       </div>
@@ -487,7 +487,7 @@ function TxTimeline({
               <div className="flex flex-col items-center">
                 <span
                   className={cn(
-                    "flex size-5 items-center justify-center rounded-full text-[10px]",
+                    "flex size-5 items-center justify-center rounded-full type-caption",
                     done
                       ? "bg-success text-white"
                       : active

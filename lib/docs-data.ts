@@ -1185,6 +1185,44 @@ export const DOCS: DocEntry[] = [
   },
 ];
 
+DOCS.push(
+  {
+    slug: "card-payment",
+    title: "Card Payment",
+    description:
+      "Add a card and pay in one surface: a live 3D card face detects the brand from the first digits, flips to its CVV strip when you focus the security field, and the pay button morphs through processing into a drawn-check paid state. Luhn and expiry are validated before the charge is allowed.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/card-payment.tsx",
+    interactions: [
+      { action: "Type a card number", result: "The brand mark and card gradient update live (Visa, Mastercard, Amex, RuPay), grouping follows the brand and a check appears once Luhn passes" },
+      { action: "Focus the CVV field", result: "The card springs to a 3D flip and shows the CVV on the signature strip" },
+      { action: "Press Pay", result: "The button locks into a spinner, then morphs to a paid confirmation with a drawn check and the last 4" },
+    ],
+    props: [
+      { prop: "amount", type: "number", description: "Amount to charge; shown on the pay button and the receipt." },
+      { prop: "currency / locale", type: "string / string", defaultValue: '"₹" / "en-IN"', description: "Formatting for the amount." },
+      { prop: "onPaid", type: "(d: { brand, last4, amount }) => void", description: "Fires after the charge succeeds." },
+    ],
+  },
+  {
+    slug: "penny-drop",
+    title: "Penny Drop",
+    description:
+      "Bank-account verification by ₹1 deposit: it confirms the account is real and reads back the registered holder name. The stages reveal in sequence, the IFSC resolves to a bank as you type, and the returned name is scored against the expected one — verified, or flagged as a mismatch before money moves.",
+    phase: P4,
+    sourceFile: "registry/default/fintech/penny-drop.tsx",
+    interactions: [
+      { action: "Type an IFSC", result: "The bank name resolves live from the first four letters; an invalid code borders destructive" },
+      { action: "Press Verify account", result: "Three stages cascade and complete in turn: ₹1 deposit, name fetch, name match" },
+      { action: "Read the result", result: "The beneficiary name is revealed with a verified badge, or a mismatch warning with the match percentage against your expected name" },
+    ],
+    props: [
+      { prop: "expectedName", type: "string", description: "Name you expect the account to belong to; drives the match read." },
+      { prop: "onVerify", type: "(input) => Promise<PennyDropResult>", description: "Resolve the check against your API; defaults to a deterministic demo." },
+    ],
+  }
+);
+
 export function getDoc(slug: string): DocEntry | undefined {
   return DOCS.find((d) => d.slug === slug);
 }

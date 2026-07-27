@@ -26,7 +26,7 @@ function Ext({
         {children} <span aria-hidden="true">↗</span>
       </span>
       {sub ? (
-        <span className="block text-[11px] leading-4 text-muted-foreground/70">
+        <span className="block type-meta leading-4 text-muted-foreground/70">
           {sub}
         </span>
       ) : null}
@@ -50,14 +50,14 @@ export function SiteFooter() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/duku_labs_dark.svg" alt="DUKU Labs" className="hidden h-7 w-auto dark:block" />
           </Link>
-          <p className="mt-3 max-w-[26ch] font-pixel text-[11px] leading-5 tracking-wide text-muted-foreground">
+          <p className="mt-3 max-w-[26ch] font-pixel type-meta leading-5 tracking-wide text-muted-foreground">
             DESIGN ENGINEERING FOR AI-BUILT PRODUCTS
           </p>
         </div>
 
         {/* Product */}
         <div>
-          <p className="font-pixel text-[11px] uppercase tracking-widest text-muted-foreground">
+          <p className="font-pixel st type-overline text-muted-foreground">
             Product
           </p>
           <ul className="mt-3 flex flex-col gap-2">
@@ -81,7 +81,7 @@ export function SiteFooter() {
 
         {/* Ecosystem */}
         <div>
-          <p className="font-pixel text-[11px] uppercase tracking-widest text-muted-foreground">
+          <p className="font-pixel st type-overline text-muted-foreground">
             Ecosystem
           </p>
           <ul className="mt-3 flex flex-col gap-3">
@@ -103,10 +103,10 @@ export function SiteFooter() {
 
         {/* Agents */}
         <div>
-          <p className="font-pixel text-[11px] uppercase tracking-widest text-muted-foreground">
+          <p className="font-pixel st type-overline text-muted-foreground">
             For agents
           </p>
-          <p className="mt-3 font-mono text-[11px] leading-5 text-muted-foreground">
+          <p className="mt-3 font-mono type-meta leading-5 text-muted-foreground">
             claude mcp add duku-labs
             <br />
             --transport http
@@ -117,10 +117,10 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-border">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-4">
-          <p className="font-pixel text-[10px] tracking-wider text-muted-foreground">
+          <p className="font-pixel type-caption tracking-wider text-muted-foreground">
             © {new Date().getFullYear()} DUKU · MADE WITH HUMAN TASTE
           </p>
-          <p className="font-pixel text-[10px] tracking-wider text-muted-foreground">
+          <p className="font-pixel type-caption tracking-wider text-muted-foreground">
             FREE WHILE IN BETA
           </p>
         </div>

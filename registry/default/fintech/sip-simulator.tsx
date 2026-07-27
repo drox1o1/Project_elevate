@@ -85,6 +85,7 @@ export function SipSimulator({
 }: SipSimulatorProps) {
   const reduced = useReducedMotion();
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
 
   const [monthly, setMonthly] = React.useState(defaults?.monthly ?? 25_000);
@@ -112,8 +113,13 @@ export function SipSimulator({
     points.map((p) => `L${x(p.year)},${y(p[key])}`).join(" ") +
     ` L${x(years)},${y(0)} Z`;
 
+  // Top edge of the value area, drawn as a glowing stroke.
+  const valueLine =
+    `M${x(0)},${y(0)} ` + points.map((p) => `L${x(p.year)},${y(p.value)}`).join(" ");
+
   const valueRef = React.useRef<SVGPathElement>(null);
   const investedRef = React.useRef<SVGPathElement>(null);
+  const valueLineRef = React.useRef<SVGPathElement>(null);
 
   /* Paths morph to the new projection instead of snapping. */
   useGSAP(
@@ -121,6 +127,7 @@ export function SipSimulator({
       const pairs: [SVGPathElement | null, string][] = [
         [valueRef.current, area("value")],
         [investedRef.current, area("invested")],
+        [valueLineRef.current, valueLine],
       ];
       for (const [el, d] of pairs) {
         if (!el) continue;
@@ -144,7 +151,7 @@ export function SipSimulator({
     <label className="flex flex-col gap-1 text-xs">
       <span className="flex justify-between text-muted-foreground">
         {label}
-        <span className="font-medium tabular-nums text-foreground">{fmt(value)}</span>
+        <span className="font-medium numeric text-foreground">{fmt(value)}</span>
       </span>
       <input
         type="range"
@@ -164,24 +171,24 @@ export function SipSimulator({
       ref={rootRef}
       data-slot="sip-simulator"
       className={cn(
-        "w-full max-w-xl rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-xl rounded-2xl border border-border/70 bg-card p-4 shadow-sm",
         className
       )}
       {...rest}
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="type-overline text-muted-foreground">
             Projected corpus · {years}y
           </p>
-          <p className="text-2xl font-semibold tracking-tight text-foreground">
+          <p className="type-metric text-foreground">
             <NumberFlow value={Math.round(final.value)} prefix="₹" locale="en-IN" trend />
           </p>
         </div>
-        <div className="text-right text-[11px] text-muted-foreground">
+        <div className="text-right type-meta text-muted-foreground">
           <p>
             Real value (at {inflationPct}% inflation):{" "}
-            <span className="font-medium tabular-nums text-foreground">{lakh(realValue)}</span>
+            <span className="font-medium numeric text-foreground">{lakh(realValue)}</span>
           </p>
           {goal ? (
             <p>
@@ -203,8 +210,31 @@ export function SipSimulator({
         aria-label={`Projection: ₹${inr(final.invested)} invested grows to ₹${inr(final.value)} over ${years} years`}
         className="mt-3 w-full"
       >
-        <path ref={valueRef} d={area("value")} className="fill-primary/25" />
-        <path ref={investedRef} d={area("invested")} className="fill-primary/60" />
+        <defs>
+          <linearGradient id={`sip-growth-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--market-up)" stopOpacity={0.35} />
+            <stop offset="100%" stopColor="var(--market-up)" stopOpacity={0.04} />
+          </linearGradient>
+          <linearGradient id={`sip-invested-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--info)" stopOpacity={0.9} />
+            <stop offset="100%" stopColor="var(--info)" stopOpacity={0.35} />
+          </linearGradient>
+          <filter id={`sip-glow-${uid}`} x="-5%" y="-40%" width="110%" height="180%">
+            <feDropShadow dx="0" dy="1" stdDeviation="2.5" floodColor="var(--market-up)" floodOpacity="0.35" />
+          </filter>
+        </defs>
+        <path ref={valueRef} d={area("value")} fill={`url(#sip-growth-${uid})`} />
+        <path ref={investedRef} d={area("invested")} fill={`url(#sip-invested-${uid})`} />
+        <path
+          ref={valueLineRef}
+          d={valueLine}
+          fill="none"
+          stroke="var(--market-up)"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          filter={`url(#sip-glow-${uid})`}
+        />
         {goal ? (
           <>
             <line
@@ -234,19 +264,27 @@ export function SipSimulator({
       </svg>
 
       {/* Invested vs growth split */}
-      <div className="mt-1 flex h-2 overflow-hidden rounded-full" aria-hidden="true">
+      <div className="mt-1 flex h-2 overflow-hidden rounded-full ring-1 ring-inset ring-border/40" aria-hidden="true">
         <span
-          className="bg-primary/60 transition-all duration-500"
-          style={{ width: `${100 - growthShare}%` }}
+          className="transition-all duration-500"
+          style={{
+            width: `${100 - growthShare}%`,
+            background: "linear-gradient(90deg, color-mix(in oklab, var(--info) 70%, transparent), var(--info))",
+          }}
         />
-        <span className="flex-1 bg-primary/25" />
+        <span
+          className="flex-1"
+          style={{
+            background: "linear-gradient(90deg, color-mix(in oklab, var(--market-up) 55%, transparent), var(--market-up))",
+          }}
+        />
       </div>
-      <div className="mt-1 flex justify-between text-[11px] text-muted-foreground">
+      <div className="mt-1 flex justify-between type-meta text-muted-foreground">
         <span>
-          Invested <span className="font-medium tabular-nums text-foreground">{lakh(final.invested)}</span>
+          Invested <span className="font-medium numeric text-foreground">{lakh(final.invested)}</span>
         </span>
         <span>
-          Growth <span className="font-medium tabular-nums text-market-up">{lakh(growth)}</span> ({growthShare}%)
+          Growth <span className="font-medium numeric text-market-up">{lakh(growth)}</span> ({growthShare}%)
         </span>
       </div>
 
@@ -257,7 +295,7 @@ export function SipSimulator({
         {slider("Expected return", returnPct, setReturnPct, 4, 18, 0.5, (v) => `${v}% p.a.`)}
         {slider("Annual step-up", stepUpPct, setStepUpPct, 0, 15, 1, (v) => `${v}%`)}
       </div>
-      <p className="mt-3 text-[10px] leading-4 text-muted-foreground">
+      <p className="mt-3 type-caption leading-4 text-muted-foreground">
         Illustration with constant returns — actual returns vary. Not
         investment advice.
       </p>

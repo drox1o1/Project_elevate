@@ -3,9 +3,12 @@
 import * as React from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { LayoutGroup, motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 import { Badge } from "@/registry/default/ui/badge";
+
+const filterSpring = { type: "spring", stiffness: 480, damping: 38 } as const;
 
 /* ------------------------------------------------------------------ */
 /* Model                                                                */
@@ -82,10 +85,17 @@ export const DEMO_AUDIT: AuditEvent[] = [
 ];
 
 const ACTION_META: Record<AuditAction, string> = {
-  created: "bg-success/15 text-success",
-  updated: "bg-info/15 text-info",
-  deleted: "bg-destructive/15 text-destructive",
-  accessed: "bg-muted text-muted-foreground",
+  created: "bg-success/12 text-success ring-1 ring-inset ring-success/20",
+  updated: "bg-info/12 text-info ring-1 ring-inset ring-info/20",
+  deleted: "bg-destructive/12 text-destructive ring-1 ring-inset ring-destructive/20",
+  accessed: "bg-muted text-muted-foreground ring-1 ring-inset ring-border/60",
+};
+
+const ACTION_HUE: Record<AuditAction, string> = {
+  created: "var(--success)",
+  updated: "var(--info)",
+  deleted: "var(--destructive)",
+  accessed: "var(--muted-foreground)",
 };
 
 /* ------------------------------------------------------------------ */
@@ -106,6 +116,7 @@ export function AuditLog({
 }: AuditLogProps) {
   const reduced = useReducedMotion();
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
 
   const [actionFilter, setActionFilter] = React.useState<AuditAction | "all">("all");
@@ -137,14 +148,14 @@ export function AuditLog({
       ref={rootRef}
       data-slot="audit-log"
       className={cn(
-        "w-full max-w-xl rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-xl rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
     >
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">Audit log</h3>
+        <h3 className="type-title text-foreground">Audit log</h3>
         <div className="flex items-center gap-2">
           {tampered ? (
             <Badge variant="destructive" pulse>
@@ -156,7 +167,7 @@ export function AuditLog({
           <button
             type="button"
             onClick={() => onExport?.(visible)}
-            className="rounded-md border border-border px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="rounded-md border border-border px-2 py-1 type-meta font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             Export {visible.length}
           </button>
@@ -164,25 +175,34 @@ export function AuditLog({
       </div>
 
       {/* Filters */}
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {(["all", "created", "updated", "deleted", "accessed"] as const).map((a) => (
-          <button
-            key={a}
-            type="button"
-            aria-pressed={actionFilter === a}
-            onClick={() => setActionFilter(a)}
-            className={cn(
-              "rounded-full px-2.5 py-1 text-[11px] font-medium capitalize transition-colors duration-200",
-              actionFilter === a
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:text-foreground",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            )}
-          >
-            {a}
-          </button>
-        ))}
-      </div>
+      <LayoutGroup id={uid}>
+        <div className="isolate mt-3 flex flex-wrap gap-1.5">
+          {(["all", "created", "updated", "deleted", "accessed"] as const).map((a) => (
+            <button
+              key={a}
+              type="button"
+              aria-pressed={actionFilter === a}
+              onClick={() => setActionFilter(a)}
+              className={cn(
+                "relative rounded-full px-3 py-1 type-meta font-medium capitalize transition-colors duration-200",
+                actionFilter === a ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              )}
+            >
+              {actionFilter === a ? (
+                <motion.span
+                  layoutId={`filter-${uid}`}
+                  transition={reduced ? { duration: 0 } : filterSpring}
+                  className="absolute inset-0 -z-10 rounded-full bg-primary shadow-sm"
+                />
+              ) : (
+                <span className="absolute inset-0 -z-10 rounded-full bg-muted" />
+              )}
+              {a}
+            </button>
+          ))}
+        </div>
+      </LayoutGroup>
 
       {/* Events */}
       <ul className="mt-3 flex flex-col gap-1.5">
@@ -193,20 +213,28 @@ export function AuditLog({
             <li key={e.id} data-event>
               <div
                 className={cn(
-                  "rounded-xl border transition-colors duration-300",
-                  e.integrity === "tampered" ? "border-destructive/60 bg-destructive/5" : "border-border bg-background"
+                  "relative overflow-hidden rounded-2xl border shadow-xs transition-colors duration-300",
+                  e.integrity === "tampered"
+                    ? "border-destructive/50 bg-destructive/[0.05]"
+                    : "border-border/60 bg-background/60"
                 )}
               >
+                {/* action-keyed accent rail */}
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-y-2.5 left-0 w-0.5 rounded-full opacity-70"
+                  style={{ background: ACTION_HUE[e.action] }}
+                />
                 <button
                   type="button"
                   aria-expanded={open}
                   disabled={!expandable}
                   onClick={() => setOpenId((o) => (o === e.id ? null : e.id))}
-                  className="flex w-full items-center gap-2.5 px-2.5 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  className="flex w-full items-center gap-2.5 py-2.5 pl-3.5 pr-3 text-left transition-colors duration-200 hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring disabled:hover:bg-transparent"
                 >
                   <span
                     className={cn(
-                      "shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase",
+                      "shrink-0 rounded-md px-1.5 py-0.5 type-overline font-semibold",
                       ACTION_META[e.action]
                     )}
                   >
@@ -216,7 +244,7 @@ export function AuditLog({
                     <span className="block truncate text-xs font-medium text-foreground">
                       {e.resource}
                     </span>
-                    <span className="block truncate text-[10px] text-muted-foreground">
+                    <span className="block truncate type-caption text-muted-foreground">
                       {e.actor} · {e.timestamp}
                       {e.integrity === "tampered" ? (
                         <span className="ml-1 font-semibold text-destructive">
@@ -226,15 +254,18 @@ export function AuditLog({
                     </span>
                   </span>
                   {expandable ? (
-                    <span
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                       aria-hidden="true"
-                      className={cn(
-                        "text-muted-foreground transition-transform duration-300",
-                        open && "rotate-180"
-                      )}
+                      className={cn("size-3.5 shrink-0 text-muted-foreground transition-transform duration-300", open && "rotate-180")}
                     >
-                      ▾
-                    </span>
+                      <path d="M6 9l6 6 6-6" />
+                    </svg>
                   ) : null}
                 </button>
                 {open ? <EventDetail event={e} reduced={reduced} /> : null}
@@ -268,13 +299,13 @@ function EventDetail({ event, reduced }: { event: AuditEvent; reduced: boolean }
 
   return (
     <div ref={ref} className="overflow-hidden">
-      <div className="border-t border-border px-2.5 py-2">
+      <div className="border-t border-border/60 py-2 pl-3.5 pr-3">
         {event.changes?.length ? (
           <dl className="flex flex-col gap-1">
             {event.changes.map((c) => (
-              <div key={c.field} className="grid grid-cols-[auto_1fr] items-baseline gap-x-2 text-[11px]">
+              <div key={c.field} className="grid grid-cols-[auto_1fr] items-baseline gap-x-2 type-meta">
                 <dt className="font-mono text-muted-foreground">{c.field}</dt>
-                <dd className="flex flex-wrap items-baseline gap-1 font-mono tabular-nums">
+                <dd className="flex flex-wrap items-baseline gap-1 font-mono numeric">
                   <span className="rounded bg-destructive/10 px-1 text-destructive line-through decoration-destructive/50">
                     {c.before}
                   </span>
@@ -286,7 +317,7 @@ function EventDetail({ event, reduced }: { event: AuditEvent; reduced: boolean }
           </dl>
         ) : null}
         {event.ip ? (
-          <p className="mt-1.5 text-[10px] text-muted-foreground">
+          <p className="mt-1.5 type-caption text-muted-foreground">
             {event.ip} · {event.device}
           </p>
         ) : null}

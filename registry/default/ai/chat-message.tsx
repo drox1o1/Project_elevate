@@ -79,7 +79,7 @@ export function ChatMessage({
     >
       <span
         data-slot="avatar"
-        className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-[10px] font-semibold uppercase text-muted-foreground"
+        className="flex size-7 shrink-0 items-center justify-center rounded-full border border-border bg-muted font-semibold type-overline text-muted-foreground"
       >
         {avatar ?? "AI"}
       </span>

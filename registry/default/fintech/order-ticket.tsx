@@ -3,6 +3,7 @@
 import * as React from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { LayoutGroup, motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 import { Button } from "@/registry/default/ui/button";
@@ -53,6 +54,8 @@ const TYPES: { key: OrderType; label: string }[] = [
   { key: "stop", label: "SL-M" },
 ];
 
+const spring = { type: "spring", stiffness: 480, damping: 38 } as const;
+
 type Stage = "form" | "review" | "placing" | "filling" | "done";
 
 /* ------------------------------------------------------------------ */
@@ -79,6 +82,7 @@ export function OrderTicket({
 }: OrderTicketProps) {
   const reduced = useReducedMotion();
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
 
   const [side, setSide] = React.useState<"buy" | "sell">("buy");
@@ -102,6 +106,7 @@ export function OrderTicket({
   const overMargin = margin > availableMargin;
   const needsPrice = type === "limit" || type === "stop-limit";
   const needsTrigger = type === "stop" || type === "stop-limit";
+  const sideColor = side === "buy" ? "var(--market-up)" : "var(--market-down)";
 
   const chargesRef = React.useRef<HTMLDivElement>(null);
   useGSAP(
@@ -151,7 +156,7 @@ export function OrderTicket({
     set: (v: string) => void,
     disabled = false
   ) => (
-    <label className="flex min-w-0 flex-1 flex-col gap-1 text-[11px] text-muted-foreground">
+    <label className="flex min-w-0 flex-1 flex-col gap-1.5 type-meta font-medium text-muted-foreground">
       {label}
       <input
         inputMode="decimal"
@@ -160,8 +165,9 @@ export function OrderTicket({
         aria-label={label}
         onChange={(e) => set(e.target.value.replace(/[^0-9.]/g, ""))}
         className={cn(
-          "h-9 w-full min-w-0 rounded-lg border border-input bg-background px-2.5 font-mono text-sm tabular-nums text-foreground",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "h-10 w-full min-w-0 rounded-xl border border-input bg-background px-3 font-mono text-sm numeric text-foreground shadow-xs",
+          "transition-[border-color,box-shadow] duration-200 hover:border-ring/30",
+          "focus-visible:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/25",
           disabled && "opacity-50"
         )}
       />
@@ -173,26 +179,33 @@ export function OrderTicket({
       ref={rootRef}
       data-slot="order-ticket"
       className={cn(
-        "w-full max-w-sm rounded-2xl border bg-card p-4 transition-colors duration-300",
-        side === "buy" ? "border-market-up/40" : "border-market-down/40",
+        "relative w-full max-w-sm overflow-hidden rounded-3xl border bg-card p-5 shadow-md transition-colors duration-300",
+        side === "buy" ? "border-market-up/30" : "border-market-down/30",
         className
       )}
       {...rest}
     >
+      {/* Side-tinted top hairline */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px transition-colors duration-300"
+        style={{ background: `linear-gradient(90deg, transparent, ${sideColor}, transparent)` }}
+      />
+
       {/* Header */}
-      <div className="flex items-baseline justify-between gap-2">
-        <span className="text-sm font-semibold text-foreground">{symbol}</span>
-        <span className="font-mono text-xs tabular-nums text-muted-foreground">
-          <span className="text-bid">{nf2.format(bestBid)}</span>
-          {" / "}
-          <span className="text-ask">{nf2.format(bestAsk)}</span>
+      <div className="flex items-center justify-between gap-2">
+        <span className="type-title text-foreground">{symbol}</span>
+        <span className="flex items-center gap-1.5 font-mono text-xs numeric">
+          <span className="rounded-md bg-bid/10 px-1.5 py-0.5 text-bid">{nf2.format(bestBid)}</span>
+          <span className="text-muted-foreground">/</span>
+          <span className="rounded-md bg-ask/10 px-1.5 py-0.5 text-ask">{nf2.format(bestAsk)}</span>
         </span>
       </div>
 
       {stage === "form" || stage === "review" ? (
-        <>
+        <LayoutGroup id={uid}>
           {/* Side toggle */}
-          <div className="mt-3 grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist" aria-label="Order side">
+          <div className="isolate mt-4 grid grid-cols-2 gap-1 rounded-xl bg-muted p-1" role="tablist" aria-label="Order side">
             {(["buy", "sell"] as const).map((s) => (
               <button
                 key={s}
@@ -200,22 +213,26 @@ export function OrderTicket({
                 aria-selected={side === s}
                 onClick={() => setSide(s)}
                 className={cn(
-                  "rounded-md py-1.5 text-xs font-semibold uppercase tracking-wide transition-colors duration-200",
-                  side === s
-                    ? s === "buy"
-                      ? "bg-market-up text-white"
-                      : "bg-market-down text-white"
-                    : "text-muted-foreground hover:text-foreground",
+                  "relative rounded-lg py-2 text-xs font-semibold uppercase tracking-wide transition-colors duration-200",
+                  side === s ? "text-white" : "text-muted-foreground hover:text-foreground",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 )}
               >
+                {side === s ? (
+                  <motion.span
+                    layoutId={`side-${uid}`}
+                    transition={reduced ? { duration: 0 } : spring}
+                    className="absolute inset-0 -z-10 rounded-lg shadow-sm"
+                    style={{ background: s === "buy" ? "var(--market-up)" : "var(--market-down)" }}
+                  />
+                ) : null}
                 {s}
               </button>
             ))}
           </div>
 
           {/* Order type */}
-          <div className="mt-2 flex gap-1" role="tablist" aria-label="Order type">
+          <div className="isolate mt-2 flex gap-1 rounded-xl bg-muted p-1" role="tablist" aria-label="Order type">
             {TYPES.map((t) => (
               <button
                 key={t.key}
@@ -223,41 +240,46 @@ export function OrderTicket({
                 aria-selected={type === t.key}
                 onClick={() => setType(t.key)}
                 className={cn(
-                  "flex-1 rounded-md px-1 py-1 text-[11px] font-medium transition-colors duration-200",
-                  type === t.key
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:text-foreground",
+                  "relative flex-1 rounded-lg px-1 py-1.5 type-meta font-medium transition-colors duration-200",
+                  type === t.key ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 )}
               >
+                {type === t.key ? (
+                  <motion.span
+                    layoutId={`type-${uid}`}
+                    transition={reduced ? { duration: 0 } : spring}
+                    className="absolute inset-0 -z-10 rounded-lg bg-primary shadow-sm"
+                  />
+                ) : null}
                 {t.label}
               </button>
             ))}
           </div>
 
           {/* Qty + prices */}
-          <div className="mt-3 flex gap-2">
-            <label className="flex w-24 flex-col gap-1 text-[11px] text-muted-foreground">
+          <div className="mt-4 flex gap-2">
+            <label className="flex w-28 flex-col gap-1.5 type-meta font-medium text-muted-foreground">
               Lots ({lotSize}/lot)
-              <div className="flex h-9 items-stretch overflow-hidden rounded-lg border border-input">
+              <div className="flex h-10 items-stretch gap-1 rounded-xl border border-input bg-background p-1 shadow-xs">
                 <button
                   type="button"
                   aria-label="Decrease lots"
                   onClick={() => setLots((l) => Math.max(1, l - 1))}
-                  className="w-7 bg-muted text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex aspect-square items-center justify-center rounded-lg text-foreground transition-colors hover:bg-muted active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  −
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" className="size-3.5" aria-hidden="true"><path d="M5 12h14" /></svg>
                 </button>
-                <span className="flex flex-1 items-center justify-center font-mono text-sm tabular-nums text-foreground">
+                <span className="flex flex-1 items-center justify-center font-mono text-sm numeric text-foreground">
                   {lots}
                 </span>
                 <button
                   type="button"
                   aria-label="Increase lots"
                   onClick={() => setLots((l) => Math.min(20, l + 1))}
-                  className="w-7 bg-muted text-foreground transition-colors hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="flex aspect-square items-center justify-center rounded-lg text-foreground transition-colors hover:bg-muted active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
-                  +
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} strokeLinecap="round" className="size-3.5" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
                 </button>
               </div>
             </label>
@@ -271,31 +293,29 @@ export function OrderTicket({
           </div>
 
           {/* Margin */}
-          <div className="mt-3 flex items-baseline justify-between text-xs">
+          <div className="mt-4 flex items-baseline justify-between text-xs">
             <span className="text-muted-foreground">Margin required</span>
             <span
               className={cn(
-                "font-semibold tabular-nums",
+                "text-sm font-semibold numeric",
                 overMargin ? "text-destructive" : "text-foreground"
               )}
             >
               <NumberFlow value={margin} prefix="₹" locale="en-IN" />
             </span>
           </div>
-          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+          <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-muted ring-1 ring-inset ring-border/40" aria-hidden="true">
             <span
-              className={cn(
-                "block h-full rounded-full transition-all duration-500",
-                overMargin
-                  ? "bg-destructive"
-                  : side === "buy"
-                    ? "bg-market-up"
-                    : "bg-market-down"
-              )}
-              style={{ width: `${Math.min(100, (margin / availableMargin) * 100)}%` }}
+              className="block h-full rounded-full transition-[width] duration-500"
+              style={{
+                width: `${Math.min(100, (margin / availableMargin) * 100)}%`,
+                background: overMargin
+                  ? "linear-gradient(90deg, color-mix(in oklab, var(--destructive) 55%, transparent), var(--destructive))"
+                  : `linear-gradient(90deg, color-mix(in oklab, ${sideColor} 50%, transparent), ${sideColor})`,
+              }}
             />
           </div>
-          <p className="mt-1 text-[11px] tabular-nums text-muted-foreground">
+          <p className="mt-1.5 type-meta numeric text-muted-foreground">
             Available ₹{inr(availableMargin)}
             {overMargin ? (
               <span className="ml-1 font-medium text-destructive">
@@ -309,13 +329,13 @@ export function OrderTicket({
             type="button"
             aria-expanded={chargesOpen}
             onClick={() => setChargesOpen((o) => !o)}
-            className="mt-2 flex w-full justify-between rounded-md py-1 text-[11px] text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="mt-3 flex w-full items-center justify-between rounded-lg py-1 type-meta text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span>Charges ≈ ₹{inr(charges)}</span>
-            <span className={cn("transition-transform duration-300", chargesOpen && "rotate-180")}>▾</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className={cn("size-3.5 transition-transform duration-300", chargesOpen && "rotate-180")} aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
           </button>
           <div ref={chargesRef} className="overflow-hidden" style={{ height: 0, opacity: 0 }}>
-            <dl className="flex flex-col gap-1 py-1 text-[11px] tabular-nums text-muted-foreground">
+            <dl className="flex flex-col gap-1 rounded-xl bg-muted/50 p-2.5 type-meta numeric text-muted-foreground">
               <div className="flex justify-between"><dt>Brokerage</dt><dd>₹{brokerage}</dd></div>
               <div className="flex justify-between"><dt>STT</dt><dd>₹{inr(stt)}</dd></div>
               <div className="flex justify-between"><dt>Exchange + GST + stamp</dt><dd>₹{inr(other)}</dd></div>
@@ -326,7 +346,7 @@ export function OrderTicket({
           {stage === "form" ? (
             <Button
               className={cn(
-                "mt-3 w-full text-white",
+                "mt-4 w-full text-white shadow-sm",
                 side === "buy"
                   ? "bg-market-up hover:bg-market-up/90"
                   : "bg-market-down hover:bg-market-down/90"
@@ -337,7 +357,7 @@ export function OrderTicket({
               Review {side} order
             </Button>
           ) : (
-            <div className="mt-3 flex flex-col gap-2 rounded-xl border border-border bg-background p-3">
+            <div className="mt-4 flex flex-col gap-2 rounded-2xl border border-border/60 bg-background/60 p-3.5">
               <p className="text-xs text-foreground">
                 <span className={cn("font-semibold uppercase", side === "buy" ? "text-market-up" : "text-market-down")}>
                   {side}
@@ -346,7 +366,7 @@ export function OrderTicket({
                 {needsPrice ? ` @ ₹${price}` : " @ market"}
                 {needsTrigger ? ` · trigger ₹${trigger}` : ""}
               </p>
-              <p className="text-[11px] tabular-nums text-muted-foreground">
+              <p className="type-meta numeric text-muted-foreground">
                 Margin ₹{inr(margin)} + charges ₹{inr(charges)}
               </p>
               <div className="flex gap-2">
@@ -368,7 +388,7 @@ export function OrderTicket({
               </div>
             </div>
           )}
-        </>
+        </LayoutGroup>
       ) : (
         <FillState
           stage={stage}
@@ -405,6 +425,7 @@ function FillState({
   const ref = React.useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const pct = Math.round((filled / qty) * 100);
+  const sideColor = side === "buy" ? "var(--market-up)" : "var(--market-down)";
 
   useGSAP(
     () => {
@@ -423,7 +444,7 @@ function FillState({
   );
 
   return (
-    <div ref={ref} className="mt-4 flex flex-col items-center gap-3 py-2 text-center">
+    <div ref={ref} className="mt-5 flex flex-col items-center gap-3 py-2 text-center">
       <p className="text-sm font-medium text-foreground">
         {stage === "placing"
           ? "Placing order…"
@@ -434,7 +455,7 @@ function FillState({
             : "Order complete"}
       </p>
       <div
-        className="h-2 w-full overflow-hidden rounded-full bg-muted"
+        className="h-2.5 w-full overflow-hidden rounded-full bg-muted ring-1 ring-inset ring-border/40"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={qty}
@@ -442,14 +463,14 @@ function FillState({
         aria-label="Fill progress"
       >
         <span
-          className={cn(
-            "block h-full rounded-full transition-all duration-700 ease-out",
-            side === "buy" ? "bg-market-up" : "bg-market-down"
-          )}
-          style={{ width: `${stage === "placing" ? 4 : pct}%` }}
+          className="block h-full rounded-full transition-[width] duration-700 ease-out"
+          style={{
+            width: `${stage === "placing" ? 4 : pct}%`,
+            background: `linear-gradient(90deg, color-mix(in oklab, ${sideColor} 55%, transparent), ${sideColor})`,
+          }}
         />
       </div>
-      <p className="text-xs tabular-nums text-muted-foreground">
+      <p className="text-xs numeric text-muted-foreground">
         {filled}/{qty} {symbol}
         {stage === "filling" && pct < 100 ? " · working the rest at your limit" : ""}
       </p>

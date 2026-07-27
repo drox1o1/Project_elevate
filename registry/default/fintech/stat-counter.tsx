@@ -93,19 +93,34 @@ export function StatCounter({
         <span
           ref={numberRef}
           data-slot="value"
-          className="text-4xl font-semibold tracking-tight text-foreground tabular-nums"
+          className="text-4xl font-semibold tracking-tight text-foreground numeric"
         />
         {delta != null ? (
           <span
             data-slot="delta"
-            className={cn(
-              "text-xs font-medium tabular-nums",
-              deltaPositive
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-600 dark:text-red-400"
-            )}
+            className="inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-xs font-medium numeric ring-1 ring-inset"
+            style={{
+              color: deltaPositive ? "var(--market-up)" : "var(--market-down)",
+              background: deltaPositive
+                ? "color-mix(in oklab, var(--market-up) 10%, transparent)"
+                : "color-mix(in oklab, var(--market-down) 10%, transparent)",
+              borderColor: "transparent",
+              boxShadow: `inset 0 0 0 1px color-mix(in oklab, ${deltaPositive ? "var(--market-up)" : "var(--market-down)"} 22%, transparent)`,
+            }}
           >
-            {deltaPositive ? "▲" : "▼"} {Math.abs(delta)}%
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={cn("size-3", !deltaPositive && "rotate-180")}
+              aria-hidden="true"
+            >
+              <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
+            {Math.abs(delta)}%
           </span>
         ) : null}
       </div>

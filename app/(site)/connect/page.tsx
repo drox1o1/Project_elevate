@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 function CommandBlock({ command }: { command: string }) {
   return (
     <div className="flex items-center justify-between gap-2 overflow-x-auto rounded-lg border border-border bg-muted/50 py-1.5 pl-4 pr-1.5">
-      <code className="whitespace-nowrap font-mono text-[13px] text-foreground">
+      <code className="whitespace-nowrap font-mono type-label text-foreground">
         {command}
       </code>
       <CopyButton value={command} />
@@ -27,7 +27,7 @@ function JsonBlock({ json }: { json: string }) {
       <div className="absolute right-1.5 top-1.5">
         <CopyButton value={json} />
       </div>
-      <pre className="overflow-x-auto font-mono text-[13px] leading-6 text-foreground">
+      <pre className="overflow-x-auto font-mono type-label leading-6 text-foreground">
         <code>{json}</code>
       </pre>
     </div>
@@ -146,10 +146,10 @@ export default function ConnectPage() {
                   key={t.name}
                   className="rounded-lg border border-border bg-card p-4"
                 >
-                  <code className="font-mono text-[13px] font-semibold text-foreground">
+                  <code className="font-mono type-label font-semibold text-foreground">
                     {t.name}
                   </code>
-                  <p className="mt-1 text-[13px] leading-snug text-muted-foreground">
+                  <p className="mt-1 type-label leading-snug text-muted-foreground">
                     {t.detail}
                   </p>
                 </li>
@@ -163,10 +163,10 @@ export default function ConnectPage() {
             <ul className="mt-2 flex flex-col gap-1.5">
               {RESOURCES.map(([uri, detail]) => (
                 <li key={uri} className="flex flex-wrap items-baseline gap-2 text-sm">
-                  <code className="font-mono text-[13px] text-foreground">
+                  <code className="font-mono type-label text-foreground">
                     {uri}
                   </code>
-                  <span className="text-[13px] text-muted-foreground">
+                  <span className="type-label text-muted-foreground">
                     {detail}
                   </span>
                 </li>
@@ -180,10 +180,10 @@ export default function ConnectPage() {
             <ul className="mt-2 flex flex-col gap-1.5">
               {PROMPTS.map(([name, detail]) => (
                 <li key={name} className="flex flex-wrap items-baseline gap-2 text-sm">
-                  <code className="font-mono text-[13px] text-foreground">
+                  <code className="font-mono type-label text-foreground">
                     {name}
                   </code>
-                  <span className="text-[13px] text-muted-foreground">
+                  <span className="type-label text-muted-foreground">
                     {detail}
                   </span>
                 </li>
@@ -206,7 +206,7 @@ export default function ConnectPage() {
             Pro or Team license
           </Link>{" "}
           unlocks Pro component source: send your license key as an{" "}
-          <code className="font-mono text-[13px]">
+          <code className="font-mono type-label">
             Authorization: Bearer
           </code>{" "}
           header. Treat the key like a password — keep it out of screenshots,

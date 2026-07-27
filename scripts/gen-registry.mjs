@@ -152,6 +152,9 @@ const items = [
   ["tool-call-inspector", "Tool Call Inspector", "Agent transcript: per-call permission, duration bars, human ↔ raw JSON toggle, error retry, denied-by-policy state.", "ai", "registry:ui", GSAP, ["button"], ["rm"]],
   ["approval-gate", "Approval Gate", "Human approval for agent actions: draining expiry bar, approve/reject/modify-then-approve, designed expired state.", "ai", "registry:ui", GSAP, ["button"], ["rm"]],
   ["grounded-answer", "Grounded Answer", "Answer with per-claim citations that light up the exact source quote, surfaced contradictions and stated gaps.", "ai", "registry:ui", GSAP, [], ["rm"]],
+  // ---- Phase 12: payments & verification
+  ["card-payment", "Card Payment", "Add-card and pay: a live 3D card face detects the brand as you type, flips for the CVV, validates Luhn and expiry, and the pay button runs a processing → paid morph.", "fintech", "registry:block", MOTION, [], ["rm"]],
+  ["penny-drop", "Penny Drop", "Penny-drop bank verification: a ₹1 deposit confirms the account and returns the holder name, with staged progress and a name-match read (verified or mismatch).", "fintech", "registry:block", GSAP, [], ["rm"]],
   // ---- Phase 7: blocks
   ["signup-card", "Signup Card", "The flagship block: full validation, strength meter, success morph.", "blocks", "registry:block", GSAP, ["button", "input", "field", "field-message", "checkbox", "alert"], ["rm"], KF.fadeIn],
   ["login-card", "Login Card", "Signup reduced: email + password with the same choreography.", "blocks", "registry:block", GSAP, ["button", "input", "field", "field-message", "checkbox", "alert"], ["rm"]],

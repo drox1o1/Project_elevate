@@ -75,7 +75,7 @@ function StepDot({ state }: { state: StepState }) {
         state === "active" && "border-agent-active",
         state === "waiting" && "border-agent-waiting",
         state === "error" && "border-agent-error bg-agent-error text-white",
-        state === "pending" && "border-border"
+        state === "pending" && "border-border bg-background shadow-xs"
       )}
     >
       {state === "done" ? (
@@ -138,7 +138,7 @@ function ToolCallRow({
   return (
     <div
       ref={ref}
-      className="flex items-start gap-2 rounded-lg border border-border/70 bg-muted/40 px-2.5 py-1.5 font-mono text-[11px] leading-5"
+      className="flex items-start gap-2 rounded-lg border border-border/70 bg-muted/40 px-2.5 py-1.5 font-mono type-meta leading-5"
     >
       <span className="mt-1">
         {state === "running" ? (
@@ -266,15 +266,15 @@ export function AgentCanvas({
       ref={ref}
       data-slot="agent-canvas"
       className={cn(
-        "w-full max-w-lg rounded-2xl border border-border bg-card",
+        "w-full max-w-lg overflow-hidden rounded-3xl border border-border/60 bg-card shadow-md",
         className
       )}
       {...rest}
     >
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
+      <div className="flex items-start justify-between gap-3 border-b border-border/60 bg-muted/20 px-5 py-3.5">
         <div className="min-w-0">
-          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          <p className="type-overline text-muted-foreground">
             Goal
           </p>
           <p className="truncate text-sm font-medium text-foreground">{goal}</p>
@@ -291,7 +291,7 @@ export function AgentCanvas({
       </div>
 
       {/* Timeline */}
-      <ol className="flex flex-col px-4 py-3">
+      <ol className="flex flex-col px-5 py-4">
         {steps.map((step, i) => {
           const state = stepState(i);
           const calls = step.toolCalls ?? [];
@@ -337,7 +337,7 @@ export function AgentCanvas({
                   </div>
                 ) : null}
                 {state === "done" && calls.length > 0 ? (
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                  <p className="mt-0.5 type-meta text-muted-foreground">
                     {calls.length} tool call{calls.length > 1 ? "s" : ""} ·{" "}
                     {calls.map((c) => c.tool).join(", ")}
                   </p>
@@ -373,7 +373,7 @@ export function AgentCanvas({
       </ol>
 
       {/* Footer: start / artifact */}
-      <div className="border-t border-border px-4 py-3">
+      <div className="border-t border-border/60 px-5 py-3.5">
         {status === "idle" ? (
           <Button className="w-full" onClick={() => runFrom(0, -1)}>
             Run plan
@@ -392,7 +392,7 @@ export function AgentCanvas({
           )
         ) : null}
         {status === "running" || status === "waiting-approval" || status === "error" ? (
-          <p className="text-center text-[11px] tabular-nums text-muted-foreground">
+          <p className="text-center type-meta numeric text-muted-foreground">
             step {Math.min(stepIdx + 1, steps.length)}/{steps.length} · 12.4k tokens · $0.08
           </p>
         ) : null}
@@ -426,7 +426,7 @@ function ArtifactReveal({
   );
   return (
     <div ref={ref}>
-      <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+      <p className="mb-2 type-overline text-muted-foreground">
         Artifact
       </p>
       {children}

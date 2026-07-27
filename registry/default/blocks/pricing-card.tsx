@@ -121,26 +121,36 @@ export function PricingCard({
       ref={rootRef}
       data-slot="pricing-card"
       className={cn(
-        "relative w-full max-w-sm rounded-2xl border bg-card p-6 shadow-sm",
-        featured ? "border-primary" : "border-border",
+        "relative w-full max-w-sm rounded-3xl border bg-card p-6",
+        featured
+          ? "border-primary/30 shadow-lg ring-1 ring-primary/10"
+          : "border-border/60 shadow-md",
         className
       )}
       {...rest}
     >
       {featured ? (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-          <Badge>Most popular</Badge>
-        </div>
+        <>
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 h-28 overflow-hidden rounded-t-3xl"
+          >
+            <div className="absolute inset-x-0 top-0 h-full bg-[radial-gradient(70%_100%_at_50%_0%,hsl(var(--elevation-hue)/0.06),transparent)] dark:bg-[radial-gradient(70%_100%_at_50%_0%,hsl(0_0%_100%/0.06),transparent)]" />
+          </div>
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+            <Badge>Most popular</Badge>
+          </div>
+        </>
       ) : null}
 
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">{plan}</h3>
+        <h3 className="type-title text-foreground">{plan}</h3>
         {/* billing toggle: two-option sliding pill */}
         <div
           data-slot="billing-toggle"
           role="tablist"
           aria-label="Billing period"
-          className="relative inline-flex items-center rounded-lg bg-muted p-0.5"
+          className="relative isolate inline-flex items-center rounded-lg bg-muted p-0.5"
         >
           {(["monthly", "yearly"] as const).map((b) => (
             <button

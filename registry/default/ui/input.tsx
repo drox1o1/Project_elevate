@@ -64,9 +64,11 @@ export function Input({
       data-invalid={invalid || undefined}
       data-valid={valid || undefined}
       className={cn(
-        "relative flex h-10 items-center rounded-lg border border-input bg-background",
+        "relative flex h-10 items-center rounded-lg border border-input bg-background shadow-xs",
         "transition-[color,border-color,box-shadow] duration-200",
-        "focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/25",
+        "hover:border-ring/30",
+        "focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/25 focus-within:shadow-sm",
+        "hover:focus-within:border-ring",
         invalid &&
           "border-destructive focus-within:border-destructive focus-within:ring-destructive/25",
         valid && "border-emerald-600 dark:border-emerald-400",

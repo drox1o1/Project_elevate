@@ -142,22 +142,22 @@ export function PaymentStatus({
       ref={ref}
       data-slot="payment-status"
       className={cn(
-        "w-full max-w-sm rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-sm rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="text-xl font-semibold tabular-nums text-foreground">
+          <p className="type-metric numeric text-foreground">
             {currency}
             {new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2 }).format(amount)}
           </p>
-          <p className="text-[11px] text-muted-foreground">
+          <p className="mt-0.5 type-meta text-muted-foreground">
             {reference} · {method}
           </p>
         </div>
-        <span className={cn("text-xs font-semibold", headline.tone)} aria-live="polite">
+        <span className={cn("flex items-center gap-1.5 rounded-full bg-muted/60 px-2 py-0.5 text-xs font-semibold ring-1 ring-inset ring-border/50", headline.tone)} aria-live="polite">
           {headline.text}
         </span>
       </div>
@@ -169,7 +169,7 @@ export function PaymentStatus({
       </ol>
 
       {scenario === "failed" && progress >= failAt ? (
-        <p className="mt-2 rounded-lg bg-destructive/10 px-2.5 py-1.5 text-[11px] leading-4 text-destructive">
+        <p className="mt-2 rounded-lg bg-destructive/10 px-2.5 py-1.5 type-meta leading-4 text-destructive">
           No funds were captured. The authorisation hold releases
           automatically within 24 hours — safe to retry with another method.
         </p>
@@ -248,7 +248,7 @@ function StageRow({ stage, last }: { stage: Stage; last: boolean }) {
         >
           {stage.label}
         </p>
-        <p className="text-[11px] leading-4 text-muted-foreground">{stage.detail}</p>
+        <p className="type-meta leading-4 text-muted-foreground">{stage.detail}</p>
       </div>
     </li>
   );

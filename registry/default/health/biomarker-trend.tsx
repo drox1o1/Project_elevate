@@ -80,6 +80,8 @@ export function BiomarkerTrend({
   const reduced = useReducedMotion();
   const rootRef = React.useRef<HTMLDivElement>(null);
   const pathRef = React.useRef<SVGPathElement>(null);
+  const areaRef = React.useRef<SVGPathElement>(null);
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
 
   const [useAlt, setUseAlt] = React.useState(false);
@@ -106,22 +108,27 @@ export function BiomarkerTrend({
   const line = readings
     .map((r, i) => `${i === 0 ? "M" : "L"}${x(r.date).toFixed(1)},${y(r.value).toFixed(1)}`)
     .join(" ");
+  const area = `${line} L${x(readings[readings.length - 1].date).toFixed(1)},${(H - PAD.b).toFixed(1)} L${x(readings[0].date).toFixed(1)},${(H - PAD.b).toFixed(1)} Z`;
 
-  /* The trend draws itself once. */
+  /* The trend draws itself once, then the area fades up beneath it. */
   useGSAP(
     () => {
       const p = pathRef.current;
+      const a = areaRef.current;
       if (!p) return;
       const len = p.getTotalLength();
       if (reduced) {
         gsap.set(p, { strokeDasharray: "none", strokeDashoffset: 0 });
+        if (a) gsap.set(a, { opacity: 1 });
         return;
       }
+      if (a) gsap.set(a, { opacity: 0 });
       gsap.fromTo(
         p,
         { strokeDasharray: len, strokeDashoffset: len },
         { strokeDashoffset: 0, duration: 1.2, ease: "power2.inOut" }
       );
+      if (a) gsap.to(a, { opacity: 1, duration: 0.6, delay: 0.7 });
     },
     { dependencies: [reduced], scope: rootRef }
   );
@@ -137,7 +144,7 @@ export function BiomarkerTrend({
       ref={rootRef}
       data-slot="biomarker-trend"
       className={cn(
-        "w-full max-w-xl rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-xl rounded-2xl border border-border/70 bg-card p-4 shadow-sm",
         className
       )}
       {...rest}
@@ -145,8 +152,8 @@ export function BiomarkerTrend({
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">{name}</h3>
-          <p className="text-[11px] text-muted-foreground">
+          <h3 className="type-title text-foreground">{name}</h3>
+          <p className="type-meta text-muted-foreground">
             Lab range {fmtVal(range.low)}–{fmtVal(range.high)} {displayUnit}
             {baseline ? ` · your baseline ${fmtVal(baseline)}` : ""}
           </p>
@@ -154,7 +161,7 @@ export function BiomarkerTrend({
         <div className="flex items-center gap-2">
           <span
             className={cn(
-              "text-xs font-medium tabular-nums",
+              "text-xs font-medium numeric",
               trendPct <= 0 ? "text-success" : "text-warning"
             )}
           >
@@ -165,7 +172,7 @@ export function BiomarkerTrend({
               type="button"
               aria-pressed={useAlt}
               onClick={() => setUseAlt((a) => !a)}
-              className="rounded-md border border-border px-2 py-0.5 text-[11px] font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="rounded-md border border-border px-2 py-0.5 type-meta font-medium text-muted-foreground transition-colors duration-200 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {displayUnit}
             </button>
@@ -181,15 +188,38 @@ export function BiomarkerTrend({
           aria-label={`${name} trend: ${readings.length} readings from ${short(readings[0].date)} to ${short(latest.date)}`}
           className="min-w-[420px]"
         >
+          <defs>
+            <linearGradient id={`bm-area-${uid}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--info)" stopOpacity={0.24} />
+              <stop offset="100%" stopColor="var(--info)" stopOpacity={0} />
+            </linearGradient>
+            <linearGradient id={`bm-band-${uid}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--success)" stopOpacity={0.16} />
+              <stop offset="100%" stopColor="var(--success)" stopOpacity={0.05} />
+            </linearGradient>
+            <filter id={`bm-glow-${uid}`} x="-10%" y="-40%" width="120%" height="180%">
+              <feDropShadow dx="0" dy="1.5" stdDeviation="3" floodColor="var(--info)" floodOpacity="0.3" />
+            </filter>
+          </defs>
+
           {/* reference band */}
           <rect
             x={PAD.l}
             width={W - PAD.l - PAD.r}
             y={y(range.high)}
             height={y(range.low) - y(range.high)}
-            className="fill-success/10"
+            rx={6}
+            fill={`url(#bm-band-${uid})`}
           />
-          <text x={PAD.l + 4} y={y(range.high) + 10} className="fill-success text-[9px]">
+          <line
+            x1={PAD.l}
+            x2={W - PAD.r}
+            y1={y(range.high)}
+            y2={y(range.high)}
+            className="stroke-success/25"
+            strokeDasharray="3 3"
+          />
+          <text x={PAD.l + 4} y={y(range.high) + 11} className="fill-success text-[9px] font-medium">
             in range
           </text>
 
@@ -262,15 +292,17 @@ export function BiomarkerTrend({
             ) : null
           )}
 
-          {/* trend line */}
+          {/* trend area + line */}
+          <path ref={areaRef} d={area} fill={`url(#bm-area-${uid})`} opacity={0} />
           <path
             ref={pathRef}
             d={line}
             fill="none"
-            strokeWidth={2}
+            stroke="var(--info)"
+            strokeWidth={2.25}
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="stroke-primary"
+            filter={`url(#bm-glow-${uid})`}
           />
 
           {/* points */}
@@ -294,11 +326,18 @@ export function BiomarkerTrend({
                   }
                 }}
                 className={cn(
-                  "cursor-pointer stroke-card transition-all duration-200 focus-visible:outline-none",
-                  abnormal ? "fill-risk-high" : "fill-primary",
+                  "cursor-pointer transition-all duration-200 focus-visible:outline-none",
+                  abnormal ? "fill-risk-high stroke-card" : "fill-info stroke-card",
                   isSel && "stroke-2"
                 )}
-                strokeWidth={isSel ? 2 : 1}
+                strokeWidth={isSel ? 2.5 : 1.5}
+                style={
+                  isSel
+                    ? {
+                        filter: `drop-shadow(0 0 5px color-mix(in oklab, ${abnormal ? "var(--risk-high)" : "var(--info)"} 60%, transparent))`,
+                      }
+                    : undefined
+                }
               />
             );
           })}
@@ -314,7 +353,7 @@ export function BiomarkerTrend({
           )}
         >
           <div className="flex items-baseline justify-between gap-2">
-            <span className="font-semibold tabular-nums text-foreground">
+            <span className="font-semibold numeric text-foreground">
               {fmtVal(sel.value)} {displayUnit}
             </span>
             <span className="text-xs text-muted-foreground">
@@ -325,7 +364,7 @@ export function BiomarkerTrend({
               })}
             </span>
           </div>
-          <p className="mt-1 text-[12px] leading-5 text-muted-foreground">
+          <p className="mt-1 type-meta leading-5 text-muted-foreground">
             {selAbnormal ? (
               <>
                 Above the laboratory range. Single readings vary with fasting

@@ -47,12 +47,35 @@
   --motion-duration-slow: 500ms;
   --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --motion-ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --motion-ease-spring: cubic-bezier(0.34, 1.3, 0.64, 1);
   --motion-spring-stiffness: 380;
   --motion-spring-damping: 32;
   --motion-stagger: 50ms;
   --motion-blur-sm: 4px;
   --motion-blur-md: 8px;
   --motion-blur-lg: 10px;
+
+  /* Elevation: every shadow is layered — a tight direct layer plus a soft
+     ambient layer — and pairs with a semi-transparent border. */
+  --elevation-hue: 240 10% 10%;
+  --elevation-xs:
+    0 1px 2px hsl(var(--elevation-hue) / 0.06),
+    0 1px 1px hsl(var(--elevation-hue) / 0.04);
+  --elevation-sm:
+    0 1px 2px hsl(var(--elevation-hue) / 0.08),
+    0 2px 8px -2px hsl(var(--elevation-hue) / 0.08);
+  --elevation-md:
+    0 2px 4px hsl(var(--elevation-hue) / 0.08),
+    0 6px 16px -4px hsl(var(--elevation-hue) / 0.12);
+  --elevation-popover:
+    0 0 0 1px hsl(var(--elevation-hue) / 0.04),
+    0 2px 4px hsl(var(--elevation-hue) / 0.06),
+    0 12px 32px -8px hsl(var(--elevation-hue) / 0.18);
+  --elevation-overlay:
+    0 0 0 1px hsl(var(--elevation-hue) / 0.04),
+    0 4px 8px hsl(var(--elevation-hue) / 0.06),
+    0 24px 64px -12px hsl(var(--elevation-hue) / 0.28);
 }
 
 .dark {
@@ -92,6 +115,26 @@
   --agent-active: hsl(213 94% 68%);
   --agent-waiting: hsl(38 92% 50%);
   --agent-error: hsl(0 62.8% 50.6%);
+
+  /* Elevation: dark surfaces separate with deeper, higher-contrast layers. */
+  --elevation-hue: 240 30% 2%;
+  --elevation-xs:
+    0 1px 2px hsl(var(--elevation-hue) / 0.4),
+    0 1px 1px hsl(var(--elevation-hue) / 0.3);
+  --elevation-sm:
+    0 1px 2px hsl(var(--elevation-hue) / 0.5),
+    0 2px 8px -2px hsl(var(--elevation-hue) / 0.4);
+  --elevation-md:
+    0 2px 4px hsl(var(--elevation-hue) / 0.5),
+    0 6px 16px -4px hsl(var(--elevation-hue) / 0.5);
+  --elevation-popover:
+    0 0 0 1px hsl(var(--elevation-hue) / 0.5),
+    0 2px 4px hsl(var(--elevation-hue) / 0.4),
+    0 12px 32px -8px hsl(var(--elevation-hue) / 0.7);
+  --elevation-overlay:
+    0 0 0 1px hsl(var(--elevation-hue) / 0.5),
+    0 4px 8px hsl(var(--elevation-hue) / 0.4),
+    0 24px 64px -12px hsl(var(--elevation-hue) / 0.85);
 }
 
 @theme inline {
@@ -135,8 +178,64 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
+  --shadow-xs: var(--elevation-xs);
+  --shadow-sm: var(--elevation-sm);
+  --shadow-md: var(--elevation-md);
+  --shadow-popover: var(--elevation-popover);
+  --shadow-overlay: var(--elevation-overlay);
+
+  --ease-out-expo: var(--motion-ease-out-expo);
+  --ease-spring: var(--motion-ease-spring);
+
   --animate-duku-shimmer: duku-shimmer 1.6s linear infinite;
   --animate-duku-spin: duku-spin 0.8s linear infinite;
+  --animate-duku-menu-in: duku-menu-in 0.32s var(--motion-ease-out-expo) both;
+  --animate-duku-menu-out: duku-menu-out 0.16s cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-duku-overlay-in: duku-fade-in 0.25s ease-out both;
+  --animate-duku-overlay-out: duku-fade-out 0.18s ease-in both;
+
+  @keyframes duku-menu-in {
+    from {
+      opacity: 0;
+      transform: scale(0.94) translateY(-4px);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+      filter: blur(0);
+    }
+  }
+
+  @keyframes duku-menu-out {
+    from {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+    to {
+      opacity: 0;
+      transform: scale(0.97) translateY(-2px);
+      filter: blur(2px);
+    }
+  }
+
+  @keyframes duku-fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes duku-sheet-in {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
 
   @keyframes duku-shimmer {
     from {
@@ -200,6 +299,85 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* ---- Type scale -----------------------------------------------------
+
+   One scale, seven steps. Tracking tightens as size grows and opens up
+   as it shrinks, which is what keeps large numbers from feeling loose
+   and 11px labels from feeling cramped. Every step also fixes its own
+   line-height, so vertical rhythm survives a font swap.
+
+   display  hero metric on a card         2.25rem  -0.03em
+   metric   secondary hero number         1.5rem   -0.02em
+   title    card / section heading        0.9375rem -0.011em  600
+   body     prose and descriptions        0.875rem -0.006em
+   label    form labels, row text         0.8125rem -0.003em
+   meta     supporting text under a value 0.75rem   0
+   caption  the smallest readable text    0.6875rem +0.01em
+   overline uppercase micro-label         0.6875rem +0.08em  500
+
+   Numeric steps add tabular figures and a slashed zero so columns of
+   money line up and 0/O never read the same.                          */
+
+@utility type-display {
+  font-size: 2.25rem;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+
+@utility type-metric {
+  font-size: 1.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+@utility type-title {
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  letter-spacing: -0.011em;
+  font-weight: 600;
+}
+
+@utility type-body {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  letter-spacing: -0.006em;
+}
+
+@utility type-label {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  letter-spacing: -0.003em;
+}
+
+@utility type-meta {
+  font-size: 0.75rem;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+@utility type-caption {
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+}
+
+@utility type-overline {
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* Numerals that behave: fixed-width figures, slashed zero, so money
+   columns align and 0 never reads as O. Pair with any type step. */
+@utility numeric {
+  font-variant-numeric: numeric slashed-zero;
+  font-feature-settings: "tnum" 1, "zero" 1;
 }
 
 /* ---- Pixel art direction ------------------------------------------- */

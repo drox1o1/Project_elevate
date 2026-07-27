@@ -126,7 +126,7 @@ export function Alert({
           {children != null ? (
             <div
               data-slot="alert-description"
-              className={cn("text-[13px] leading-snug", title != null && "mt-0.5 opacity-80")}
+              className={cn("type-label leading-snug", title != null && "mt-0.5 opacity-80")}
             >
               {children}
             </div>

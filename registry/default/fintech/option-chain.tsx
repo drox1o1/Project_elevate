@@ -143,7 +143,7 @@ function TickNum({
   return (
     <span
       className={cn(
-        "tabular-nums transition-colors duration-500",
+        "numeric transition-colors duration-500",
         dir === "up" && "text-market-up",
         dir === "down" && "text-market-down",
         className
@@ -264,24 +264,26 @@ export function OptionChain({
   const toggleRow = (strike: number) =>
     setExpanded((e) => (e === strike ? null : strike));
 
-  const oiBar = (q: OptionQuote, side: "call" | "put") => ({
-    backgroundImage: `linear-gradient(to ${side === "call" ? "left" : "right"}, ${
-      side === "call" ? "var(--bid)" : "var(--ask)"
-    } ${Math.round((q.oi / maxOi) * 100)}%, transparent ${Math.round((q.oi / maxOi) * 100)}%)`,
-  });
+  const oiBar = (q: OptionQuote, side: "call" | "put") => {
+    const pct = Math.round((q.oi / maxOi) * 100);
+    const color = side === "call" ? "var(--bid)" : "var(--ask)";
+    return {
+      backgroundImage: `linear-gradient(to ${side === "call" ? "left" : "right"}, color-mix(in oklab, ${color} 26%, transparent) 0%, color-mix(in oklab, ${color} 9%, transparent) ${pct}%, transparent ${pct}%)`,
+    };
+  };
 
   return (
     <div
       ref={ref}
       data-slot="option-chain"
       className={cn(
-        "w-full rounded-xl border border-border bg-card text-sm",
+        "w-full overflow-hidden rounded-2xl border border-border/60 bg-card text-sm shadow-md",
         className
       )}
       {...rest}
     >
       {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-3 py-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/70 px-3 py-2.5">
         <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-muted-foreground">
             Spot
@@ -333,9 +335,9 @@ export function OptionChain({
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full min-w-max border-collapse text-right text-[13px]">
+        <table className="w-full min-w-max border-collapse text-right type-label">
           <thead>
-            <tr className="border-b border-border text-[11px] uppercase tracking-wide text-muted-foreground">
+            <tr className="border-b border-border type-overline text-muted-foreground">
               <th
                 colSpan={columns.length}
                 className="px-3 pb-1 pt-2 text-center font-medium text-bid"
@@ -350,7 +352,7 @@ export function OptionChain({
                 Puts
               </th>
             </tr>
-            <tr className="border-b border-border text-[11px] text-muted-foreground">
+            <tr className="border-b border-border type-meta text-muted-foreground">
               {columns.map((c) => (
                 <th key={`c-${c.key}`} className="px-3 py-1.5 font-medium">
                   {c.label}
@@ -403,7 +405,7 @@ export function OptionChain({
                         {i === 0 && !compact ? (
                           <span
                             aria-hidden="true"
-                            className="absolute inset-y-1 right-0 left-0 opacity-15"
+                            className="absolute inset-y-1 right-0 left-0"
                             style={oiBar(row.call, "call")}
                           />
                         ) : null}
@@ -412,7 +414,7 @@ export function OptionChain({
                     ))}
                     <td
                       className={cn(
-                        "px-3 py-1.5 text-center font-semibold tabular-nums",
+                        "px-3 py-1.5 text-center font-semibold numeric",
                         isAtm && "text-foreground"
                       )}
                     >
@@ -434,7 +436,7 @@ export function OptionChain({
                         {i === columns.length - 1 && !compact ? (
                           <span
                             aria-hidden="true"
-                            className="absolute inset-y-1 left-0 right-0 opacity-15"
+                            className="absolute inset-y-1 left-0 right-0"
                             style={oiBar(row.put, "put")}
                           />
                         ) : null}
@@ -460,7 +462,7 @@ export function OptionChain({
           </tbody>
         </table>
       </div>
-      <p className="border-t border-border px-3 py-2 text-[11px] text-muted-foreground">
+      <p className="border-t border-border px-3 py-2 type-meta text-muted-foreground">
         Lot size {lotSize} · click a strike for depth and orders · simulated
         data
       </p>
@@ -522,15 +524,15 @@ function DepthPanel({
           Δ {q.delta.toFixed(2)} · Θ {q.theta.toFixed(2)}
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-2 text-center text-[13px] tabular-nums">
+      <div className="grid grid-cols-2 gap-2 text-center type-label numeric">
         <div className="rounded-md bg-bid/10 px-2 py-1.5">
-          <p className="text-[10px] uppercase text-muted-foreground">
+          <p className="type-overline text-muted-foreground">
             Bid × {q.bidQty}
           </p>
           <p className="font-medium text-bid">{nf2.format(q.bid)}</p>
         </div>
         <div className="rounded-md bg-ask/10 px-2 py-1.5">
-          <p className="text-[10px] uppercase text-muted-foreground">
+          <p className="type-overline text-muted-foreground">
             Ask × {q.askQty}
           </p>
           <p className="font-medium text-ask">{nf2.format(q.ask)}</p>

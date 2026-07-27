@@ -60,11 +60,11 @@ export const DEMO_GRAPH: { nodes: GraphNode[]; edges: GraphEdge[] } = {
   ],
 };
 
-const TYPE_META: Record<EntityType, { fill: string; label: string }> = {
-  person: { fill: "fill-info", label: "Person" },
-  org: { fill: "fill-primary", label: "Organisation" },
-  account: { fill: "fill-warning", label: "Account" },
-  transaction: { fill: "fill-success", label: "Transactions" },
+const TYPE_META: Record<EntityType, { fill: string; label: string; var: string }> = {
+  person: { fill: "fill-info", label: "Person", var: "var(--info)" },
+  org: { fill: "fill-primary", label: "Organisation", var: "var(--primary)" },
+  account: { fill: "fill-warning", label: "Account", var: "var(--warning)" },
+  transaction: { fill: "fill-success", label: "Transactions", var: "var(--success)" },
 };
 
 const W = 600;
@@ -89,6 +89,7 @@ export function EntityGraph({
 }: EntityGraphProps) {
   const reduced = useReducedMotion();
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
 
   const [selected, setSelected] = React.useState<string | null>(null);
@@ -159,14 +160,14 @@ export function EntityGraph({
       ref={rootRef}
       data-slot="entity-graph"
       className={cn(
-        "w-full max-w-xl rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-xl rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">Entity graph</h3>
-        <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
+        <h3 className="type-title text-foreground">Entity graph</h3>
+        <div className="flex flex-wrap gap-2 type-caption text-muted-foreground">
           {(Object.keys(TYPE_META) as EntityType[]).map((t) => (
             <span key={t} className="flex items-center gap-1">
               <svg viewBox="0 0 8 8" className="size-2" aria-hidden="true">
@@ -184,6 +185,20 @@ export function EntityGraph({
         aria-label={`Entity graph: ${nodes.length} entities, ${edges.length} relationships. Select a node to isolate its connections.`}
         className="mt-2 w-full"
       >
+        <defs>
+          {(Object.keys(TYPE_META) as EntityType[]).map((t) => (
+            <radialGradient key={t} id={`node-${t}-${uid}`} cx="35%" cy="30%" r="75%">
+              <stop offset="0%" stopColor={`color-mix(in oklab, ${TYPE_META[t].var} 55%, white)`} />
+              <stop offset="100%" stopColor={TYPE_META[t].var} />
+            </radialGradient>
+          ))}
+          <filter id={`node-shadow-${uid}`} x="-60%" y="-60%" width="220%" height="220%">
+            <feDropShadow dx="0" dy="2" stdDeviation="2.5" floodColor="hsl(240 10% 10%)" floodOpacity="0.28" />
+          </filter>
+          <filter id={`risk-glow-${uid}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="0" stdDeviation="2" floodColor="var(--destructive)" floodOpacity="0.5" />
+          </filter>
+        </defs>
         {/* edges */}
         {edges.map((e) => {
           const a = byId[e.from];
@@ -208,8 +223,9 @@ export function EntityGraph({
                 y1={a.y}
                 x2={b.x}
                 y2={b.y}
-                strokeWidth={e.risk ? 1.8 : 1.2}
+                strokeWidth={e.risk ? 2 : 1.2}
                 className={e.risk ? "stroke-destructive" : "stroke-border"}
+                filter={e.risk ? `url(#risk-glow-${uid})` : undefined}
               />
               <text
                 x={mx}
@@ -249,8 +265,8 @@ export function EntityGraph({
               <circle
                 cx={n.x}
                 cy={n.y}
-                r={R + 4}
-                className="fill-none stroke-destructive/50"
+                r={R + 5}
+                className="fill-none stroke-destructive/60 [animation:duku-caret-blink_2s_ease-in-out_infinite] motion-reduce:animate-none"
                 strokeDasharray="3 3"
               />
             ) : null}
@@ -258,12 +274,10 @@ export function EntityGraph({
               cx={n.x}
               cy={n.y}
               r={R}
-              className={cn(
-                TYPE_META[n.type].fill,
-                selected === n.id ? "stroke-foreground" : "stroke-card"
-              )}
+              fill={`url(#node-${n.type}-${uid})`}
+              className={cn(selected === n.id ? "stroke-foreground" : "stroke-card")}
               strokeWidth={selected === n.id ? 2.5 : 2}
-              fillOpacity={0.9}
+              filter={`url(#node-shadow-${uid})`}
             />
             <text
               x={n.x}
@@ -280,8 +294,8 @@ export function EntityGraph({
       {/* Detail panel */}
       <div
         className={cn(
-          "mt-1 rounded-xl border p-3 text-sm transition-colors duration-300",
-          sel?.risk ? "border-destructive/40 bg-destructive/5" : "border-border bg-background"
+          "mt-1 rounded-2xl border p-3.5 text-sm shadow-xs transition-colors duration-300",
+          sel?.risk ? "border-destructive/40 bg-destructive/[0.05]" : "border-border/60 bg-background/60"
         )}
         aria-live="polite"
       >
@@ -290,22 +304,22 @@ export function EntityGraph({
             <div className="flex items-center justify-between gap-2">
               <p className="font-medium text-foreground">
                 {sel.label}
-                <span className="ml-2 text-[11px] font-normal text-muted-foreground">
+                <span className="ml-2 type-meta font-normal text-muted-foreground">
                   {TYPE_META[sel.type].label}
                 </span>
               </p>
               <button
                 type="button"
                 onClick={() => setSelected(null)}
-                className="text-[11px] text-muted-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="type-meta text-muted-foreground underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 Show all
               </button>
             </div>
             {sel.detail ? (
-              <p className="mt-0.5 text-[12px] leading-5 text-muted-foreground">{sel.detail}</p>
+              <p className="mt-0.5 type-meta leading-5 text-muted-foreground">{sel.detail}</p>
             ) : null}
-            <p className="mt-1 text-[11px] text-muted-foreground">
+            <p className="mt-1 type-meta text-muted-foreground">
               {edges
                 .filter((e) => e.from === sel.id || e.to === sel.id)
                 .map((e) =>
@@ -317,7 +331,7 @@ export function EntityGraph({
             </p>
           </>
         ) : (
-          <p className="text-[12px] text-muted-foreground">
+          <p className="type-meta text-muted-foreground">
             Select an entity to isolate its neighbourhood. Dashed red rings and
             edges mark risk links.
           </p>

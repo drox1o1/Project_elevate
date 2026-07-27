@@ -3,9 +3,12 @@
 import * as React from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { LayoutGroup, motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 import { Button } from "@/registry/default/ui/button";
+
+const toggleSpring = { type: "spring", stiffness: 480, damping: 38 } as const;
 
 /* ------------------------------------------------------------------ */
 /* Model                                                                */
@@ -77,10 +80,10 @@ export const DEMO_TOOL_CALLS: InspectedToolCall[] = [
   },
 ];
 
-const STATUS_META: Record<ToolCallStatus, { cls: string; label: string }> = {
-  ok: { cls: "bg-success/15 text-success", label: "ok" },
-  error: { cls: "bg-destructive/15 text-destructive", label: "error" },
-  denied: { cls: "bg-warning/15 text-warning", label: "denied" },
+const STATUS_META: Record<ToolCallStatus, { cls: string; label: string; hue: string }> = {
+  ok: { cls: "bg-success/12 text-success ring-1 ring-inset ring-success/20", label: "ok", hue: "var(--success)" },
+  error: { cls: "bg-destructive/12 text-destructive ring-1 ring-inset ring-destructive/20", label: "error", hue: "var(--destructive)" },
+  denied: { cls: "bg-warning/12 text-warning ring-1 ring-inset ring-warning/20", label: "denied", hue: "var(--warning)" },
 };
 
 /* ------------------------------------------------------------------ */
@@ -101,6 +104,7 @@ export function ToolCallInspector({
 }: ToolCallInspectorProps) {
   const reduced = useReducedMotion();
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
 
   const [raw, setRaw] = React.useState(false);
@@ -139,35 +143,42 @@ export function ToolCallInspector({
       ref={rootRef}
       data-slot="tool-call-inspector"
       className={cn(
-        "w-full max-w-xl rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-xl rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
     >
       {/* Header */}
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-sm font-semibold text-foreground">
+        <h3 className="type-title text-foreground">
           Tool calls <span className="text-muted-foreground">({calls.length})</span>
         </h3>
-        <div className="flex rounded-lg bg-muted p-0.5" role="tablist" aria-label="View mode">
-          {(["human", "raw"] as const).map((v) => (
-            <button
-              key={v}
-              role="tab"
-              aria-selected={(v === "raw") === raw}
-              onClick={() => setRaw(v === "raw")}
-              className={cn(
-                "rounded-md px-2.5 py-1 text-[11px] font-medium capitalize transition-colors duration-200",
-                (v === "raw") === raw
-                  ? "bg-background text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              )}
-            >
-              {v}
-            </button>
-          ))}
-        </div>
+        <LayoutGroup id={uid}>
+          <div className="isolate flex rounded-xl bg-muted p-1" role="tablist" aria-label="View mode">
+            {(["human", "raw"] as const).map((v) => (
+              <button
+                key={v}
+                role="tab"
+                aria-selected={(v === "raw") === raw}
+                onClick={() => setRaw(v === "raw")}
+                className={cn(
+                  "relative rounded-lg px-3 py-1 type-meta font-medium capitalize transition-colors duration-200",
+                  (v === "raw") === raw ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                )}
+              >
+                {(v === "raw") === raw ? (
+                  <motion.span
+                    layoutId={`tci-${uid}`}
+                    transition={reduced ? { duration: 0 } : toggleSpring}
+                    className="absolute inset-0 -z-10 rounded-lg bg-background shadow-sm"
+                  />
+                ) : null}
+                {v}
+              </button>
+            ))}
+          </div>
+        </LayoutGroup>
       </div>
 
       {/* Calls */}
@@ -179,53 +190,58 @@ export function ToolCallInspector({
             <li key={c.id} data-call>
               <div
                 className={cn(
-                  "rounded-xl border bg-background",
+                  "relative overflow-hidden rounded-2xl border shadow-xs transition-colors duration-200",
                   c.status === "error"
-                    ? "border-destructive/40"
+                    ? "border-destructive/40 bg-destructive/[0.04]"
                     : c.status === "denied"
-                      ? "border-warning/40"
-                      : "border-border"
+                      ? "border-warning/40 bg-warning/[0.03]"
+                      : "border-border/60 bg-background/60"
                 )}
               >
+                <span
+                  aria-hidden="true"
+                  className="absolute inset-y-2.5 left-0 w-0.5 rounded-full opacity-70"
+                  style={{ background: meta.hue }}
+                />
                 <button
                   type="button"
                   aria-expanded={open}
                   onClick={() => setOpenId((o) => (o === c.id ? null : c.id))}
-                  className="w-full px-3 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+                  className="w-full py-2.5 pl-3.5 pr-3 text-left transition-colors duration-200 hover:bg-muted/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
                 >
                   <div className="flex items-center gap-2">
                     <code className="truncate font-mono text-xs font-semibold text-foreground">
                       {c.tool}
                     </code>
-                    <span className={cn("rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase", meta.cls)}>
+                    <span className={cn("rounded-md px-1.5 py-0.5 text-[9px] font-semibold uppercase", meta.cls)}>
                       {meta.label}
                     </span>
                     {c.permission === "asked" ? (
-                      <span className="rounded bg-info/15 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-info">
+                      <span className="rounded-md bg-info/12 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-info ring-1 ring-inset ring-info/20">
                         user approved
                       </span>
                     ) : null}
                     {c.retryOf ? (
-                      <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase text-muted-foreground">
+                      <span className="rounded-md bg-muted px-1.5 py-0.5 text-[9px] font-semibold uppercase text-muted-foreground ring-1 ring-inset ring-border/60">
                         retry
                       </span>
                     ) : null}
-                    <span className="ml-auto shrink-0 font-mono text-[10px] tabular-nums text-muted-foreground">
+                    <span className="ml-auto shrink-0 font-mono type-caption numeric text-muted-foreground">
                       {c.durationMs >= 1000 ? `${(c.durationMs / 1000).toFixed(1)}s` : `${c.durationMs}ms`}
                     </span>
                   </div>
                   {/* duration bar */}
-                  <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+                  <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted ring-1 ring-inset ring-border/40" aria-hidden="true">
                     <span
                       data-duration={c.durationMs / maxMs}
-                      className={cn(
-                        "block h-full rounded-full",
-                        c.status === "error" ? "bg-destructive" : c.status === "denied" ? "bg-warning" : "bg-primary"
-                      )}
-                      style={{ width: 0 }}
+                      className="block h-full rounded-full"
+                      style={{
+                        width: 0,
+                        background: `linear-gradient(90deg, color-mix(in oklab, ${meta.hue} 45%, transparent), ${meta.hue})`,
+                      }}
                     />
                   </div>
-                  <p className="mt-1.5 text-[11px] leading-4 text-muted-foreground">
+                  <p className="mt-1.5 type-meta leading-4 text-muted-foreground">
                     {raw ? (
                       <code className="font-mono">{JSON.stringify(c.args)}</code>
                     ) : (
@@ -274,9 +290,9 @@ function CallDetail({
 
   return (
     <div ref={ref} className="overflow-hidden">
-      <div className="border-t border-border px-3 py-2">
+      <div className="border-t border-border/60 py-2 pl-3.5 pr-3">
         {raw ? (
-          <pre className="overflow-x-auto rounded-lg bg-muted/60 p-2 font-mono text-[10px] leading-4 text-foreground">
+          <pre className="overflow-x-auto rounded-lg bg-muted/60 p-2 font-mono type-caption leading-4 text-foreground">
             {JSON.stringify(
               { tool: call.tool, args: call.args, ...(call.result ? { result: call.result } : {}), ...(call.error ? { error: call.error } : {}) },
               null,
@@ -284,7 +300,7 @@ function CallDetail({
             )}
           </pre>
         ) : (
-          <div className="flex flex-col gap-1 text-[11px] leading-4">
+          <div className="flex flex-col gap-1 type-meta leading-4">
             {call.result != null ? (
               <p className="text-foreground">
                 <span className="font-medium">Result:</span>{" "}

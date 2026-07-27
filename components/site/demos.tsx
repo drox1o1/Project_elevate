@@ -70,7 +70,7 @@ import { KineticHeading } from "@/registry/default/motion/kinetic-heading";
 import { MagneticButton } from "@/registry/default/motion/magnetic-button";
 import { Marquee } from "@/registry/default/motion/marquee";
 import { Navbar } from "@/registry/default/ui/navbar";
-import { LayoutGroup } from "motion/react";
+import { LayoutGroup, motion } from "motion/react";
 import { TextRollLink } from "@/registry/default/motion/text-roll-link";
 import { ScrollRevealGrid } from "@/registry/default/motion/scroll-reveal-grid";
 import { SignupCard } from "@/registry/default/blocks/signup-card";
@@ -122,9 +122,103 @@ import { LoanEligibility } from "@/registry/default/fintech/loan-eligibility";
 import { ToolCallInspector } from "@/registry/default/ai/tool-call-inspector";
 import { ApprovalGate } from "@/registry/default/ai/approval-gate";
 import { GroundedAnswer, DEMO_ANSWER } from "@/registry/default/ai/grounded-answer";
+import { CardPayment } from "@/registry/default/fintech/card-payment";
+import { PennyDrop } from "@/registry/default/fintech/penny-drop";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+const toggleSpring = { type: "spring", stiffness: 480, damping: 38 } as const;
+
+/** Shared demo control: a custom-styled slider with a designed track,
+ *  gradient fill and a focus-ringed thumb over a hidden native input. */
+function DemoSlider({
+  min,
+  max,
+  step = 1,
+  value,
+  onChange,
+  className,
+  "aria-label": ariaLabel,
+}: {
+  min: number;
+  max: number;
+  step?: number;
+  value: number;
+  onChange: (v: number) => void;
+  className?: string;
+  "aria-label": string;
+}) {
+  const pct = ((value - min) / (max - min)) * 100;
+  return (
+    <span className={`relative inline-flex h-6 items-center ${className ?? ""}`}>
+      <span className="pointer-events-none absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-muted ring-1 ring-inset ring-border/50" />
+      <span
+        className="pointer-events-none absolute left-0 top-1/2 h-1.5 -translate-y-1/2 rounded-full"
+        style={{
+          width: `${pct}%`,
+          background:
+            "linear-gradient(90deg, color-mix(in oklab, var(--primary) 45%, transparent), var(--primary))",
+        }}
+      />
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        aria-label={ariaLabel}
+        onChange={(e) => onChange(parseFloat(e.target.value))}
+        className="peer absolute inset-0 z-20 w-full cursor-pointer appearance-none bg-transparent opacity-0"
+      />
+      <span
+        className="pointer-events-none absolute top-1/2 z-10 size-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-primary bg-background shadow-md transition-shadow peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background"
+        style={{ left: `${pct}%` }}
+      />
+    </span>
+  );
+}
+
+/** Shared demo control: a segmented toggle with a spring-driven pill. */
+function SegmentedToggle({
+  options,
+  value,
+  onChange,
+  id,
+}: {
+  options: { value: string; label: string }[];
+  value: string;
+  onChange: (v: string) => void;
+  id: string;
+}) {
+  return (
+    <LayoutGroup id={id}>
+      <div className="isolate inline-flex rounded-xl bg-muted p-1">
+        {options.map((o) => (
+          <button
+            key={o.value}
+            type="button"
+            aria-pressed={value === o.value}
+            onClick={() => onChange(o.value)}
+            className={
+              "relative rounded-lg px-3 py-1 text-xs font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " +
+              (value === o.value ? "text-foreground" : "text-muted-foreground hover:text-foreground")
+            }
+          >
+            {value === o.value ? (
+              <motion.span
+                layoutId={`seg-${id}`}
+                transition={toggleSpring}
+                className="absolute inset-0 -z-10 rounded-lg bg-background shadow-sm"
+              />
+            ) : null}
+            {o.label}
+          </button>
+        ))}
+      </div>
+    </LayoutGroup>
+  );
+}
 
 function ButtonDemo() {
   const [loading, setLoading] = React.useState(false);
@@ -737,18 +831,17 @@ function AmountInputDemo() {
   return (
     <div className="flex w-full max-w-sm flex-col items-center gap-6">
       <AmountInput numberFormat={format} prefix="₹" aria-label="Amount" />
-      <div className="flex gap-2">
-        {(["in", "us", "eu", "space"] as const).map((f) => (
-          <Button
-            key={f}
-            size="sm"
-            variant={format === f ? "default" : "outline"}
-            onClick={() => setFormat(f)}
-          >
-            {f}
-          </Button>
-        ))}
-      </div>
+      <SegmentedToggle
+        id="amount-format"
+        value={format}
+        onChange={(v) => setFormat(v as "us" | "eu" | "in" | "space")}
+        options={[
+          { value: "in", label: "in" },
+          { value: "us", label: "us" },
+          { value: "eu", label: "eu" },
+          { value: "space", label: "space" },
+        ]}
+      />
     </div>
   );
 }
@@ -1039,36 +1132,27 @@ function GreeksPanelDemo() {
     <div className="flex w-full max-w-md flex-col items-stretch gap-4">
       <GreeksPanel side={side} strike={24_800} spot={spot} dte={7} />
       <div className="flex items-center gap-3">
-        <div className="flex rounded-lg bg-muted p-0.5">
-          {(["call", "put"] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              aria-pressed={side === s}
-              onClick={() => setSide(s)}
-              className={
-                side === s
-                  ? "rounded-md bg-background px-2.5 py-1 text-xs font-medium capitalize shadow-sm"
-                  : "rounded-md px-2.5 py-1 text-xs font-medium capitalize text-muted-foreground"
-              }
-            >
-              {s}
-            </button>
-          ))}
-        </div>
-        <label className="flex flex-1 items-center gap-2 text-xs text-muted-foreground">
+        <SegmentedToggle
+          options={[
+            { value: "call", label: "Call" },
+            { value: "put", label: "Put" },
+          ]}
+          value={side}
+          onChange={(v) => setSide(v as "call" | "put")}
+          id="greeks-side"
+        />
+        <label className="flex flex-1 items-center gap-2.5 text-xs text-muted-foreground">
           Spot
-          <input
-            type="range"
+          <DemoSlider
             min={24_200}
             max={25_400}
             step={20}
             value={spot}
-            onChange={(e) => setSpot(parseInt(e.target.value, 10))}
-            className="flex-1 accent-primary"
+            onChange={setSpot}
             aria-label="Spot price"
+            className="flex-1"
           />
-          <span className="w-14 text-right tabular-nums text-foreground">
+          <span className="w-14 text-right font-medium numeric text-foreground">
             {new Intl.NumberFormat("en-IN").format(spot)}
           </span>
         </label>
@@ -1083,25 +1167,19 @@ function KycFlowDemo() {
   return (
     <div className="flex w-full flex-col items-center gap-4">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        Outcome:
-        {(["approved", "manual-review"] as const).map((o) => (
-          <button
-            key={o}
-            type="button"
-            aria-pressed={outcome === o}
-            onClick={() => {
-              setOutcome(o);
-              setRun((r) => r + 1);
-            }}
-            className={
-              outcome === o
-                ? "rounded-md bg-primary px-2 py-1 font-medium text-primary-foreground"
-                : "rounded-md bg-muted px-2 py-1 font-medium hover:text-foreground"
-            }
-          >
-            {o}
-          </button>
-        ))}
+        <span>Outcome</span>
+        <SegmentedToggle
+          id="kyc-outcome"
+          value={outcome}
+          onChange={(v) => {
+            setOutcome(v as KycOutcome);
+            setRun((r) => r + 1);
+          }}
+          options={[
+            { value: "approved", label: "Approved" },
+            { value: "manual-review", label: "Manual review" },
+          ]}
+        />
       </div>
       <KycFlow
         key={`${outcome}-${run}`}
@@ -1181,22 +1259,37 @@ function BiomarkerTrendDemo() {
 
 function MarketDepthDemo() {
   const reduced = useReducedMotion();
-  const [mid, setMid] = React.useState(1543.4);
+  // A stable ladder: the price levels stay fixed and only the resting
+  // quantities drift, so the depth bars breathe smoothly instead of the
+  // whole book reshuffling and re-animating from zero each tick.
+  const base = React.useMemo(() => generateDepth(1543.4), []);
+  const [book, setBook] = React.useState(base);
+  const [last, setLast] = React.useState(1543.4);
+
   React.useEffect(() => {
     if (reduced) return;
-    const id = setInterval(
-      () => setMid((m) => +(m + (Math.random() - 0.5) * 0.6).toFixed(2)),
-      1400
-    );
+    const walk = (l: (typeof base)["bids"][number]) => ({
+      ...l,
+      // gentle ±8% random walk, floored so a level never disappears
+      qty: Math.max(300, Math.round(l.qty * (1 + (Math.random() - 0.5) * 0.16))),
+      orders: Math.max(1, l.orders + (Math.random() < 0.3 ? (Math.random() < 0.5 ? -1 : 1) : 0)),
+    });
+    const id = setInterval(() => {
+      setBook((b) => ({ bids: b.bids.map(walk), asks: b.asks.map(walk) }));
+      // last price ticks within the spread, occasionally, so the flash stays rare
+      if (Math.random() < 0.5) {
+        setLast((p) => +(p + (Math.random() - 0.5) * 0.08).toFixed(2));
+      }
+    }, 1800);
     return () => clearInterval(id);
-  }, [reduced]);
-  const { bids, asks } = React.useMemo(() => generateDepth(mid), [mid]);
+  }, [reduced, base]);
+
   return (
     <MarketDepth
       symbol="HDFCBANK"
-      bids={bids}
-      asks={asks}
-      lastPrice={mid}
+      bids={book.bids}
+      asks={book.asks}
+      lastPrice={last}
       atp={1542.1}
       onLevelSelect={(side, level) =>
         toast({
@@ -1217,26 +1310,19 @@ function PaymentStatusDemo() {
   const [play, setPlay] = React.useState(0);
   return (
     <div className="flex w-full flex-col items-center gap-4">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        {(["success", "failed", "refunded"] as const).map((s) => (
-          <button
-            key={s}
-            type="button"
-            aria-pressed={scenario === s}
-            onClick={() => {
-              setScenario(s);
-              setPlay((p) => p + 1);
-            }}
-            className={
-              scenario === s
-                ? "rounded-md bg-primary px-2 py-1 font-medium capitalize text-primary-foreground"
-                : "rounded-md bg-muted px-2 py-1 font-medium capitalize hover:text-foreground"
-            }
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+      <SegmentedToggle
+        id="payment-scenario"
+        value={scenario}
+        onChange={(v) => {
+          setScenario(v as PaymentScenario);
+          setPlay((p) => p + 1);
+        }}
+        options={[
+          { value: "success", label: "Success" },
+          { value: "failed", label: "Failed" },
+          { value: "refunded", label: "Refunded" },
+        ]}
+      />
       <PaymentStatus
         amount={2499}
         reference="pay_Nk8Yw2 · Order #8412"
@@ -1402,7 +1488,43 @@ function GroundedAnswerDemo() {
   );
 }
 
+function CardPaymentDemo() {
+  return (
+    <CardPayment
+      amount={2499}
+      onPaid={(d) =>
+        toast({
+          title: `Paid ₹2,499 · ${d.brand} ••${d.last4}`,
+          variant: "success",
+        })
+      }
+    />
+  );
+}
+
+function PennyDropDemo() {
+  return (
+    <PennyDrop
+      expectedName="Asha Verma"
+      onVerify={async ({ ifsc }) => {
+        await wait(300);
+        return {
+          beneficiaryName: "ASHA VERMA",
+          bank:
+            { HDFC: "HDFC Bank", ICIC: "ICICI Bank", SBIN: "State Bank of India" }[
+              ifsc.slice(0, 4)
+            ] ?? "Your bank",
+          matchScore: 1,
+          status: "verified" as const,
+        };
+      }}
+    />
+  );
+}
+
 export const DEMOS: Record<string, React.ComponentType> = {
+  "card-payment": CardPaymentDemo,
+  "penny-drop": PennyDropDemo,
   "investigation-timeline": InvestigationTimelineDemo,
   "entity-graph": EntityGraphDemo,
   "fund-compare": FundCompareDemo,

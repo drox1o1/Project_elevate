@@ -207,7 +207,7 @@ export function AmountInput({
       <span
         ref={mirrorRef}
         aria-hidden="true"
-        className="invisible absolute left-0 top-0 whitespace-pre font-semibold tabular-nums"
+        className="invisible absolute left-0 top-0 whitespace-pre font-semibold numeric"
         style={{ fontSize: maxSize }}
       >
         {mirrorText}
@@ -215,7 +215,7 @@ export function AmountInput({
       <div
         ref={scalerRef}
         data-slot="scaler"
-        className="flex items-baseline font-semibold tabular-nums"
+        className="flex items-baseline font-semibold numeric"
         style={{ fontSize: maxSize }}
       >
         {prefix ? (

@@ -3,9 +3,12 @@
 import * as React from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { LayoutGroup, motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 import { Badge } from "@/registry/default/ui/badge";
+
+const filterSpring = { type: "spring", stiffness: 480, damping: 38 } as const;
 
 /* ------------------------------------------------------------------ */
 /* Model                                                                */
@@ -82,6 +85,7 @@ export function ExpenseFeed({
   ...rest
 }: ExpenseFeedProps) {
   const reduced = useReducedMotion();
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   const rootRef = React.useRef<HTMLDivElement>(null);
   const listRef = React.useRef<HTMLDivElement>(null);
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
@@ -122,7 +126,7 @@ export function ExpenseFeed({
       ref={rootRef}
       data-slot="expense-feed"
       className={cn(
-        "w-full max-w-md rounded-2xl border border-border bg-card p-4",
+        "w-full max-w-md rounded-3xl border border-border/60 bg-card p-5 shadow-md",
         className
       )}
       {...rest}
@@ -133,33 +137,42 @@ export function ExpenseFeed({
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Search merchants…"
         aria-label="Search transactions"
-        className="h-9 w-full rounded-lg border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="h-10 w-full rounded-xl border border-input bg-background px-3.5 text-sm text-foreground shadow-xs transition-[border-color,box-shadow] duration-200 placeholder:text-muted-foreground/60 hover:border-ring/30 focus-visible:outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/25"
       />
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        {(["all", ...usedCategories] as const).map((c) => (
-          <button
-            key={c}
-            type="button"
-            aria-pressed={filter === c}
-            onClick={() => setFilter(c as ExpenseCategory | "all")}
-            className={cn(
-              "flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors duration-200",
-              filter === c
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground hover:text-foreground",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            )}
-          >
-            {c !== "all" ? (
-              <span
-                aria-hidden="true"
-                className={cn("size-1.5 rounded-full", CATEGORY_META[c as ExpenseCategory].dot)}
-              />
-            ) : null}
-            {c === "all" ? "All" : CATEGORY_META[c as ExpenseCategory].label}
-          </button>
-        ))}
-      </div>
+      <LayoutGroup id={uid}>
+        <div className="isolate mt-2.5 flex flex-wrap gap-1.5">
+          {(["all", ...usedCategories] as const).map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-pressed={filter === c}
+              onClick={() => setFilter(c as ExpenseCategory | "all")}
+              className={cn(
+                "relative flex items-center gap-1.5 rounded-full px-3 py-1 type-meta font-medium transition-colors duration-200",
+                filter === c ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              )}
+            >
+              {filter === c ? (
+                <motion.span
+                  layoutId={`ef-${uid}`}
+                  transition={reduced ? { duration: 0 } : filterSpring}
+                  className="absolute inset-0 -z-10 rounded-full bg-primary shadow-sm"
+                />
+              ) : (
+                <span className="absolute inset-0 -z-10 rounded-full bg-muted" />
+              )}
+              {c !== "all" ? (
+                <span
+                  aria-hidden="true"
+                  className={cn("size-1.5 rounded-full", CATEGORY_META[c as ExpenseCategory].dot)}
+                />
+              ) : null}
+              {c === "all" ? "All" : CATEGORY_META[c as ExpenseCategory].label}
+            </button>
+          ))}
+        </div>
+      </LayoutGroup>
 
       {/* Feed */}
       <div ref={listRef} className="mt-3 flex flex-col gap-3">
@@ -170,7 +183,7 @@ export function ExpenseFeed({
         ) : null}
         {days.map((day) => (
           <div key={day}>
-            <p className="px-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+            <p className="px-1 type-overline text-muted-foreground">
               {day}
             </p>
             <ul className="mt-1 flex flex-col gap-1">
@@ -183,18 +196,18 @@ export function ExpenseFeed({
                     <li key={i.id} data-row>
                       <div
                         className={cn(
-                          "flex items-center gap-2.5 rounded-xl border px-2.5 py-2 transition-colors duration-300",
+                          "flex items-center gap-2.5 rounded-xl border px-3 py-2.5 shadow-xs transition-colors duration-300",
                           i.unusualMultiple
                             ? "border-warning/50 bg-warning/5"
                             : isLinkTarget
                               ? "border-info/60 bg-info/5"
-                              : "border-border bg-background"
+                              : "border-border/60 bg-background/60"
                         )}
                       >
                         <span
                           aria-hidden="true"
                           className={cn(
-                            "flex size-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white",
+                            "flex size-7 shrink-0 items-center justify-center rounded-full type-caption font-bold text-white",
                             meta.dot
                           )}
                         >
@@ -204,7 +217,7 @@ export function ExpenseFeed({
                           <p className="truncate text-sm font-medium text-foreground">
                             {i.merchant}
                           </p>
-                          <p className="flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground">
+                          <p className="flex flex-wrap items-center gap-1.5 type-caption text-muted-foreground">
                             {meta.label}
                             {i.recurringMonth ? (
                               <Badge variant="secondary" className="px-1 py-0 text-[9px]">
@@ -231,7 +244,7 @@ export function ExpenseFeed({
                         </div>
                         <span
                           className={cn(
-                            "shrink-0 font-mono text-sm tabular-nums",
+                            "shrink-0 font-mono text-sm numeric",
                             i.amount > 0 ? "font-semibold text-market-up" : "text-foreground"
                           )}
                         >

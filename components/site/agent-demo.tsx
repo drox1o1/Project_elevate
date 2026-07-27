@@ -194,7 +194,7 @@ export function AgentDemo() {
       </div>
 
       <div key={replayKey} className="grid gap-6 p-5 lg:grid-cols-[1fr_auto]">
-        <div className="flex min-w-0 flex-col gap-4 font-mono text-[13px] leading-6">
+        <div className="flex min-w-0 flex-col gap-4 font-mono type-label leading-6">
           <div className="rounded-lg bg-muted/60 px-3.5 py-2.5 text-foreground">
             {reduced ? (
               <span>{PROMPT}</span>

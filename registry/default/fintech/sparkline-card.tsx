@@ -17,7 +17,7 @@ export interface SparklineCardProps
   /** Series, min length 2. */
   data: number[];
   delta?: number;
-  /** Sparkline area height in px. Default 56. */
+  /** Sparkline area height in px. Default 72. */
   height?: number;
   locale?: string;
   decimals?: number;
@@ -50,7 +50,7 @@ export function SparklineCard({
   prefix = "",
   data,
   delta,
-  height = 56,
+  height = 72,
   locale = "en-IN",
   decimals = 0,
   className,
@@ -60,16 +60,21 @@ export function SparklineCard({
   const rootRef = React.useRef<HTMLDivElement>(null);
   const pathRef = React.useRef<SVGPathElement>(null);
   const areaRef = React.useRef<SVGPathElement>(null);
-  const dotRef = React.useRef<SVGCircleElement>(null);
+  const dotRef = React.useRef<SVGGElement>(null);
   const numberRef = React.useRef<HTMLSpanElement>(null);
   const reduced = useReducedMotion();
+  const uid = React.useId().replace(/[^a-zA-Z0-9]/g, "");
   React.useImperativeHandle(ref, () => rootRef.current as HTMLDivElement);
+
+  const deltaPositive = (delta ?? 0) >= 0;
+  // Trend colour drives the whole chart, so the card reads at a glance.
+  const trend = deltaPositive ? "var(--market-up)" : "var(--market-down)";
 
   const { linePath, areaPath, lastPoint } = React.useMemo(() => {
     const min = Math.min(...data);
     const max = Math.max(...data);
     const range = max - min || 1;
-    const pad = 4;
+    const pad = 6;
     const points = data.map((v, i) => ({
       x: (i / (data.length - 1)) * VIEW_W,
       y: pad + (1 - (v - min) / range) * (height - pad * 2),
@@ -104,7 +109,7 @@ export function SparklineCard({
       if (reduced) {
         write(value);
         gsap.set(path, { strokeDashoffset: 0 });
-        gsap.set(area, { opacity: 0.08 });
+        gsap.set(area, { opacity: 1 });
         gsap.set(dot, { scale: 1 });
         return;
       }
@@ -123,8 +128,8 @@ export function SparklineCard({
         },
       });
       tl.to(path, { strokeDashoffset: 0, duration: 1.4, ease: "power2.inOut" });
-      tl.to(area, { opacity: 0.08, duration: 0.5 }, 0.9);
-      tl.to(dot, { scale: 1, duration: 0.3, ease: "back.out(2)" }, 1.3);
+      tl.to(area, { opacity: 1, duration: 0.6 }, 0.85);
+      tl.to(dot, { scale: 1, duration: 0.4, ease: "back.out(2.2)" }, 1.3);
       const proxy = { val: 0 };
       tl.to(
         proxy,
@@ -140,40 +145,60 @@ export function SparklineCard({
     { dependencies: [linePath, value, prefix, format, reduced], scope: rootRef }
   );
 
-  const deltaPositive = (delta ?? 0) >= 0;
-
   return (
     <div
       ref={rootRef}
       data-slot="sparkline-card"
+      style={{ "--trend": trend } as React.CSSProperties}
       className={cn(
-        "w-full max-w-xs rounded-xl border border-border bg-card p-5",
+        "group relative w-full max-w-xs overflow-hidden rounded-2xl border border-border/70 bg-card p-5 shadow-sm",
+        "transition-shadow duration-300 hover:shadow-md",
         className
       )}
       {...rest}
     >
-      <p data-slot="title" className="text-sm text-muted-foreground">
-        {title}
-      </p>
-      <div className="mt-1 flex items-baseline gap-2">
-        <span
-          ref={numberRef}
-          data-slot="value"
-          className="text-2xl font-semibold tracking-tight text-foreground tabular-nums"
-        />
+      {/* Trend-tinted sheen bleeding from the top-right corner. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-8 -top-10 size-32 rounded-full opacity-[0.14] blur-2xl"
+        style={{ background: "var(--trend)" }}
+      />
+      <div className="relative flex items-start justify-between gap-2">
+        <p data-slot="title" className="text-sm font-medium text-muted-foreground">
+          {title}
+        </p>
         {delta != null ? (
           <span
             data-slot="delta"
-            className={cn(
-              "text-xs font-medium tabular-nums",
-              deltaPositive
-                ? "text-emerald-600 dark:text-emerald-400"
-                : "text-red-600 dark:text-red-400"
-            )}
+            className="inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-xs font-medium numeric"
+            style={{
+              color: "var(--trend)",
+              borderColor: "color-mix(in oklab, var(--trend) 30%, transparent)",
+              background: "color-mix(in oklab, var(--trend) 10%, transparent)",
+            }}
           >
-            {deltaPositive ? "▲" : "▼"} {Math.abs(delta)}%
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={cn("size-3", !deltaPositive && "rotate-180")}
+              aria-hidden="true"
+            >
+              <path d="M12 19V5M5 12l7-7 7 7" />
+            </svg>
+            {Math.abs(delta)}%
           </span>
         ) : null}
+      </div>
+      <div className="relative mt-1.5 flex items-baseline">
+        <span
+          ref={numberRef}
+          data-slot="value"
+          className="type-display text-foreground numeric"
+        />
       </div>
       <svg
         data-slot="sparkline"
@@ -182,30 +207,47 @@ export function SparklineCard({
         height={height}
         fill="none"
         aria-hidden="true"
-        className="mt-4 overflow-visible"
+        className="relative mt-4 overflow-visible"
         preserveAspectRatio="none"
       >
-        <path
-          ref={areaRef}
-          d={areaPath}
-          className="fill-primary"
-          opacity={0}
-        />
+        <defs>
+          <linearGradient id={`fill-${uid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="var(--trend)" stopOpacity={0.28} />
+            <stop offset="100%" stopColor="var(--trend)" stopOpacity={0} />
+          </linearGradient>
+          <filter id={`glow-${uid}`} x="-20%" y="-40%" width="140%" height="180%">
+            <feDropShadow
+              dx="0"
+              dy="1.5"
+              stdDeviation="2.5"
+              floodColor="var(--trend)"
+              floodOpacity="0.35"
+            />
+          </filter>
+        </defs>
+        <path ref={areaRef} d={areaPath} fill={`url(#fill-${uid})`} opacity={0} />
         <path
           ref={pathRef}
           d={linePath}
-          className="stroke-primary"
-          strokeWidth={2}
+          stroke="var(--trend)"
+          strokeWidth={2.25}
           strokeLinecap="round"
           strokeLinejoin="round"
+          filter={`url(#glow-${uid})`}
+          vectorEffect="non-scaling-stroke"
         />
-        <circle
-          ref={dotRef}
-          cx={lastPoint.x}
-          cy={lastPoint.y}
-          r={3}
-          className="fill-primary"
-        />
+        <g ref={dotRef}>
+          <circle cx={lastPoint.x} cy={lastPoint.y} r={5} fill="var(--trend)" opacity={0.25} />
+          <circle
+            cx={lastPoint.x}
+            cy={lastPoint.y}
+            r={2.5}
+            fill="var(--card)"
+            stroke="var(--trend)"
+            strokeWidth={2}
+            vectorEffect="non-scaling-stroke"
+          />
+        </g>
       </svg>
     </div>
   );

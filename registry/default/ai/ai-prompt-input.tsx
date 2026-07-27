@@ -104,9 +104,10 @@ export function AIPromptInput({
       ref={rootRef}
       data-slot="ai-prompt-input"
       className={cn(
-        "w-full rounded-2xl border border-input bg-background shadow-sm",
-        "transition-[border-color,box-shadow] duration-200",
-        "focus-within:border-ring focus-within:ring-2 focus-within:ring-ring/20",
+        "w-full rounded-3xl border border-input bg-background shadow-sm",
+        "transition-[border-color,box-shadow] duration-300",
+        "hover:border-ring/30",
+        "focus-within:border-ring focus-within:shadow-md focus-within:ring-2 focus-within:ring-ring/20",
         disabled && "opacity-50 pointer-events-none",
         className
       )}
@@ -147,11 +148,11 @@ export function AIPromptInput({
           disabled={!canSubmit}
           className={cn(
             "relative flex size-8 items-center justify-center rounded-full",
-            "transition-colors duration-200",
+            "transition-[color,background-color,box-shadow,transform] duration-200 ease-out-expo",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ring-offset-background",
-            "active:scale-[0.97] active:duration-100",
+            "active:scale-[0.94] active:duration-100",
             canSubmit || pending
-              ? "bg-primary text-primary-foreground"
+              ? "bg-primary text-primary-foreground shadow-[inset_0_1px_0_0_hsl(0_0%_100%/0.12),var(--elevation-sm)] hover:-translate-y-px"
               : "pointer-events-none bg-muted text-muted-foreground"
           )}
         >
