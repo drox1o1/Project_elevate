@@ -1031,6 +1031,39 @@
       }
     },
     {
+      "name": "pixel-reveal-text",
+      "type": "registry:ui",
+      "title": "Pixel Reveal Text",
+      "description": "Text reconstructed from a seeded ordered-dither pixel field on an aria-hidden canvas, then handed off to the real DOM text underneath: five-phase timeline, six reveal directions, dissolve-and-reveal on text change, and no canvas at all under reduced motion.",
+      "dependencies": [
+        "motion",
+        "geist"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "registry/default/motion/pixel-reveal-text.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "registry/default/lib/pixel-dither.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/lib/use-pixel-text-renderer.ts",
+          "type": "registry:lib"
+        },
+        {
+          "path": "registry/default/motion/pixel-reveal-text.css",
+          "type": "registry:file",
+          "target": "components/duku/pixel-reveal-text.css"
+        }
+      ],
+      "meta": {
+        "tier": "pro"
+      }
+    },
+    {
       "name": "option-chain",
       "type": "registry:ui",
       "title": "Option Chain",

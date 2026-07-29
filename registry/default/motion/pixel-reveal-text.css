@@ -1,0 +1,55 @@
+/**
+ * pixel-reveal-text.css — the plain-CSS equivalent of the Tailwind utilities
+ * PixelRevealText ships with.
+ *
+ * The component already carries these rules as Tailwind classes, so you only
+ * need this file if you are dropping the component into a project without
+ * Tailwind. In that case, import it once and delete the `cn(...)` utility
+ * classes from the component, leaving the three semantic class names:
+ * `.pixel-reveal-wrapper`, `.pixel-reveal-text`, `.pixel-reveal-canvas`.
+ *
+ * Everything here is layout and rasterisation. No colour, no motion: colour is
+ * inherited from `currentColor` and motion is owned by Motion and the canvas.
+ */
+
+.pixel-reveal-wrapper {
+  position: relative;
+  /* The DOM text — not the canvas — establishes the box, so nothing shifts. */
+}
+
+/* Only inline usage needs shrink-to-fit plus a transform-able box. Block-level
+   tags (h1–h4, p, div) are already fine. */
+span.pixel-reveal-wrapper {
+  display: inline-block;
+}
+
+.pixel-reveal-text {
+  /* Stays `inline` so multi-line wrapping, text-align and letter-spacing
+     behave exactly as they would without the component. */
+  display: inline;
+}
+
+.pixel-reveal-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  /* Never intercept the pointer: the text underneath must stay selectable. */
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Hard pixel edges on every display density. */
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+/* Belt and braces: if a consumer renders the canvas despite reduced motion
+   being set, it must not animate or obscure the text. */
+@media (prefers-reduced-motion: reduce) {
+  .pixel-reveal-canvas {
+    display: none;
+  }
+  .pixel-reveal-text {
+    opacity: 1 !important;
+  }
+}

@@ -31,11 +31,20 @@ const FREE_ITEMS = [
 const GSAP = ["gsap", "@gsap/react"];
 const MOTION = ["motion"];
 
+// Companion files pulled in alongside a component. A string is a registry:lib;
+// use { path, type } when the file is not a lib (a stylesheet, for instance).
 const LIB = {
   rm: "registry/default/lib/use-reduced-motion.ts",
   cs: "registry/default/lib/use-controllable-state.ts",
   fn: "registry/default/lib/format-number.ts",
   bs: "registry/default/lib/black-scholes.ts",
+  pd: "registry/default/lib/pixel-dither.ts",
+  ptr: "registry/default/lib/use-pixel-text-renderer.ts",
+  prcss: {
+    path: "registry/default/motion/pixel-reveal-text.css",
+    type: "registry:file",
+    target: "components/duku/pixel-reveal-text.css",
+  },
 };
 
 const KF = {
@@ -122,6 +131,7 @@ const items = [
   ["marquee", "Marquee", "Seamless belt with hover-eased pause.", "motion", "registry:ui", GSAP, [], ["rm"]],
   ["text-roll-link", "Text Roll Link", "Link label that rolls per-char with an underline sweep.", "motion", "registry:ui", GSAP, [], ["rm"]],
   ["scroll-reveal-grid", "Scroll Reveal Grid", "Grid wrapper with grid-aware scroll stagger.", "motion", "registry:ui", GSAP, [], ["rm"]],
+  ["pixel-reveal-text", "Pixel Reveal Text", "Text reconstructed from a seeded ordered-dither pixel field on an aria-hidden canvas, then handed off to the real DOM text underneath: five-phase timeline, six reveal directions, dissolve-and-reveal on text change, and no canvas at all under reduced motion.", "motion", "registry:ui", [...MOTION, "geist"], [], ["pd", "ptr", "prcss"]],
   // ---- Phase 8: signature workflows
   ["option-chain", "Option Chain", "NIFTY-style option chain: Greeks toggle, ATM highlighting, OI bars, tick flashes and in-context depth with orders.", "fintech", "registry:ui", GSAP, [], ["rm", "bs"]],
   ["greeks-panel", "Greeks Panel", "Live Black-Scholes Greeks for one option with rolling values and springing magnitude gauges.", "fintech", "registry:ui", GSAP, ["number-flow"], ["rm", "bs"]],
@@ -180,7 +190,11 @@ const registry = {
           path: `registry/default/${dir}/${name}.tsx`,
           type,
         },
-        ...libs.map((l) => ({ path: LIB[l], type: "registry:lib" })),
+        ...libs.map((l) =>
+          typeof LIB[l] === "string"
+            ? { path: LIB[l], type: "registry:lib" }
+            : { ...LIB[l] }
+        ),
       ],
       ...(css ? { css } : {}),
       meta: { tier: FREE_ITEMS.includes(name) ? "free" : "pro" },

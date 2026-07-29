@@ -17,6 +17,8 @@ export interface DocEntry {
   phase: string;
   free?: boolean;
   sourceFile: string;
+  /** Optional deep-dive page with the full variant set and a playground. */
+  demoHref?: string;
   interactions: InteractionRow[];
   props: PropRow[];
 }
@@ -639,6 +641,44 @@ export const DOCS: DocEntry[] = [
     ],
     props: [
       { prop: "children", type: "ReactNode", description: "Arbitrary cards; purely a wrapper." },
+    ],
+  },
+  {
+    slug: "pixel-reveal-text",
+    title: "Pixel Reveal Text",
+    description:
+      "Text reconstructed from a seeded ordered-dither pixel field on canvas, then handed off to the real DOM text underneath.",
+    phase: P6,
+    sourceFile: "registry/default/motion/pixel-reveal-text.tsx",
+    demoHref: "/labs/pixel-reveal-text",
+    interactions: [
+      { action: "Scroll into view (35%)", result: "1100ms sequence: sparse signal → dithered formation → glyph resolution → 1→1.008→1 lock pulse → canvas/DOM crossfade" },
+      { action: "Replay with the same seed", result: "Identical pixel pattern — every random value is an integer hash of (cell, tick, seed), never Math.random()" },
+      { action: "Hover once resolved (trigger=\"hover\")", result: "~8% of glyph cells dim for 220ms; never a full replay, never unreadable" },
+      { action: "Change children", result: "Old value dithers apart over 280ms, then the new value reveals on a shortened 700–850ms sequence" },
+      { action: "Select the text after it resolves", result: "Real selectable DOM text — the canvas is pointer-events:none and cleared" },
+      { action: "Enable prefers-reduced-motion", result: "No canvas is rendered at all; the text is simply present" },
+    ],
+    props: [
+      { prop: "children", type: "string", description: "The text. Rendered as real DOM text at all times." },
+      { prop: "as", type: '"span" | "p" | "div" | "h1" | "h2" | "h3" | "h4"', defaultValue: '"span"', description: "Semantic tag; heading levels are preserved." },
+      { prop: "variant", type: '"square" | "grid" | "circle" | "triangle" | "line"', defaultValue: '"square"', description: "Geist Pixel face. Cell geometry follows the face." },
+      { prop: "trigger", type: '"mount" | "in-view" | "hover" | "manual"', defaultValue: '"in-view"', description: "What starts the sequence." },
+      { prop: "direction", type: '"left" | "right" | "top" | "bottom" | "center" | "random"', defaultValue: '"left"', description: "Reveal front. 10–20% of cells resolve ahead of or behind it." },
+      { prop: "duration", type: "number", defaultValue: "1100", description: "Total sequence in ms; the five phases scale proportionally." },
+      { prop: "delay", type: "number", defaultValue: "0", description: "Held unresolved before the sequence starts." },
+      { prop: "pixelSize", type: "number", defaultValue: "3", description: "Grid cell in CSS px, snapped to whole device pixels when drawn." },
+      { prop: "autoPixelSize", type: "boolean", defaultValue: "false", description: "Derive the cell from the measured font size: clamp(2, fs/18, 5)." },
+      { prop: "intensity", type: "number", defaultValue: "0.75", description: "How present the unresolved dither field and peripheral noise are." },
+      { prop: "flicker", type: "number", defaultValue: "0.32", description: "Flicker amplitude. The pattern updates at 24Hz, not per frame." },
+      { prop: "seed", type: "number", defaultValue: "24", description: "Same seed ⇒ same pixel pattern, every replay." },
+      { prop: "once", type: "boolean", defaultValue: "true", description: "In-view: play only the first entry." },
+      { prop: "threshold", type: "number", defaultValue: "0.35", description: "In-view visibility fraction." },
+      { prop: "replayKey", type: "string | number", description: "Change to reset and replay." },
+      { prop: "playing", type: "boolean", description: 'trigger="manual" playback control.' },
+      { prop: "exit", type: "boolean", defaultValue: "false", description: "Run the reversed exit dissolve (400–550ms)." },
+      { prop: "signalColor / noiseColor", type: "string", description: "Unresolved and peripheral pixel colours. Default to currentColor." },
+      { prop: "onStart / onComplete / onExitComplete", type: "() => void", description: "Sequence callbacks." },
     ],
   },
   {

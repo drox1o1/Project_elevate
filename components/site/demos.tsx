@@ -73,6 +73,7 @@ import { Navbar } from "@/registry/default/ui/navbar";
 import { LayoutGroup, motion } from "motion/react";
 import { TextRollLink } from "@/registry/default/motion/text-roll-link";
 import { ScrollRevealGrid } from "@/registry/default/motion/scroll-reveal-grid";
+import { PixelRevealTextDemo } from "@/components/site/pixel-reveal-demos";
 import { SignupCard } from "@/registry/default/blocks/signup-card";
 import { LoginCard } from "@/registry/default/blocks/login-card";
 import { PricingCard } from "@/registry/default/blocks/pricing-card";
@@ -1703,6 +1704,7 @@ export const DEMOS: Record<string, React.ComponentType> = {
   marquee: MarqueeDemo,
   "text-roll-link": TextRollLinkDemo,
   "scroll-reveal-grid": ScrollRevealGridDemo,
+  "pixel-reveal-text": PixelRevealTextDemo,
   "signup-card": SignupCardDemo,
   "login-card": LoginCardDemo,
   "pricing-card": PricingCardDemo,

@@ -54,6 +54,16 @@ export default async function ComponentPage({
         <p className="mt-3 max-w-2xl type-body text-muted-foreground">
           {doc.description}
         </p>
+        {doc.demoHref ? (
+          <p className="mt-3 type-label text-muted-foreground">
+            <Link
+              href={doc.demoHref}
+              className="font-medium text-foreground underline-offset-4 hover:underline"
+            >
+              Full variant set and playground →
+            </Link>
+          </p>
+        ) : null}
       </header>
 
       <PreviewPanel slug={doc.slug} />

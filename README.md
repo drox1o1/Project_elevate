@@ -18,7 +18,7 @@ Codex and other MCP-compatible coding agents. Formerly DUKU UI.
 
 ## Catalog
 
-69 components across 10 phases:
+73 components across 10 phases:
 
 | Phase | Components |
 | --- | --- |
@@ -30,7 +30,7 @@ Codex and other MCP-compatible coding agents. Formerly DUKU UI.
 | 3 · Overlays & nav | dialog, drawer, dropdown-menu, slide-tabs, navbar, reveal-accordion |
 | 4 · Fintech & data | stat-counter, number-flow, amount-input, sparkline-card, otp-input, transaction-list, market-depth, sip-simulator, payment-status, order-ticket, strategy-builder, bank-linking, expense-feed, fund-compare, loan-eligibility |
 | 5 · AI / agent | stream-text, thinking-indicator, chat-message, ai-prompt-input, skills-card, tool-call-inspector, approval-gate, grounded-answer |
-| 6 · Motion showpieces | kinetic-heading, magnetic-button, marquee, text-roll-link, scroll-reveal-grid |
+| 6 · Motion showpieces | kinetic-heading, magnetic-button, marquee, text-roll-link, scroll-reveal-grid, pixel-reveal-text |
 | 7 · Blocks | signup-card, login-card, pricing-card, newsletter-input |
 
 Phase 8 is the PRD's Phase 2 signature set: the adaptive KYC journey, NIFTY
