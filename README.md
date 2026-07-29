@@ -38,6 +38,37 @@ option chain (Black-Scholes Greeks via `registry/default/lib/black-scholes.ts`),
 Greeks panel, USDT→ETH swap, agent execution canvas, portfolio risk cockpit
 and biomarker trend explorer. Data in demos is simulated and labelled as such.
 
+## Pop PPP
+
+`/pop-ppp` is **Pop Culture Purchasing Power Parity** — an editorial data
+section that converts specific objects, dialogues and transactions from film
+into real economic indices. Three indices ship: the Sanju Baba 50 Tola Index
+(commodity), the Raju Ki Mummy Bhindi Index (retail food price) and the
+Moneyball Player Price Index (labour market), chosen so the same system has to
+hold across three different kinds of data.
+
+Each index page carries the PRD's full stack: cold open, headline result,
+multi-mode time-series chart (nominal / inflation-adjusted / relative to
+income / quantity / percentage), the complete equation with per-step source
+citations and raw unrounded values, purchasing-power comparisons, editorial
+drivers, a visible source ledger and an exportable share card.
+
+```
+lib/pop-ppp/types.ts     # index, dataset, observation and series schema
+lib/pop-ppp/calc.ts      # calculation framework (base/real/CAGR/affordability)
+lib/pop-ppp/data.ts      # datasets, series snapshot, index catalogue
+lib/pop-ppp/present.ts   # one presentation layer shared by every page
+```
+
+**Data status:** the series are a committed snapshot (see `SNAPSHOT_DATE`)
+compiled from the publications named in each dataset record, not a live feed.
+The scheduled retrieval and validation pipeline is not implemented, so every
+figure needs re-verification against its primary source before the section is
+published publicly. Provisional observations are flagged in the UI, interpolated
+years render dashed, and pages show "last verified" rather than "today".
+Reference submissions POST to `/api/pop-ppp/submissions`, forwarded to
+`DUKU_POP_PPP_WEBHOOK` when set.
+
 ## MCP server
 
 `app/mcp/route.ts` is a stateless read-only MCP server (streamable HTTP,
@@ -88,6 +119,9 @@ items require `Authorization: Bearer <key>`; unset means open dev mode.
 ```
 app/                    # docs site, /mcp MCP server, /r registry endpoint
 app/(site)/connect/     # MCP setup instructions
+app/(site)/pop-ppp/     # Pop PPP editorial section (landing, indices, methodology)
+components/pop-ppp/     # chart, equation, ledger, cold open, share card
+lib/pop-ppp/            # data model, calculation framework, data snapshot
 lib/agent-manifest.ts   # agent-readable component schema (drives /mcp)
 lib/tokens.ts           # token layer documentation
 registry/default/
