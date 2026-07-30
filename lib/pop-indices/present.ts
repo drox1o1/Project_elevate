@@ -557,6 +557,215 @@ export function rawValuesFor(p: PresentedIndex) {
   return raw;
 }
 
+/* ---- bill of materials ------------------------------------------------- */
+
+export interface PresentedComponentLine {
+  id: string;
+  label: string;
+  baseSpec: string;
+  latestSpec: string;
+  note: string;
+  /** Formatted prices in the base and latest year. */
+  base: string;
+  latest: string;
+  /** Signed change across the whole period, e.g. "+216.7%". */
+  change: string;
+  rose: boolean;
+  /** Share of the total build, 0–1, in each year. */
+  baseShare: number;
+  latestShare: number;
+  /** Normalised 0–1 series for the inline sparkline. */
+  spark: number[];
+  /** Set only for parts sold by capacity. */
+  capacity?: {
+    /** Installed capacity, formatted, in the base and latest year. */
+    baseCapacity: string;
+    latestCapacity: string;
+    /** Derived price per gigabyte, formatted. */
+    basePerUnit: string;
+    latestPerUnit: string;
+    /** Change in price per gigabyte across the whole period. */
+    changePerUnit: string;
+    perUnitRose: boolean;
+    /** The cheapest gigabyte on record, and when. */
+    lowPerUnit: string;
+    lowYear: number;
+    fallToLow: string;
+    riseSinceLow: string;
+    note?: string;
+  };
+  /** Set when the index declares a shock window. */
+  shock?: { change: string; rose: boolean };
+}
+
+export interface PresentedBom {
+  lead: string;
+  baseYear: number;
+  latestYear: number;
+  baseTotal: string;
+  latestTotal: string;
+  lines: PresentedComponentLine[];
+  shock?: {
+    fromYear: number;
+    toYear: number;
+    /** How much the whole build moved over the window. */
+    buildChange: string;
+    /** Share of that rupee move contributed by capacity-priced parts. */
+    contributionShare: string;
+    contributors: string[];
+    note: string;
+  };
+}
+
+function normalise(values: number[]): number[] {
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min;
+  if (range === 0) return values.map(() => 0.5);
+  return values.map((v) => (v - min) / range);
+}
+
+/**
+ * Turns the bill of materials into rendered rows.
+ *
+ * Shares are computed against the sum of the lines rather than the headline
+ * total, so a table that does not add up shows it rather than hiding it behind
+ * a number taken from somewhere else.
+ */
+export function bomFor(p: PresentedIndex): PresentedBom | undefined {
+  const { bom } = p.index;
+  if (!bom) return undefined;
+
+  const baseYear = p.index.baseYear;
+  const latest = latestYear(p.priceSeries);
+  const locale = p.locale;
+  const money = p.money;
+
+  const series = bom.components.map((c) => getSeries(c.seriesId));
+  const at = (s: Series, y: number) => observationAt(s, y)?.value ?? 0;
+  const baseTotal = series.reduce((sum, s) => sum + at(s, baseYear), 0);
+  const latestTotal = series.reduce((sum, s) => sum + at(s, latest), 0);
+
+  const lines: PresentedComponentLine[] = bom.components.map((c, i) => {
+    const s = series[i];
+    const b = at(s, baseYear);
+    const l = at(s, latest);
+    const pct = percentChange(b, l);
+
+    let capacity: PresentedComponentLine["capacity"];
+    if (c.capacitySeriesId) {
+      const cs = getSeries(c.capacitySeriesId);
+
+      /* Price per gigabyte is derived here rather than stored, so it can never
+       * disagree with the line price it is divided from. */
+      const perUnit = (y: number) => {
+        const gb = at(cs, y);
+        return gb > 0 ? at(s, y) / gb : 0;
+      };
+      const years = s.observations
+        .map((o) => o.year)
+        .filter((y) => y >= baseYear && y <= latest && at(cs, y) > 0);
+      const low = years.reduce(
+        (best, y) => (perUnit(y) < perUnit(best) ? y : best),
+        years[0]
+      );
+
+      const pb = perUnit(baseYear);
+      const pl = perUnit(latest);
+      // Sub-₹100 figures are the interesting ones for storage; rounding those
+      // to whole rupees would flatten the entire series to "5" and "3".
+      const decimals = Math.max(pb, pl) < 100 ? 2 : 0;
+      const rupee = (v: number) =>
+        `${p.index.currencySymbol}${v.toLocaleString(locale, {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals,
+        })}`;
+      // Drives are sold in decimal terabytes, so 1000 GB is "1 TB" on the box
+      // and on the invoice. Memory in this build never reaches the threshold.
+      const gb = (v: number) =>
+        v >= 1000 ? `${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)} TB` : `${v} GB`;
+      const perUnitChange = percentChange(pb, pl);
+
+      capacity = {
+        baseCapacity: gb(at(cs, baseYear)),
+        latestCapacity: gb(at(cs, latest)),
+        basePerUnit: rupee(pb),
+        latestPerUnit: rupee(pl),
+        changePerUnit: formatPercent(perUnitChange, locale),
+        perUnitRose: perUnitChange >= 0,
+        lowPerUnit: rupee(perUnit(low)),
+        lowYear: low,
+        fallToLow: formatPercent(percentChange(pb, perUnit(low)), locale),
+        riseSinceLow: formatPercent(percentChange(perUnit(low), pl), locale),
+        note: cs.normalisation,
+      };
+    }
+
+    let shock: PresentedComponentLine["shock"];
+    if (bom.shockWindow) {
+      const [from, to] = bom.shockWindow;
+      const a = at(s, from);
+      const z = at(s, to);
+      if (a > 0) {
+        const d = percentChange(a, z);
+        shock = { change: formatPercent(d, locale), rose: d >= 0 };
+      }
+    }
+
+    return {
+      id: c.id,
+      label: c.label,
+      baseSpec: c.baseSpec,
+      latestSpec: c.latestSpec,
+      note: c.note,
+      base: money(b),
+      latest: money(l),
+      change: formatPercent(pct, locale),
+      rose: pct >= 0,
+      baseShare: baseTotal > 0 ? b / baseTotal : 0,
+      latestShare: latestTotal > 0 ? l / latestTotal : 0,
+      spark: normalise(s.observations.map((o) => o.value)),
+      capacity,
+      shock,
+    };
+  });
+
+  let shock: PresentedBom["shock"];
+  if (bom.shockWindow) {
+    const [from, to] = bom.shockWindow;
+    const buildFrom = series.reduce((sum, s) => sum + at(s, from), 0);
+    const buildTo = series.reduce((sum, s) => sum + at(s, to), 0);
+    const moved = buildTo - buildFrom;
+    const capacityLines = bom.components
+      .map((c, i) => ({ c, s: series[i] }))
+      .filter(({ c }) => Boolean(c.capacitySeriesId));
+    const contributed = capacityLines.reduce(
+      (sum, { s }) => sum + (at(s, to) - at(s, from)),
+      0
+    );
+    if (moved !== 0) {
+      shock = {
+        fromYear: from,
+        toYear: to,
+        buildChange: formatPercent(percentChange(buildFrom, buildTo), locale),
+        contributionShare: `${Math.round((contributed / moved) * 100)}%`,
+        contributors: capacityLines.map(({ c }) => c.label),
+        note: bom.shockNote ?? "",
+      };
+    }
+  }
+
+  return {
+    lead: bom.lead,
+    baseYear,
+    latestYear: latest,
+    baseTotal: money(baseTotal),
+    latestTotal: money(latestTotal),
+    lines,
+    shock,
+  };
+}
+
 /* ---- landing "featured index" affordability line ---------------------- */
 
 export function featuredLines(p: PresentedIndex): string[] {

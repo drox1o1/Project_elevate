@@ -52,7 +52,7 @@ chosen so the same system has to hold across nine different kinds of data:
 | Moneyball Player Price | $ per win above replacement | Labour-market inefficiency |
 | Vincent Vega Five-Dollar Shake | One premium milkshake | Restaurant inflation |
 | Walter White Purity Premium | $ per pure gram | Illicit-market pricing |
-| Rocket Singh PC | One mid-range desktop | Technology deflation |
+| Rocket Singh PC | One mid-range desktop, eight priced lines | Technology deflation, then the AI memory shock |
 | Khosla Plot | 500 sq yd, Delhi periphery | Land and asset inflation |
 | Fruit Company | $1,000 of Apple, held | Equity compounding |
 
@@ -63,6 +63,15 @@ unrounded values, purchasing-power comparisons, editorial drivers, a visible
 source ledger and an exportable share card. A persistent index rail — sticky
 sidebar on desktop, scrolling strip on mobile — carries a value and sparkline
 per index so it doubles as navigation and comparison.
+
+**Assembled units.** Where the indexed unit is a build rather than a single
+object, the index carries a `bom` — every part priced separately in every year,
+reconciled to sum exactly to the headline total. Rocket Singh PC is the first:
+eight lines that spent fifteen years cancelling each other out, until AI demand
+for high-bandwidth memory and data-centre storage made memory and storage 58%
+of everything the build gained between 2023 and 2025. Price per gigabyte is
+derived from installed capacity at render time rather than stored, so the module
+price and the per-gigabyte price cannot drift apart.
 
 **Art direction.** The section alternates two registers: dark full-bleed
 "scene" bands (hero, cold open, cross-country panel, share) that stay dark in

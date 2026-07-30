@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AffordabilityPanel } from "@/components/pop-indices/affordability-panel";
+import { BillOfMaterials } from "@/components/pop-indices/bill-of-materials";
 import { ColdOpen } from "@/components/pop-indices/cold-open";
 import { CountryPanel } from "@/components/pop-indices/country-panel";
 import { NoirBand, SectionHeading } from "@/components/pop-indices/editorial";
@@ -20,6 +21,7 @@ import {
 } from "@/lib/pop-indices/data";
 import {
   affordabilityFor,
+  bomFor,
   equationStepsFor,
   metricsFor,
   presentIndex,
@@ -69,6 +71,23 @@ export default async function IndexDetailPage({
   }));
   const values = seriesValues(p);
   const imageSrc = imageFor(index.slug);
+  const bom = bomFor(p);
+
+  /**
+   * Section numbers are derived, not written down. Two sections are
+   * conditional, and hand-numbering around them is how a page ends up with two
+   * sections called 03.
+   */
+  const order = [
+    "chart",
+    ...(index.slug === "royale-with-cheese" ? ["countries"] : []),
+    ...(bom ? ["bom"] : []),
+    "equation",
+    "affordability",
+    "interpretation",
+    "ledger",
+  ];
+  const ord = (key: string) => String(order.indexOf(key) + 1).padStart(2, "0");
 
   return (
     <main>
@@ -134,7 +153,7 @@ export default async function IndexDetailPage({
             {/* ── C · Primary historical chart ────────────────────── */}
             <section className="border-t border-border py-16 sm:py-20">
               <SectionHeading
-                ordinal="01"
+                ordinal={ord("chart")}
                 eyebrow="The series"
                 title="What it was worth, each year"
                 lead="Nominal local currency by default. Switch modes to strip out inflation, express the figure as earning time, or read it as quantity and percentage change."
@@ -208,7 +227,7 @@ export default async function IndexDetailPage({
         <NoirBand accent={index.accent} scopeId={`${index.slug}-panel`}>
           <div className="mx-auto max-w-6xl px-4 py-20 sm:py-24">
             <SectionHeading
-              ordinal="02"
+              ordinal={ord("countries")}
               eyebrow="Purchasing-power parity"
               title="Same burger. Different economy."
               lead="Hold the product physically identical and let the currency, the tax treatment, the wage and the name on the menu change around it. What is left is purchasing-power parity."
@@ -228,10 +247,31 @@ export default async function IndexDetailPage({
         <div className="lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-14 xl:gap-20">
           <div aria-hidden="true" className="hidden lg:block" />
           <div className="min-w-0">
+            {/* ── C2 · Bill of materials — only for assembled units ── */}
+            {bom ? (
+              <section
+                id="bill-of-materials"
+                className="scroll-mt-20 border-t border-border py-16 sm:py-20"
+              >
+                <SectionHeading
+                  ordinal={ord("bom")}
+                  eyebrow="Composition"
+                  title="The build, line by line"
+                  lead={`Every part of the indexed unit, priced separately in every year from ${index.baseYear}.`}
+                />
+                <BillOfMaterials
+                  id={index.slug}
+                  bom={bom}
+                  accent={index.accent}
+                  className="mt-10"
+                />
+              </section>
+            ) : null}
+
             {/* ── D · The complete equation ───────────────────────── */}
             <section className="border-t border-border py-16 sm:py-20">
               <SectionHeading
-                ordinal={index.slug === "royale-with-cheese" ? "03" : "02"}
+                ordinal={ord("equation")}
                 eyebrow="Calculation"
                 title="The complete equation"
                 lead="Not a footnote. Every step, every number, the dataset it came from and the rounding rule applied to it."
@@ -255,7 +295,7 @@ export default async function IndexDetailPage({
             {/* ── E · Purchasing-power comparison ────────────────── */}
             <section className="border-t border-border py-16 sm:py-20">
               <SectionHeading
-                ordinal={index.slug === "royale-with-cheese" ? "04" : "03"}
+                ordinal={ord("affordability")}
                 eyebrow="Affordability"
                 title="Price is only the first question"
                 lead="How much it cost, how much the underlying thing appreciated, and how hard it was for a person to afford — three different questions with three different answers."
@@ -271,7 +311,7 @@ export default async function IndexDetailPage({
             {/* ── F · What drove the change ──────────────────────── */}
             <section className="border-t border-border py-16 sm:py-20">
               <SectionHeading
-                ordinal={index.slug === "royale-with-cheese" ? "05" : "04"}
+                ordinal={ord("interpretation")}
                 eyebrow="Interpretation"
                 title="What drove the change"
               />
@@ -326,7 +366,7 @@ export default async function IndexDetailPage({
               className="scroll-mt-20 border-t border-border py-16 sm:py-20"
             >
               <SectionHeading
-                ordinal={index.slug === "royale-with-cheese" ? "06" : "05"}
+                ordinal={ord("ledger")}
                 eyebrow="Provenance"
                 title="Source ledger"
                 lead={`Every dataset behind this page, with the adjustments applied on the way in and how gaps are treated. Last verified ${SNAPSHOT_LABEL}.`}

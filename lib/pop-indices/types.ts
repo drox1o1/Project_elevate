@@ -145,6 +145,49 @@ export interface Accent {
   dark: string;
 }
 
+/**
+ * One priced line of a build.
+ *
+ * Exists because a single total hides the only interesting thing about a
+ * computer: the parts move in opposite directions and the total sits still.
+ */
+export interface BuildComponent {
+  id: string;
+  label: string;
+  /** The part as it actually was, in the base year and the latest year. */
+  baseSpec: string;
+  latestSpec: string;
+  seriesId: string;
+  /**
+   * Optional installed-capacity series, in gigabytes. Only meaningful for
+   * parts sold by capacity — memory and storage — where the module price and
+   * the price of a gigabyte tell opposite stories.
+   *
+   * Capacity is the observed fact; price per gigabyte is derived from it and
+   * the line price at render time. Storing the division instead would let the
+   * two drift apart by a rounding error, which is exactly the kind of small
+   * inconsistency this section cannot afford.
+   */
+  capacitySeriesId?: string;
+  /** One line on what moved this part. */
+  note: string;
+}
+
+/**
+ * The bill of materials behind an index whose unit is an assembly rather than
+ * a single object. Optional on PopIndex: most indices price one thing.
+ */
+export interface BillOfMaterials {
+  lead: string;
+  components: BuildComponent[];
+  /**
+   * The recent window the panel calls out separately, e.g. [2023, 2025] for
+   * the memory shock. Absent means no window is highlighted.
+   */
+  shockWindow?: [number, number];
+  shockNote?: string;
+}
+
 /** The comparison an index makes against a broader benchmark. */
 export interface Benchmark {
   seriesId: string;
@@ -205,6 +248,8 @@ export interface PopIndex {
   unitFactorNote: string;
   equation: EquationStep[];
   events?: ChartEvent[];
+  /** Present when the indexed unit is assembled from separately priced parts. */
+  bom?: BillOfMaterials;
 
   /* --- Layer 6: interpretation --- */
   category: EconomicCategory;
