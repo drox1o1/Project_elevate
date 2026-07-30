@@ -38,12 +38,11 @@ option chain (Black-Scholes Greeks via `registry/default/lib/black-scholes.ts`),
 Greeks panel, USDT→ETH swap, agent execution canvas, portfolio risk cockpit
 and biomarker trend explorer. Data in demos is simulated and labelled as such.
 
-## Pop PPP
+## Pop Indices
 
-`/pop-ppp` is **Pop Culture Purchasing Power Parity** — an editorial data
-section that converts specific objects, dialogues and transactions from film
-into real economic indices. Six ship, chosen so the same system has to hold
-across six different kinds of data:
+`/pop-indices` is an editorial data section that converts specific objects,
+dialogues and transactions from film into real economic indices. Nine ship,
+chosen so the same system has to hold across nine different kinds of data:
 
 | Index | Unit | Economics |
 | --- | --- | --- |
@@ -53,9 +52,9 @@ across six different kinds of data:
 | Moneyball Player Price | $ per win above replacement | Labour-market inefficiency |
 | Vincent Vega Five-Dollar Shake | One premium milkshake | Restaurant inflation |
 | Walter White Purity Premium | $ per pure gram | Illicit-market pricing |
-
-A further 19 references sit in the research catalogue with their data sources
-and a feasibility rating.
+| Rocket Singh PC | One mid-range desktop | Technology deflation |
+| Khosla Plot | 500 sq yd, Delhi periphery | Land and asset inflation |
+| Fruit Company | $1,000 of Apple, held | Equity compounding |
 
 Each index page carries the full stack: cold open, headline result, multi-mode
 time-series chart (nominal / inflation-adjusted / earning time / quantity /
@@ -68,20 +67,20 @@ per index so it doubles as navigation and comparison.
 **Art direction.** The section alternates two registers: dark full-bleed
 "scene" bands (hero, cold open, cross-country panel, share) that stay dark in
 both themes, and theme-following "analysis" sections for charts, equations and
-ledgers. Each index gets generative artwork drawn from its own series — eight
+ledgers. Each index gets generative artwork drawn from its own series — nine
 motifs in `index-artwork.tsx` — rather than an icon, so no two indices can look
 alike.
 
 ```
-lib/pop-ppp/types.ts     # index, dataset, observation and series schema
-lib/pop-ppp/calc.ts      # calculation framework (base/real/CAGR/affordability)
-lib/pop-ppp/data.ts      # datasets, series snapshot, indices, catalogue
-lib/pop-ppp/present.ts   # one presentation layer shared by every page
+lib/pop-indices/types.ts     # index, dataset, observation and series schema
+lib/pop-indices/calc.ts      # calculation framework (base/real/CAGR/affordability)
+lib/pop-indices/data.ts      # datasets, series snapshot, indices, catalogue
+lib/pop-indices/present.ts   # one presentation layer shared by every page
 ```
 
-**Key art.** Index images live in `public/pop-ppp/`, named by index slug or by
-one of the aliases in `lib/pop-ppp/images.ts` (case, spaces and dashes ignored).
-`npm run pop-ppp:images [dir]` copies images in from anywhere and renames them
+**Key art.** Index images live in `public/pop-indices/`, named by index slug or by
+one of the aliases in `lib/pop-indices/images.ts` (case, spaces and dashes ignored).
+`npm run pop-indices:images [dir]` copies images in from anywhere and renames them
 to their slugs. Any index without a file falls back to generative artwork drawn
 from its own series, so the section renders complete either way.
 
@@ -92,8 +91,8 @@ figure needs re-verification against its primary source before the section is
 published publicly. Provisional and interpolated observations are marked as
 hollow points, real gaps in a series render dashed, and pages show "last
 verified" rather than "today".
-Reference submissions POST to `/api/pop-ppp/submissions`, forwarded to
-`DUKU_POP_PPP_WEBHOOK` when set.
+Reference submissions POST to `/api/pop-indices/submissions`, forwarded to
+`DUKU_POP_INDICES_WEBHOOK` when set.
 
 ## MCP server
 
@@ -145,9 +144,9 @@ items require `Authorization: Bearer <key>`; unset means open dev mode.
 ```
 app/                    # docs site, /mcp MCP server, /r registry endpoint
 app/(site)/connect/     # MCP setup instructions
-app/(site)/pop-ppp/     # Pop PPP editorial section (landing, indices, methodology)
-components/pop-ppp/     # chart, equation, ledger, cold open, share card
-lib/pop-ppp/            # data model, calculation framework, data snapshot
+app/(site)/pop-indices/     # Pop Indices editorial section (landing, indices, methodology)
+components/pop-indices/     # chart, equation, ledger, cold open, share card
+lib/pop-indices/            # data model, calculation framework, data snapshot
 lib/agent-manifest.ts   # agent-readable component schema (drives /mcp)
 lib/tokens.ts           # token layer documentation
 registry/default/

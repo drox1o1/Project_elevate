@@ -9,19 +9,19 @@ import { ThemeToggle } from "@/components/site/theme-toggle";
 const LINKS = [
   { href: "/", label: "Home" },
   { href: "/components/button", label: "Components" },
-  { href: "/pop-ppp", label: "Pop PPP" },
+  { href: "/pop-indices", label: "Pop Indices" },
   { href: "/connect", label: "MCP" },
   { href: "/pricing", label: "Pricing" },
 ];
 
 export function SiteNav() {
   const pathname = usePathname();
-  // Pop PPP is a standalone property, not an experiment tucked under Labs —
+  // Pop Indices is a standalone property, not an experiment tucked under Labs —
   // every route beneath it keeps the top-level nav item lit.
   const activeHref = pathname.startsWith("/components")
     ? "/components/button"
-    : pathname.startsWith("/pop-ppp")
-      ? "/pop-ppp"
+    : pathname.startsWith("/pop-indices")
+      ? "/pop-indices"
       : pathname === "/connect"
         ? "/connect"
         : pathname === "/pricing"
