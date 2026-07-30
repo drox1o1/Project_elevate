@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ScrollFade } from "@/components/site/scroll-fade";
 import {
   CONFIDENCE_COPY,
   ConfidenceBadge,
 } from "@/components/pop-ppp/confidence-badge";
+import { NoirBand } from "@/components/pop-ppp/editorial";
 import { SourceLedger } from "@/components/pop-ppp/source-ledger";
 import { DATASETS, GRAMS_PER_TOLA, SNAPSHOT_LABEL } from "@/lib/pop-ppp/data";
 import { FORMULA_VERSION } from "@/lib/pop-ppp/calc";
@@ -81,14 +81,23 @@ const SECTIONS: Section[] = [
     id: "affordability",
     title: "Salary and affordability comparisons",
     body: [
-      "Price appreciation says nothing about whether a thing became harder to buy. That question needs an income series, and income series are the weakest link in every Indian index here.",
-      "We use per-capita net national income at current prices, divided by twelve. It is a national average across the entire population — not a wage, not an urban salary, and certainly not a Mumbai salary. It understates urban salaried earnings and overstates rural ones. Read the affordability rows as a direction of travel, not as a payslip. Where a defensible wage series exists for a geography, it will replace NNI.",
+      "Price appreciation says nothing about whether a thing became harder to buy. That question needs an income series, and the income series are the weakest link in this section.",
+      "The Indian indices use per-capita net national income at current prices, divided by twelve. It is a national average across the entire population — not a wage, not an urban salary, and certainly not a Mumbai salary. It understates urban salaried earnings and overstates rural ones. The US indices use median usual weekly earnings for full-time workers, which is a genuine wage but excludes the part-time and tipped workforce most exposed to restaurant prices. Neither is a payslip. Read the affordability rows as a direction of travel.",
+      "Where the figure is smaller than a month, it is expressed in working time rather than elapsed time: a 40-hour week averaged over a month is 173.3 hours. A cost of one-thousandth of monthly income is about ten working minutes, not forty-four calendar minutes. Converting on calendar hours would overstate every small figure fourfold.",
     ],
     formulas: [
       { label: "Months of income", expression: "object value ÷ monthly income" },
       {
         label: "Affordability change",
         expression: "current months of income ÷ historical months of income",
+      },
+      {
+        label: "Sub-month units",
+        expression: "months × 173.33 = working hours (40 h × 52 ÷ 12)",
+      },
+      {
+        label: "Minutes of work",
+        expression: "price ÷ hourly wage × 60",
       },
     ],
   },
@@ -122,8 +131,9 @@ const SECTIONS: Section[] = [
     id: "missing-data",
     title: "Missing data and conflicting sources",
     body: [
-      "A year with no verified observation is interpolated from adjacent years, drawn as a dashed segment, and labelled as interpolated in its tooltip. It is never presented as an observation.",
-      "An observation that exists but is not yet final — a part-year average, an advance estimate — is flagged provisional and drawn as a hollow point. Where two credible sources disagree, the index states which was preferred and why rather than silently averaging them.",
+      "A year with no verified observation is interpolated from adjacent years, drawn as a hollow point on the chart, and labelled as interpolated in its tooltip. It is never presented as an observation. Where the series has a genuine hole — two or more consecutive years missing — the connecting segment is dashed as well.",
+      "A segment is not dashed merely because one of its endpoints is interpolated. Several series are surveyed every second year, and dashing every stretch of those would render a well-sourced index as entirely unknown, which is both wrong and useless. Provenance is marked at the point level, where it actually applies.",
+      "An observation that exists but is not yet final — a part-year average, an advance estimate — is flagged provisional and drawn as a hollow point in the accent colour. Where two credible sources disagree, the index states which was preferred and why rather than silently averaging them.",
       "Excluding data is sometimes more honest than adjusting it. The Moneyball Index omits 2020 entirely: a sixty-game season has no comparable full-season price of a win, and pro-rating it would invent a figure nobody could defend.",
     ],
   },
@@ -131,8 +141,9 @@ const SECTIONS: Section[] = [
     id: "illegal-markets",
     title: "Illegal-market data policy",
     body: [
-      "Some references in the wider catalogue concern illicit markets. Where those publish, they will be built strictly on institutional and academic data — UNODC, published enforcement statistics, peer-reviewed literature — and framed as crime economics and public policy.",
-      "They will not include operational detail of any kind: no production or synthesis information, no procurement or sourcing guidance, no location-specific pricing that could function as a market signal. An index that could only be made useful by crossing that line will not be published.",
+      "One index in this release concerns an illicit market, and two more are in the catalogue. They are built strictly on institutional and academic data — DEA and UNODC price and purity reporting, published enforcement statistics, peer-reviewed literature — and framed as crime economics and public policy.",
+      "They contain no operational detail of any kind: no production or synthesis information, no procurement or sourcing guidance, no location-specific pricing that could function as a market signal. An index that could only be made useful by crossing that line will not be published.",
+      "They also carry no affordability or income comparison, and never will. Framing an illicit drug as a household purchase would be analytically wrong — these are not consumer goods bought out of monthly earnings — and editorially indefensible. The purity adjustment exists to make prices comparable across years, not to make a market look like a shop.",
     ],
   },
   {
@@ -158,9 +169,9 @@ const LEVELS: Confidence[] = ["verified", "reconstructed", "estimated"];
 const LEVEL_EXAMPLES: Record<Confidence, string> = {
   verified: "Gold prices, MLB payrolls, CPI, listed equities.",
   reconstructed:
-    "Historical milkshake prices, paneer retail prices, $/WAR estimates, back-cast CPI.",
+    "Menu-archive prices for shakes and burgers, paneer retail prices, $/WAR estimates, back-cast CPI.",
   estimated:
-    "Fictional object weights, illicit-market pricing, collector value of invented artefacts.",
+    "Illicit-market price and purity reporting, fictional object weights, collector value of invented artefacts.",
 };
 
 export default function MethodologyPage() {
@@ -168,31 +179,37 @@ export default function MethodologyPage() {
 
   return (
     <main>
-      <section className="mx-auto max-w-5xl px-4 pb-10 pt-20">
-        <ScrollFade>
-          <p className="font-pixel type-overline text-muted-foreground">
+      <NoirBand
+        accent={{ light: "hsl(41 74% 58%)", dark: "hsl(41 74% 58%)" }}
+        scopeId="pop-methodology"
+      >
+        <div className="mx-auto max-w-5xl px-4 pb-20 pt-20 sm:pt-24">
+          <p className="font-mono type-caption uppercase tracking-[0.2em] text-white/45">
             <Link
               href="/pop-ppp"
-              className="underline-offset-4 transition-colors duration-200 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="underline-offset-4 transition-colors duration-200 hover:text-white hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
             >
               Pop PPP
             </Link>{" "}
             / Methodology
           </p>
-          <h1 className="mt-4 text-balance text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
+          <h1 className="mt-6 max-w-3xl text-balance text-[2.25rem] font-semibold leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl">
             How the numbers are made
           </h1>
-          <p className="mt-4 max-w-2xl type-body leading-7 text-muted-foreground">
+          <p className="mt-7 max-w-2xl text-[0.9375rem] leading-7 text-white/55">
             The joke is in the scene. Nothing in this document is funny, on
             purpose — methodology language is where humour stops being an asset.
           </p>
-        </ScrollFade>
-      </section>
+        </div>
+      </NoirBand>
 
       {/* Contents */}
-      <section className="mx-auto max-w-5xl px-4 pb-12">
+      <section className="mx-auto max-w-5xl px-4 py-14">
         <nav aria-label="Methodology contents">
-          <ol className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
+          <p className="font-mono type-caption uppercase tracking-[0.14em] text-muted-foreground">
+            Contents
+          </p>
+          <ol className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2">
             {SECTIONS.map((s, i) => (
               <li key={s.id} className="flex gap-3">
                 <span className="font-mono type-caption text-muted-foreground numeric">
@@ -214,7 +231,7 @@ export default function MethodologyPage() {
         <section key={s.id} id={s.id} className="scroll-mt-20 border-t border-border">
           <div className="mx-auto max-w-5xl px-4 py-14">
             <div className="grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-12">
-              <h2 className="type-metric text-foreground lg:sticky lg:top-24 lg:self-start">
+              <h2 className="text-xl font-semibold leading-tight tracking-[-0.02em] text-foreground lg:sticky lg:top-24 lg:self-start lg:text-2xl">
                 {s.title}
               </h2>
               <div className="min-w-0">
@@ -288,7 +305,10 @@ export default function MethodologyPage() {
       {/* Every dataset in the section, in one ledger */}
       <section id="all-sources" className="scroll-mt-20 border-t border-border">
         <div className="mx-auto max-w-5xl px-4 py-16">
-          <h2 className="font-pixel text-xl uppercase tracking-wide sm:text-2xl">
+          <p className="font-mono type-caption uppercase tracking-[0.14em] text-muted-foreground">
+            Provenance
+          </p>
+          <h2 className="mt-4 text-[1.75rem] font-semibold leading-tight tracking-[-0.03em] text-foreground sm:text-4xl">
             Every dataset in Pop PPP
           </h2>
           <p className="mt-3 max-w-2xl type-body leading-6 text-muted-foreground">

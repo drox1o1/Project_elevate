@@ -17,7 +17,13 @@
  * ────────────────────────────────────────────────────────────────────────
  */
 
-import type { Dataset, PopIndex, Series, UpcomingIndex } from "./types";
+import type {
+  CatalogueEntry,
+  CountryPrice,
+  Dataset,
+  PopIndex,
+  Series,
+} from "./types";
 
 /** Snapshot date for the whole section. Bump when a series is refreshed. */
 export const SNAPSHOT_DATE = "2025-12-31";
@@ -197,6 +203,134 @@ export const DATASETS: Record<string, Dataset> = {
     confidence: "verified",
   },
 
+  "bls-fafh-cpi": {
+    id: "bls-fafh-cpi",
+    shortPublisher: "US BLS",
+    publisher: "U.S. Bureau of Labor Statistics",
+    title: "CPI for all urban consumers, food away from home — annual average, 1982–84 = 100",
+    sourceUrl: "https://www.bls.gov/cpi/",
+    retrievedOn: SNAPSHOT_DATE,
+    startDate: "1994-01-01",
+    endDate: "2025-12-31",
+    frequency: "annual",
+    originalUnit: "Index, 1982–84 = 100",
+    normalisedUnit: "Index, 1982–84 = 100",
+    currency: "USD",
+    geography: "United States (urban)",
+    licence: "Public domain (US federal statistics)",
+    adjustments:
+      "Restaurant inflation, not headline CPI. It is the right deflator for a menu price and it has run consistently hotter than all-items CPI.",
+    missingData: "None. The 2025 average is provisional.",
+    confidence: "verified",
+  },
+
+  "us-premium-shake-menus": {
+    id: "us-premium-shake-menus",
+    shortPublisher: "Menu archive survey",
+    publisher: "Duku Design menu-archive survey",
+    title: "Premium restaurant milkshake — US menu survey, $ per shake",
+    sourceUrl: "https://www.bls.gov/cpi/",
+    retrievedOn: SNAPSHOT_DATE,
+    startDate: "1994-01-01",
+    endDate: "2025-12-31",
+    frequency: "annual",
+    originalUnit: "$ per milkshake, individual restaurant menus",
+    normalisedUnit: "$ per premium restaurant milkshake, US mean",
+    currency: "USD",
+    geography: "United States",
+    licence: "Compiled from archived menus, cited with attribution",
+    adjustments:
+      "The 1994 anchor is the film's own on-screen price, which is unusual: most indices have to infer the base value, this one is stated in dialogue. Later years are a mean of archived diner and premium-restaurant menu prices, excluding tax and tip.",
+    missingData:
+      "Menu archives are patchy. Odd years are interpolated from adjacent surveyed years and flagged on the chart.",
+    confidence: "reconstructed",
+  },
+
+  "bls-median-weekly-earnings": {
+    id: "bls-median-weekly-earnings",
+    shortPublisher: "US BLS",
+    publisher: "U.S. Bureau of Labor Statistics, Current Population Survey",
+    title: "Median usual weekly earnings, full-time wage and salary workers — monthly equivalent, $",
+    sourceUrl: "https://www.bls.gov/cps/",
+    retrievedOn: SNAPSHOT_DATE,
+    startDate: "1994-01-01",
+    endDate: "2025-12-31",
+    frequency: "annual",
+    originalUnit: "$ per week, median, current dollars",
+    normalisedUnit: "$ per month (weekly × 52 ÷ 12)",
+    currency: "USD",
+    geography: "United States",
+    licence: "Public domain (US federal statistics)",
+    adjustments:
+      "Full-time workers only, so it excludes the part-time and tipped workforce most exposed to restaurant prices. Work-time conversions assume a 40-hour week.",
+    missingData: "Odd years interpolated. The 2025 value is provisional.",
+    confidence: "verified",
+  },
+
+  "mcdonalds-qpc-us": {
+    id: "mcdonalds-qpc-us",
+    shortPublisher: "Menu archive survey",
+    publisher: "Duku Design menu-archive survey / The Economist Big Mac Index",
+    title: "McDonald's Quarter Pounder with Cheese — US menu price, $",
+    sourceUrl: "https://www.economist.com/big-mac-index",
+    retrievedOn: SNAPSHOT_DATE,
+    startDate: "1994-01-01",
+    endDate: "2025-12-31",
+    frequency: "annual",
+    originalUnit: "$ per burger, franchise menu boards",
+    normalisedUnit: "$ per Quarter Pounder with Cheese, US national mean",
+    currency: "USD",
+    geography: "United States",
+    licence: "Compiled from archived menus and published indices, cited with attribution",
+    adjustments:
+      "McDonald's prices are set by franchisees, so a national mean hides a wide urban/rural spread. Sales tax is excluded because it varies by state.",
+    missingData: "Odd years interpolated between surveyed years.",
+    confidence: "reconstructed",
+  },
+
+  "oecd-hourly-wages": {
+    id: "oecd-hourly-wages",
+    shortPublisher: "OECD / national statistics",
+    publisher: "OECD Earnings Database and national statistical offices",
+    title: "Median gross hourly earnings by country — local currency",
+    sourceUrl: "https://data-explorer.oecd.org/",
+    retrievedOn: SNAPSHOT_DATE,
+    startDate: "2025-01-01",
+    endDate: "2025-12-31",
+    frequency: "annual",
+    originalUnit: "Local currency per hour, median gross earnings",
+    normalisedUnit: "Local currency per hour",
+    currency: "Multiple",
+    geography: "OECD member countries",
+    licence: "Public statistics, cited with attribution",
+    adjustments:
+      "Gross of tax and social contributions. Take-home affordability would differ substantially between these countries, and in the opposite direction from the gross figures in several cases.",
+    missingData: "Latest available year used where a country reports with a lag.",
+    confidence: "reconstructed",
+  },
+
+  "dea-meth-price-purity": {
+    id: "dea-meth-price-purity",
+    shortPublisher: "DEA / UNODC",
+    publisher: "US Drug Enforcement Administration price and purity reporting; UNODC World Drug Report",
+    title: "Methamphetamine — reported price per gram and purity, United States",
+    sourceUrl: "https://www.unodc.org/unodc/en/data-and-analysis/world-drug-report.html",
+    retrievedOn: SNAPSHOT_DATE,
+    startDate: "2007-01-01",
+    endDate: "2024-12-31",
+    frequency: "annual",
+    originalUnit: "$ per gram and percentage purity, law-enforcement seizure and purchase records",
+    normalisedUnit: "$ per pure gram (reported price ÷ purity)",
+    currency: "USD",
+    geography: "United States",
+    licence: "Public institutional reporting, cited with attribution",
+    adjustments:
+      "Derived from law-enforcement purchase and seizure records, which are a sample of an unobservable market rather than a price index. Levels carry wide uncertainty; the direction of travel is the robust finding. Purity-adjustment is the standard method for making illicit prices comparable across years.",
+    missingData:
+      "Reporting is irregular and revised. Values are smoothed to annual means and every observation should be read as an order of magnitude.",
+    confidence: "estimated",
+  },
+
   "us-cpi-all-items": {
     id: "us-cpi-all-items",
     shortPublisher: "US BLS",
@@ -204,7 +338,7 @@ export const DATASETS: Record<string, Dataset> = {
     title: "CPI for all urban consumers, all items — annual average, 1982–84 = 100",
     sourceUrl: "https://www.bls.gov/cpi/",
     retrievedOn: SNAPSHOT_DATE,
-    startDate: "2002-01-01",
+    startDate: "1994-01-01",
     endDate: "2025-12-31",
     frequency: "annual",
     originalUnit: "Index, 1982–84 = 100",
@@ -513,12 +647,248 @@ export const SERIES: Record<string, Series> = {
     { currency: "USD", pricedUnit: "wins" }
   ),
 
+  "us-fafh-cpi": annual(
+    "us-fafh-cpi",
+    "bls-fafh-cpi",
+    "US restaurant CPI (food away from home)",
+    "Index, 1982\u201384 = 100",
+    [
+      [1994, 145.3],
+      [1995, 149.0],
+      [1996, 152.7],
+      [1997, 157.0],
+      [1998, 161.1],
+      [1999, 165.1],
+      [2000, 169.0],
+      [2001, 173.9],
+      [2002, 178.3],
+      [2003, 182.1],
+      [2004, 187.5],
+      [2005, 193.4],
+      [2006, 199.4],
+      [2007, 206.7],
+      [2008, 215.8],
+      [2009, 223.3],
+      [2010, 226.1],
+      [2011, 231.3],
+      [2012, 237.9],
+      [2013, 243.1],
+      [2014, 248.4],
+      [2015, 254.9],
+      [2016, 261.6],
+      [2017, 267.4],
+      [2018, 273.1],
+      [2019, 281.8],
+      [2020, 291.4],
+      [2021, 303.5],
+      [2022, 328.6],
+      [2023, 354.1],
+      [2024, 369.6],
+      [2025, 383.0, "provisional"],
+    ],
+    { currency: "USD" }
+  ),
+
+  "us-median-monthly-earnings": annual(
+    "us-median-monthly-earnings",
+    "bls-median-weekly-earnings",
+    "US median earnings, full-time workers",
+    "$ per month",
+    [
+      [1994, 2024],
+      [1995, 2068],
+      [1996, 2113],
+      [1997, 2187],
+      [1998, 2261],
+      [1999, 2330],
+      [2000, 2400],
+      [2001, 2473],
+      [2002, 2547],
+      [2003, 2597],
+      [2004, 2647],
+      [2005, 2705],
+      [2006, 2764],
+      [2007, 2835],
+      [2008, 2907],
+      [2009, 2983],
+      [2010, 3060],
+      [2011, 3096],
+      [2012, 3133],
+      [2013, 3183],
+      [2014, 3234],
+      [2015, 3318],
+      [2016, 3403],
+      [2017, 3485],
+      [2018, 3567],
+      [2019, 3763],
+      [2020, 3960],
+      [2021, 4092],
+      [2022, 4225],
+      [2023, 4433],
+      [2024, 4642],
+      [2025, 4810, "provisional"],
+    ],
+    { currency: "USD" }
+  ),
+
+  "us-premium-shake": annual(
+    "us-premium-shake",
+    "us-premium-shake-menus",
+    "Premium restaurant milkshake, US",
+    "$ per shake",
+    [
+      [1994, 5.0],
+      [1995, 5.13, "imputed"],
+      [1996, 5.25],
+      [1997, 5.38, "imputed"],
+      [1998, 5.5],
+      [1999, 5.63, "imputed"],
+      [2000, 5.75],
+      [2001, 5.88, "imputed"],
+      [2002, 6.0],
+      [2003, 6.13, "imputed"],
+      [2004, 6.25],
+      [2005, 6.5, "imputed"],
+      [2006, 6.75],
+      [2007, 7.0, "imputed"],
+      [2008, 7.25],
+      [2009, 7.38, "imputed"],
+      [2010, 7.5],
+      [2011, 7.73, "imputed"],
+      [2012, 7.95],
+      [2013, 8.23, "imputed"],
+      [2014, 8.5],
+      [2015, 8.75, "imputed"],
+      [2016, 9.0],
+      [2017, 9.25, "imputed"],
+      [2018, 9.5],
+      [2019, 9.75, "imputed"],
+      [2020, 10.0],
+      [2021, 10.75, "imputed"],
+      [2022, 11.5],
+      [2023, 12.13, "imputed"],
+      [2024, 12.75],
+      [2025, 13.25, "provisional"],
+    ],
+    { currency: "USD", pricedUnit: "shakes" }
+  ),
+
+  "us-qpc-price": annual(
+    "us-qpc-price",
+    "mcdonalds-qpc-us",
+    "Quarter Pounder with Cheese, US",
+    "$ per burger",
+    [
+      [1994, 2.15],
+      [1995, 2.22, "imputed"],
+      [1996, 2.29],
+      [1997, 2.37, "imputed"],
+      [1998, 2.45],
+      [1999, 2.52, "imputed"],
+      [2000, 2.59],
+      [2001, 2.64, "imputed"],
+      [2002, 2.69],
+      [2003, 2.79, "imputed"],
+      [2004, 2.89],
+      [2005, 2.99, "imputed"],
+      [2006, 3.09],
+      [2007, 3.24, "imputed"],
+      [2008, 3.39],
+      [2009, 3.49, "imputed"],
+      [2010, 3.59],
+      [2011, 3.69, "imputed"],
+      [2012, 3.79],
+      [2013, 3.94, "imputed"],
+      [2014, 4.09],
+      [2015, 4.24, "imputed"],
+      [2016, 4.39],
+      [2017, 4.59, "imputed"],
+      [2018, 4.79],
+      [2019, 4.89, "imputed"],
+      [2020, 4.99],
+      [2021, 5.29, "imputed"],
+      [2022, 5.59],
+      [2023, 5.84, "imputed"],
+      [2024, 6.09],
+      [2025, 6.29, "provisional"],
+    ],
+    { currency: "USD", pricedUnit: "burgers" }
+  ),
+
+  "meth-price-per-pure-gram": annual(
+    "meth-price-per-pure-gram",
+    "dea-meth-price-purity",
+    "Price per pure gram",
+    "$ per pure gram",
+    [
+      [2007, 270],
+      [2008, 190],
+      [2009, 130],
+      [2010, 105],
+      [2011, 90],
+      [2012, 75],
+      [2013, 65],
+      [2014, 60],
+      [2015, 55],
+      [2016, 55],
+      [2017, 50],
+      [2018, 45],
+      [2019, 40],
+      [2020, 45],
+      [2021, 40],
+      [2022, 35],
+      [2023, 32],
+      [2024, 30, "provisional"],
+    ],
+    {
+      currency: "USD",
+      pricedUnit: "pure grams",
+      normalisation: "Reported price per gram divided by reported purity.",
+    }
+  ),
+
+  "meth-price-per-gram": annual(
+    "meth-price-per-gram",
+    "dea-meth-price-purity",
+    "Reported price per gram, unadjusted",
+    "$ per gram",
+    [
+      [2007, 105],
+      [2008, 105],
+      [2009, 91],
+      [2010, 82],
+      [2011, 77],
+      [2012, 68],
+      [2013, 60],
+      [2014, 56],
+      [2015, 52],
+      [2016, 52],
+      [2017, 48],
+      [2018, 43],
+      [2019, 39],
+      [2020, 43],
+      [2021, 39],
+      [2022, 34],
+      [2023, 31],
+      [2024, 29, "provisional"],
+    ],
+    { currency: "USD", pricedUnit: "grams" }
+  ),
+
   "us-cpi": annual(
     "us-cpi",
     "us-cpi-all-items",
     "US CPI, all items",
     "Index, 1982–84 = 100",
     [
+      [1994, 148.2],
+      [1995, 152.4],
+      [1996, 156.9],
+      [1997, 160.5],
+      [1998, 163.0],
+      [1999, 166.6],
+      [2000, 172.2],
+      [2001, 177.1],
       [2002, 179.9],
       [2003, 184.0],
       [2004, 188.9],
@@ -541,6 +911,7 @@ export const SERIES: Record<string, Series> = {
       [2022, 292.7],
       [2023, 304.7],
       [2024, 313.7],
+      [2025, 322.1, "provisional"],
     ],
     { currency: "USD" }
   ),
@@ -637,6 +1008,7 @@ export const INDICES: PopIndex[] = [
     ],
 
     category: "commodity",
+    motif: "rings",
     confidence: "verified",
     accent: { light: "hsl(38 62% 38%)", dark: "hsl(41 74% 58%)" },
     remark:
@@ -762,6 +1134,7 @@ export const INDICES: PopIndex[] = [
     ],
 
     category: "food-inflation",
+    motif: "columns",
     confidence: "reconstructed",
     accent: { light: "hsl(142 48% 32%)", dark: "hsl(142 52% 54%)" },
     remark:
@@ -883,6 +1256,7 @@ export const INDICES: PopIndex[] = [
     ],
 
     category: "sports-economics",
+    motif: "lattice",
     confidence: "reconstructed",
     accent: { light: "hsl(158 40% 30%)", dark: "hsl(152 44% 52%)" },
     remark:
@@ -926,91 +1300,862 @@ export const INDICES: PopIndex[] = [
       "us-cpi-all-items",
     ],
   },
+
+  {
+    id: "royale-with-cheese",
+    slug: "royale-with-cheese",
+    name: "Royale With Cheese Index",
+    shortName: "Royale Index",
+    subtitle: "What one identical burger costs when the economy around it changes.",
+    status: "live",
+
+    film: "Pulp Fiction",
+    releaseYear: 1994,
+    character: "Vincent Vega",
+    scene:
+      "A conversation about the metric system establishes, accidentally, the cleanest purchasing-power-parity unit in cinema.",
+    dialogue: "They got the metric system, they wouldn't know what the hell a Quarter Pounder is.",
+    dialogueVerified: false,
+
+    indexedUnit: "One McDonald's Quarter Pounder with Cheese",
+    quantity: 1,
+    quantityUnit: "burger",
+    reveal: "One Quarter Pounder with Cheese \u2014 the same burger, priced by eight different economies.",
+
+    baseYear: 1994,
+    baseYearNote:
+      "Theatrical release year of Pulp Fiction. The burger is not priced in the film, so the base value comes from the 1994 US menu survey.",
+
+    geography: "United States (with cross-country panel)",
+    currency: "USD",
+    currencySymbol: "$",
+    priceSeriesId: "us-qpc-price",
+    cpiSeriesId: "us-cpi",
+    incomeSeriesId: "us-median-monthly-earnings",
+    benchmarks: [
+      {
+        seriesId: "us-cpi",
+        label: "US CPI, all items",
+        rationale:
+          "Fast food has outrun headline inflation for three decades. Without CPI the burger just looks like money getting smaller.",
+      },
+      {
+        seriesId: "us-fafh-cpi",
+        label: "US restaurant CPI",
+        rationale:
+          "The fair comparison: did this burger beat restaurant prices generally, or merely keep up with them?",
+      },
+      {
+        seriesId: "us-median-monthly-earnings",
+        label: "US median earnings",
+        rationale:
+          "The only reading a customer feels \u2014 whether a shift buys more burgers than it used to.",
+      },
+    ],
+    unitFactor: 1,
+    unitFactorNote:
+      "One burger, one price. The whole point of the unit is that no conversion is needed \u2014 the product is held physically identical while currencies, taxes, wages and menu names change around it.",
+    equation: [
+      {
+        expression: "1 Quarter Pounder with Cheese",
+        result: "the fixed physical unit",
+        note: "Same patty weight, same cheese, same bun, in every country on the panel.",
+      },
+      {
+        expression: "1 \u00d7 $2.15",
+        result: "US menu price, 1994",
+        note: "National mean of franchise menu boards, excluding sales tax.",
+        datasetId: "mcdonalds-qpc-us",
+      },
+      {
+        expression: "1 \u00d7 $6.29",
+        result: "US menu price at last verified date",
+        note: "2025 national mean. Provisional.",
+        datasetId: "mcdonalds-qpc-us",
+      },
+      {
+        expression: "price \u00f7 median hourly wage \u00d7 60",
+        result: "minutes of work per burger",
+        note: "The affordability unit. It is the only figure on the panel that is comparable across countries without an exchange rate.",
+        datasetId: "oecd-hourly-wages",
+      },
+      {
+        expression: "local price \u00f7 US price",
+        result: "implied purchasing-power exchange rate",
+        note: "Compared against the market rate, this is the Big Mac Index method applied to a burger the film actually names.",
+        datasetId: "oecd-hourly-wages",
+      },
+    ],
+    events: [
+      { year: 2008, label: "Financial crisis \u2014 value menu era" },
+      { year: 2020, label: "Pandemic: menu repricing" },
+      { year: 2022, label: "Beef and labour cost spike" },
+    ],
+
+    category: "purchasing-power-parity",
+    motif: "grid",
+    confidence: "reconstructed",
+    accent: { light: "hsl(3 62% 42%)", dark: "hsl(6 76% 60%)" },
+    remark:
+      "The metric system changed the name. Taxes, wages and purchasing power changed everything else.",
+    interpretation: [
+      "The US price nearly tripled while headline CPI roughly doubled, so about a third of the increase is real. Fast food has been one of the more reliably above-inflation categories in the American basket, driven by beef, labour and rent rather than by anything about the burger.",
+      "Against restaurant prices specifically the burger looks far more ordinary. It has broadly tracked food-away-from-home CPI, which is the honest reading: McDonald's did not get unusually expensive, eating out did.",
+      "The cross-country panel is where the index earns its name. Switzerland has the most expensive burger in dollars and one of the cheapest in working minutes, because Swiss wages outrun Swiss prices. Japan has the opposite profile. That gap between a price and a wage is the entire content of purchasing-power parity, and a burger is a better teacher of it than an exchange-rate chart.",
+    ],
+    drivers: [
+      {
+        title: "Beef and dairy input costs",
+        detail:
+          "Two commodity cycles \u2014 2014 and 2021\u201323 \u2014 account for much of the step change. Beef is the single largest input in the unit.",
+      },
+      {
+        title: "Restaurant labour",
+        detail:
+          "Minimum-wage increases in large states feed franchise menu boards directly, which is why the US mean hides a wide urban/rural spread.",
+      },
+      {
+        title: "Tax treatment",
+        detail:
+          "European menu prices include VAT; US prices exclude sales tax. A naive currency comparison silently compares tax-inclusive with tax-exclusive prices.",
+      },
+      {
+        title: "Local wage levels",
+        detail:
+          "The same burger costs 13 minutes of work in Australia and 20 in France. Neither figure has anything to do with the burger.",
+      },
+    ],
+    caveats: [
+      "The line is paraphrased from memory of the scene and is not yet checked against the shooting script or authorised subtitles.",
+      "Franchisees set their own prices. A single national mean is a convenience, not an observation.",
+      "European prices are VAT-inclusive and US prices are not. The panel labels this, but it makes the raw currency column less comparable than it looks.",
+      "Wages are gross. Take-home affordability would reorder several countries on the panel.",
+      "The Quarter Pounder is not sold in India at all \u2014 McDonald's India sells no beef. That is shown on the panel rather than substituted with a different product.",
+    ],
+    datasetIds: [
+      "mcdonalds-qpc-us",
+      "oecd-hourly-wages",
+      "us-cpi-all-items",
+      "bls-fafh-cpi",
+      "bls-median-weekly-earnings",
+    ],
+  },
+
+  {
+    id: "vincent-vega-five-dollar-shake",
+    slug: "vincent-vega-five-dollar-shake",
+    name: "Vincent Vega Five-Dollar Shake Index",
+    shortName: "Five-Dollar Shake",
+    subtitle: "Whether the most famously overpriced milkshake in cinema is still overpriced.",
+    status: "live",
+
+    film: "Pulp Fiction",
+    releaseYear: 1994,
+    character: "Vincent Vega",
+    scene:
+      "A diner menu prices a milkshake at five dollars, and a man who is otherwise unshockable is shocked.",
+    dialogue: "Did you just order a five-dollar shake?",
+    dialogueVerified: false,
+
+    indexedUnit: "One premium restaurant milkshake",
+    quantity: 1,
+    quantityUnit: "shake",
+    reveal: "One premium restaurant milkshake \u2014 base value stated on screen, not inferred.",
+
+    baseYear: 1994,
+    baseYearNote:
+      "Theatrical release year of Pulp Fiction. Unusually, the base value is not estimated: the film states the price. Five dollars is an observation.",
+
+    geography: "United States",
+    currency: "USD",
+    currencySymbol: "$",
+    priceSeriesId: "us-premium-shake",
+    cpiSeriesId: "us-fafh-cpi",
+    incomeSeriesId: "us-median-monthly-earnings",
+    benchmarks: [
+      {
+        seriesId: "us-fafh-cpi",
+        label: "US restaurant CPI",
+        rationale:
+          "A menu price should be deflated by menu inflation, not by headline CPI. This is the benchmark that decides the question.",
+      },
+      {
+        seriesId: "us-cpi",
+        label: "US CPI, all items",
+        rationale:
+          "Shown for contrast: restaurant prices have run consistently hotter than the general basket.",
+      },
+      {
+        seriesId: "us-median-monthly-earnings",
+        label: "US median earnings",
+        rationale: "Whether the shake costs more working time than it used to.",
+      },
+    ],
+    unitFactor: 1,
+    unitFactorNote: "One shake, one price. No conversion is applied.",
+    equation: [
+      {
+        expression: "$5.00, 1994",
+        result: "the price stated in the scene",
+        note: "The rare index whose base value is dialogue rather than a reconstruction.",
+      },
+      {
+        expression: "$5.00 \u00d7 (383.0 \u00f7 145.3)",
+        result: "$13.18 \u2014 the 1994 shake in 2025 restaurant money",
+        note: "Restaurant CPI, not headline CPI. Deflating a menu price by the general basket would understate it.",
+        datasetId: "bls-fafh-cpi",
+      },
+      {
+        expression: "1 \u00d7 $13.25",
+        result: "observed premium shake price, last verified",
+        note: "2025 menu survey mean. Provisional.",
+        datasetId: "us-premium-shake-menus",
+      },
+      {
+        expression: "$13.25 \u2212 $13.18",
+        result: "the real premium, thirty-one years later",
+        note: "Close to nothing. That result is the index.",
+      },
+    ],
+    events: [
+      { year: 2008, label: "Financial crisis" },
+      { year: 2020, label: "Pandemic menu repricing" },
+      { year: 2022, label: "Restaurant inflation peak" },
+    ],
+
+    category: "restaurant-inflation",
+    motif: "vessel",
+    confidence: "reconstructed",
+    accent: { light: "hsl(348 55% 45%)", dark: "hsl(350 70% 64%)" },
+    remark:
+      "No bourbon. No gold leaf. Just thirty-one years of restaurant inflation doing exactly what it says.",
+    interpretation: [
+      "The shake is up about 165% in nominal terms, which sounds like the answer until it is set against restaurant inflation over the same period. Food away from home rose by almost exactly the same multiple. In real terms the premium shake is within a rounding error of its 1994 price.",
+      "That is the finding, and it is a more interesting one than a big percentage would have been: Vincent's outrage was correctly calibrated and remains correctly calibrated. A five-dollar shake in 1994 was a thirteen-dollar shake in the way that a thirteen-dollar shake is today \u2014 conspicuous, not insane.",
+      "The affordability reading is where it turns. At median full-time earnings the shake costs slightly more working minutes than it did, but at the federal minimum wage \u2014 $4.25 in 1994, $7.25 and unchanged since 2009 \u2014 it has gone from roughly seventy minutes of work to well over ninety. The same menu price is a different object depending on which wage is buying it.",
+    ],
+    drivers: [
+      {
+        title: "Restaurant inflation, not food inflation",
+        detail:
+          "Menu prices carry rent, labour and table service. They have run persistently above grocery inflation, which is why the deflator choice decides the answer.",
+      },
+      {
+        title: "Labour cost",
+        detail:
+          "Front-of-house wages are the fastest-moving line in a restaurant's cost base, and the least compressible.",
+      },
+      {
+        title: "The premium segment pulled away",
+        detail:
+          "The category the film is pricing \u2014 a deliberately expensive shake in a themed restaurant \u2014 inflated faster than a fast-food shake. Positioning, not dairy.",
+      },
+      {
+        title: "A frozen minimum wage",
+        detail:
+          "The federal floor has not moved since 2009. Any affordability reading against it diverges from one against median earnings.",
+      },
+    ],
+    caveats: [
+      "The quote is paraphrased and not yet verified against the film or authorised subtitles. The $5 price itself is on screen.",
+      "\u201cPremium restaurant milkshake\u201d is a category, not a product. The menu survey behind it is a mean of archived prices with a wide spread.",
+      "Odd years are interpolated between surveyed years and render dashed.",
+      "Tax and tip are excluded, both of which have grown as a share of a US restaurant bill.",
+    ],
+    datasetIds: [
+      "us-premium-shake-menus",
+      "bls-fafh-cpi",
+      "us-cpi-all-items",
+      "bls-median-weekly-earnings",
+    ],
+  },
+
+  {
+    id: "walter-white-purity-premium",
+    slug: "walter-white-purity-premium",
+    name: "Walter White Purity Premium Index",
+    shortName: "Purity Premium",
+    subtitle:
+      "What happened to the price of purity once an industrial supply chain arrived. Crime economics, from published enforcement data.",
+    status: "live",
+
+    film: "Breaking Bad",
+    releaseYear: 2008,
+    character: "Walter White",
+    scene:
+      "A chemistry teacher builds a premium brand in a market with no consumer protection, and prices it on purity.",
+    dialogue: "This is glass-grade. You will not find any better than 99 percent.",
+    dialogueVerified: false,
+
+    indexedUnit: "One pure gram of methamphetamine, US wholesale-to-retail reporting",
+    quantity: 1,
+    quantityUnit: "pure gram",
+    reveal:
+      "One pure gram \u2014 reported price divided by reported purity, the standard way to make illicit prices comparable across years.",
+
+    baseYear: 2008,
+    baseYearNote:
+      "First broadcast year of Breaking Bad, and the year the show's premium-purity premise was most nearly true of the real market.",
+
+    geography: "United States",
+    currency: "USD",
+    currencySymbol: "$",
+    priceSeriesId: "meth-price-per-pure-gram",
+    comparisonSeriesId: "meth-price-per-gram",
+    cpiSeriesId: "us-cpi",
+    benchmarks: [
+      {
+        seriesId: "us-cpi",
+        label: "US CPI, all items",
+        rationale:
+          "A falling nominal price falls further in real terms. Without CPI the collapse is understated.",
+      },
+    ],
+    unitFactor: 1,
+    unitFactorNote:
+      "The series is already purity-adjusted. Dividing a reported price by reported purity is what makes a 2008 observation comparable with a 2024 one \u2014 without it, a purity change reads as a price change.",
+    equation: [
+      {
+        expression: "reported price \u00f7 purity",
+        result: "price per pure gram",
+        note: "The adjustment the whole index rests on. Purity roughly doubled over the period, so unadjusted prices are not comparable across it.",
+        datasetId: "dea-meth-price-purity",
+      },
+      {
+        expression: "$105 \u00f7 0.55",
+        result: "$190 per pure gram, 2008",
+        note: "Reported price around 55% purity in the show's first broadcast year.",
+        datasetId: "dea-meth-price-purity",
+      },
+      {
+        expression: "$29 \u00f7 0.97",
+        result: "$30 per pure gram, last verified",
+        note: "By 2024 purity is high enough that the adjustment barely moves the number \u2014 which is itself the result.",
+        datasetId: "dea-meth-price-purity",
+      },
+      {
+        expression: "$190 \u2192 $30",
+        result: "the purity premium, competed away",
+        note: "Walter's product thesis was sound in 2008 and worthless by the mid-2010s.",
+      },
+    ],
+    events: [
+      { year: 2008, label: "Series premiere \u2014 purity ~55%" },
+      { year: 2012, label: "Purity passes 90%" },
+      { year: 2019, label: "Price per pure gram at a historic low" },
+    ],
+
+    category: "illicit-markets",
+    motif: "spread",
+    confidence: "estimated",
+    accent: { light: "hsl(190 60% 34%)", dark: "hsl(187 72% 55%)" },
+    remark:
+      "The colour was fictional. The purity premium was real economics \u2014 and real economics is what removed it.",
+    interpretation: [
+      "Walter White's business model was a purity premium: a scarce high-quality product in a market with no way to verify quality. In 2008 that premium genuinely existed. Reported purity averaged around half, and a pure gram cost several times what an ordinary gram of powder did.",
+      "It then disappeared almost completely. Purity rose past 90% and stayed there, while the price per pure gram fell by roughly five-sixths in nominal terms and close to nine-tenths in real terms. Industrial-scale production did to the purity premium exactly what analytics did to on-base percentage in the Moneyball index: made it universal, and therefore worthless as an edge.",
+      "The public-policy reading is the uncomfortable one. Two decades of supply-side enforcement coincided with a product that became more potent and dramatically cheaper per unit of active substance. Whatever the enforcement achieved, it did not price this market upward.",
+    ],
+    drivers: [
+      {
+        title: "Industrial substitution",
+        detail:
+          "Small-scale production gave way to large synthesis routes with consistent output. Consistency is what destroys a quality premium.",
+      },
+      {
+        title: "Precursor control cycles",
+        detail:
+          "Restrictions produce sharp, short price spikes \u2014 the 2007 peak is one \u2014 followed by adaptation and a resumed decline.",
+      },
+      {
+        title: "Purity as the hidden variable",
+        detail:
+          "Unadjusted street prices fell by about two-thirds. Adjusted for purity they fell by far more. Most of the real decline is invisible without the adjustment.",
+      },
+      {
+        title: "No brand mechanism",
+        detail:
+          "Illicit markets have no way to certify quality, so a reputation premium cannot be defended once supply is uniformly good.",
+      },
+    ],
+    caveats: [
+      "Confidence is Estimated, and deliberately so. These figures come from law-enforcement purchase and seizure records \u2014 a sample of an unobservable market, not a price index. Read the direction, not the level.",
+      "The quote is paraphrased and not verified against the series or authorised subtitles.",
+      "This index carries no affordability or income comparison. Framing an illicit drug as a household purchase would be both analytically wrong and editorially indefensible.",
+      "Purity figures are averages across seizures of very different sizes and market levels. Wholesale and retail purity differ substantially.",
+      "Nothing here describes production, procurement or distribution, and no such detail will be added. The index exists to explain a pricing mechanism, not a market.",
+    ],
+    datasetIds: ["dea-meth-price-purity", "us-cpi-all-items"],
+  },
 ];
 
-/* ==== research queue ================================================== */
+/* ==== cross-country panel ============================================= */
 
-export const UPCOMING: UpcomingIndex[] = [
+/**
+ * The Royale With Cheese panel (PRD: "the burger should remain visually
+ * identical while the currency, local price, tax treatment, wage
+ * affordability and menu naming change around it").
+ *
+ * Snapshot prices and wages; the exchange rates are a single date. India is
+ * on the panel precisely because the product does not exist there — a gap in
+ * a standardised basket is a finding, not a hole to fill with a substitute.
+ */
+export const ROYALE_COUNTRIES: CountryPrice[] = [
+  {
+    code: "US",
+    country: "United States",
+    localName: "Quarter Pounder with Cheese",
+    currency: "USD",
+    symbol: "$",
+    price: 6.29,
+    medianHourlyWage: 24.5,
+    fxPerUsd: 1,
+    note: "Menu price excludes sales tax, which varies by state.",
+  },
+  {
+    code: "FR",
+    country: "France",
+    localName: "Royal Cheese",
+    currency: "EUR",
+    symbol: "\u20ac",
+    price: 5.95,
+    medianHourlyWage: 17.4,
+    fxPerUsd: 0.92,
+    note: "The name the film is joking about. Price includes VAT.",
+  },
+  {
+    code: "DE",
+    country: "Germany",
+    localName: "Hamburger Royal TS",
+    currency: "EUR",
+    symbol: "\u20ac",
+    price: 6.19,
+    medianHourlyWage: 20.8,
+    fxPerUsd: 0.92,
+    note: "\u201cTS\u201d for Tomate/Salat. Price includes VAT.",
+  },
+  {
+    code: "GB",
+    country: "United Kingdom",
+    localName: "Quarter Pounder with Cheese",
+    currency: "GBP",
+    symbol: "\u00a3",
+    price: 5.19,
+    medianHourlyWage: 16.6,
+    fxPerUsd: 0.79,
+    note: "Metric country, imperial name. Price includes VAT.",
+  },
+  {
+    code: "CH",
+    country: "Switzerland",
+    localName: "Quarter Pounder with Cheese",
+    currency: "CHF",
+    symbol: "CHF ",
+    price: 9.2,
+    medianHourlyWage: 38,
+    fxPerUsd: 0.88,
+    note: "Dearest burger on the panel in dollars, near-cheapest in working minutes.",
+  },
+  {
+    code: "JP",
+    country: "Japan",
+    localName: "\u30af\u30a9\u30fc\u30bf\u30fc\u30d0\u30f3\u30c0\u30fc\u30c1\u30fc\u30ba",
+    currency: "JPY",
+    symbol: "\u00a5",
+    price: 520,
+    medianHourlyWage: 2100,
+    fxPerUsd: 152,
+    note: "Consumption tax included. The clearest undervaluation on the panel.",
+  },
+  {
+    code: "AU",
+    country: "Australia",
+    localName: "Quarter Pounder",
+    currency: "AUD",
+    symbol: "A$",
+    price: 6.95,
+    medianHourlyWage: 32,
+    fxPerUsd: 1.53,
+    note: "Fewest working minutes per burger on the panel.",
+  },
+  {
+    code: "IN",
+    country: "India",
+    localName: "Not sold",
+    currency: "INR",
+    symbol: "\u20b9",
+    price: 0,
+    medianHourlyWage: 130,
+    fxPerUsd: 86,
+    unavailable: true,
+    note: "McDonald's India sells no beef products at all. The index reports the gap rather than substituting a different burger, because a substituted product is no longer the same unit.",
+  },
+];
+
+/* ==== research catalogue ============================================== */
+
+/**
+ * Every reference in the programme, published or not.
+ *
+ * Feasibility is about the data, never about the joke: a reference can be
+ * perfect and still sit at two stars because no defensible series exists for
+ * the thing it names. That is where most of these will die, and saying so
+ * here is more honest than a roadmap that implies they will all ship.
+ */
+export const CATALOGUE: CatalogueEntry[] = [
+  {
+    slug: "sanju-baba-50-tola",
+    name: "Sanju Baba 50 Tola Index",
+    film: "Vaastav",
+    releaseYear: 1999,
+    indexedUnit: "50 Indian tolas of gold",
+    mainQuestion: "What would Sanju Baba's chain cost today?",
+    dataSource: "RBI, IBJA, MCX and World Gold Council historical gold prices",
+    feasibility: 5,
+    status: "live",
+    category: "commodity",
+    published: true,
+    remark: "A four-second dialogue with a multi-decade investment horizon.",
+  },
+  {
+    slug: "royale-with-cheese",
+    name: "Royale With Cheese Index",
+    film: "Pulp Fiction",
+    releaseYear: 1994,
+    indexedUnit: "One Quarter Pounder with Cheese",
+    mainQuestion:
+      "How much purchasing power does one burger represent across countries and decades?",
+    dataSource:
+      "McDonald's menu archives, The Economist Big Mac Index, OECD median wages",
+    feasibility: 5,
+    status: "live",
+    category: "purchasing-power-parity",
+    published: true,
+    remark: "Same burger. Different currency. Surprisingly ambitious economics.",
+  },
+  {
+    slug: "raju-ki-mummy-bhindi",
+    name: "Raju Ki Mummy Bhindi Index",
+    film: "3 Idiots",
+    releaseYear: 2009,
+    indexedUnit: "One kilogram of bhindi",
+    mainQuestion:
+      "Was Raju's mother exaggerating, or early to the food-inflation story?",
+    dataSource:
+      "Ministry of Consumer Affairs retail prices, state APMC mandis, National Horticulture Board",
+    feasibility: 4,
+    status: "live",
+    category: "food-inflation",
+    published: true,
+    remark: "She was presented as comic relief. The vegetable market may owe her an apology.",
+  },
+  {
+    slug: "moneyball-player-value",
+    name: "Moneyball Player Price Index",
+    film: "Moneyball",
+    releaseYear: 2011,
+    indexedUnit: "Player salary per unit of measurable performance",
+    mainQuestion:
+      "How much does baseball now pay for what Billy Beane was buying cheaply?",
+    dataSource: "Baseball Reference, FanGraphs, Lahman Database, MLB payrolls",
+    feasibility: 5,
+    status: "live",
+    category: "sports-economics",
+    published: true,
+    remark: "Moneyball found the undervalued metric. Baseball responded by correctly pricing it.",
+  },
   {
     slug: "vincent-vega-five-dollar-shake",
     name: "Vincent Vega Five-Dollar Shake Index",
     film: "Pulp Fiction",
+    releaseYear: 1994,
     indexedUnit: "One premium restaurant milkshake",
-    dataSource: "BLS CPI food-away-from-home, plus archived diner and restaurant menus",
+    mainQuestion: "Is a five-dollar milkshake still expensive?",
+    dataSource: "BLS restaurant CPI, archived restaurant menus, BLS median earnings",
     feasibility: 5,
-    status: "researching",
-    note: "No bourbon. No gold leaf. Just thirty years of restaurant inflation.",
+    status: "live",
+    category: "restaurant-inflation",
+    published: true,
+    remark: "No bourbon. No gold leaf. Just thirty-one years of restaurant inflation.",
   },
+  {
+    slug: "walter-white-purity-premium",
+    name: "Walter White Purity Premium Index",
+    film: "Breaking Bad",
+    releaseYear: 2008,
+    indexedUnit: "Price per pure gram at reported purity",
+    mainQuestion: "What economic premium attaches to purity, and what removed it?",
+    dataSource: "DEA price and purity reporting, UNODC World Drug Report",
+    feasibility: 3,
+    status: "live",
+    category: "illicit-markets",
+    published: true,
+    remark: "The colour was fictional. The purity premium was basic economics.",
+  },
+
+  /* --- researching: data exists, index not yet built ------------------- */
+
   {
     slug: "forrest-gump-apple",
     name: "Forrest Gump Apple Index",
     film: "Forrest Gump",
-    indexedUnit: "A stake in “some kind of fruit company”",
-    dataSource: "Apple Inc. historical share prices, split- and dividend-adjusted",
+    releaseYear: 1994,
+    indexedUnit: "A stake in \u201csome kind of fruit company\u201d",
+    mainQuestion: "How valuable was the fruit-company investment?",
+    dataSource: "Apple Inc. share history, split- and dividend-adjusted; S&P 500 for comparison",
     feasibility: 5,
     status: "researching",
-    note: "The only index where the joke is that the character was right.",
-  },
-  {
-    slug: "sholay-reward",
-    name: "Sholay Reward Index",
-    film: "Sholay",
-    indexedUnit: "The ₹50,000 bounty on Gabbar Singh",
-    dataSource: "RBI inflation calculator and CPI-IW back series",
-    feasibility: 5,
-    status: "researching",
-    note: "A bounty is a price. Prices can be indexed.",
+    category: "equity",
+    remark:
+      "Forrest did not understand the company. Conviction and comprehension are not always correlated.",
   },
   {
     slug: "phir-hera-pheri-25-din",
     name: "Phir Hera Pheri 25 Din Index",
     film: "Phir Hera Pheri",
+    releaseYear: 2006,
     indexedUnit: "Required return to double capital in 25 days",
-    dataSource: "Compounding arithmetic; benchmark returns from NSE and RBI series",
+    mainQuestion: "What annualised return is implied by \u201c25 din mein paisa double\u201d?",
+    dataSource: "Compounding arithmetic; NSE, RBI and gold series for benchmarks",
     feasibility: 5,
     status: "researching",
-    note: "A return so impressive that mathematics would like to file a complaint.",
+    category: "returns",
+    remark: "A return so impressive that mathematics would like to speak to the regulator.",
   },
   {
-    slug: "home-alone-pizza",
-    name: "Home Alone Pizza Index",
+    slug: "home-alone-cheese-pizza",
+    name: "Home Alone Cheese Pizza Index",
     film: "Home Alone",
-    indexedUnit: "One large cheese pizza, delivered",
-    dataSource: "BLS CPI, plus archived Little Caesars and national chain menus",
+    releaseYear: 1990,
+    indexedUnit: "One large plain cheese pizza, delivered",
+    mainQuestion: "How much does Kevin's ideal pizza cost today, all-in at checkout?",
+    dataSource: "BLS CPI, archived chain menus, delivery and service fee schedules",
     feasibility: 4,
-    status: "planned",
+    status: "researching",
+    category: "restaurant-inflation",
+    remark: "The pizza inflated. The family's travel planning remained the larger problem.",
+  },
+  {
+    slug: "friends-central-perk-coffee",
+    name: "Central Perk Coffee Index",
+    film: "Friends",
+    releaseYear: 1994,
+    indexedUnit: "One café coffee in Manhattan",
+    mainQuestion:
+      "How many hours would the characters need to work to sustain the coffee habit today?",
+    dataSource: "BLS CPI for coffee away from home, NYC café price surveys",
+    feasibility: 4,
+    status: "researching",
+    category: "restaurant-inflation",
+    remark: "The apartment was unrealistic. The coffee habit was merely expensive.",
+  },
+  {
+    slug: "big-kahuna-burger",
+    name: "Big Kahuna Burger Index",
+    film: "Pulp Fiction",
+    releaseYear: 1994,
+    indexedUnit: "One premium Hawaiian-style cheeseburger, built from inputs",
+    mainQuestion: "What would Brett's breakfast cost today?",
+    dataSource: "USDA beef, cheese and wheat prices; restaurant labour cost indices",
+    feasibility: 4,
+    status: "researching",
+    category: "restaurant-inflation",
+    remark: "Breakfast was interrupted. The inflation calculation was not.",
   },
   {
     slug: "khosla-plot",
-    name: "Khosla Plot Index",
+    name: "Khosla Ka Ghosla Plot Index",
     film: "Khosla Ka Ghosla",
-    indexedUnit: "One residential plot, Delhi periphery",
-    dataSource: "Delhi circle rates, NHB RESIDEX, listed property-portal asking prices",
+    releaseYear: 2006,
+    indexedUnit: "One residential plot, Delhi NCR, per square yard",
+    mainQuestion: "What would the Khoslas' plot cost today?",
+    dataSource: "Delhi circle rates, NHB RESIDEX, property-portal asking prices",
     feasibility: 4,
-    status: "planned",
-    note: "The hardest of the queue: no two sources agree on what a plot is worth.",
+    status: "researching",
+    category: "real-estate",
+    remark: "The family wanted a home. The land decided to become an asset class.",
   },
   {
-    slug: "lagaan-grain",
-    name: "Lagaan Grain Index",
+    slug: "jethalal-television",
+    name: "Jethalal Television Index",
+    film: "Taarak Mehta Ka Ooltah Chashmah",
+    releaseYear: 2008,
+    indexedUnit: "One mainstream household television, price per inch",
+    mainQuestion:
+      "Has television become cheaper, or has the expected television simply become larger?",
+    dataSource: "CPI consumer-electronics series, retailer catalogues, display-panel price indices",
+    feasibility: 4,
+    status: "researching",
+    category: "consumer-goods",
+    remark: "The television became cheaper per inch. Jethalal's problems did not.",
+  },
+  {
+    slug: "scott-hatteberg",
+    name: "Scott Hatteberg Index",
+    film: "Moneyball",
+    releaseYear: 2011,
+    indexedUnit: "Salary paid per unit of on-base ability",
+    mainQuestion: "How much did Oakland pay for each unit of the skill it actually valued?",
+    dataSource: "Baseball Reference, FanGraphs, Lahman salary tables",
+    feasibility: 5,
+    status: "researching",
+    category: "sports-economics",
+    remark: "Oakland did not buy a first baseman. It bought discounted probability.",
+  },
+  {
+    slug: "david-justice",
+    name: "David Justice Index",
+    film: "Moneyball",
+    releaseYear: 2011,
+    indexedUnit: "Veteran salary against remaining production",
+    mainQuestion: "How expensive is experience when performance is declining?",
+    dataSource: "Baseball Reference, FanGraphs, contract records",
+    feasibility: 5,
+    status: "researching",
+    category: "sports-economics",
+    remark:
+      "Leadership was valuable. The contract made sure everyone knew exactly how valuable.",
+  },
+  {
+    slug: "parasite-ram-don",
+    name: "Parasite Ram-Don Index",
+    film: "Parasite",
+    releaseYear: 2019,
+    indexedUnit: "Instant noodles with premium sirloin beef, one bowl",
+    mainQuestion: "How much inequality fits in one bowl?",
+    dataSource: "Statistics Korea retail prices for instant noodles and Hanwoo beef",
+    feasibility: 4,
+    status: "researching",
+    category: "food-inflation",
+    remark: "The noodles are ordinary. The meat is doing the class signalling.",
+  },
+  {
+    slug: "lagaan-grain-tax",
+    name: "Lagaan Grain Tax Index",
     film: "Lagaan",
-    indexedUnit: "The grain equivalent of the disputed tax",
-    dataSource: "FAO price archives, Ministry of Agriculture wheat procurement prices",
+    releaseYear: 2001,
+    indexedUnit: "The grain-tax burden, as a share of household production",
+    mainQuestion: "What would \u201cteen guna lagaan\u201d mean in actual household terms?",
+    dataSource: "FAO price archives, Ministry of Agriculture procurement prices, colonial yield records",
     feasibility: 3,
     status: "planned",
-    note: "Colonial-era units are the research problem, not the arithmetic.",
+    category: "agriculture",
+    remark: "Less a tax increase, more an agricultural hostile takeover.",
   },
   {
     slug: "john-wick-gold-coin",
     name: "John Wick Gold Coin Index",
     film: "John Wick",
-    indexedUnit: "One Continental gold coin, by assumed bullion weight",
-    dataSource: "LBMA gold fixings; coin weight is an explicit assumption",
+    releaseYear: 2014,
+    indexedUnit: "One Continental gold coin: bullion value against network value",
+    mainQuestion:
+      "Is the coin valuable because of its gold, or because of the network that accepts it?",
+    dataSource: "LBMA gold fixings; coin weight is an explicit stated assumption",
     feasibility: 3,
     status: "planned",
-    note: "Will publish as Estimated. The coin's weight is a fictional quantity.",
+    category: "network-economics",
+    remark: "The gold is valuable. The trust layer is doing most of the work.",
+  },
+  {
+    slug: "breaking-bad-rv",
+    name: "Breaking Bad RV Index",
+    film: "Breaking Bad",
+    releaseYear: 2008,
+    indexedUnit: "One Fleetwood Bounder-class recreational vehicle",
+    mainQuestion: "What would the mobile laboratory cost today?",
+    dataSource: "NADA and used-RV guides, vehicle depreciation schedules, auction records",
+    feasibility: 3,
+    status: "planned",
+    category: "vehicles",
+    remark: "Poor laboratory standards. Excellent cultural resale value.",
+  },
+  {
+    slug: "los-pollos-hermanos-chicken",
+    name: "Los Pollos Hermanos Chicken Index",
+    film: "Better Call Saul",
+    releaseYear: 2015,
+    indexedUnit: "One fried-chicken meal, built from inputs",
+    mainQuestion: "What would Gus Fring's apparently legitimate meal cost today?",
+    dataSource: "USDA poultry and cooking-oil prices, fast-food CPI, restaurant wage indices",
+    feasibility: 4,
+    status: "planned",
+    category: "restaurant-inflation",
+    remark:
+      "The chicken business had better margins when certain operating expenses were kept off the books.",
+  },
+  {
+    slug: "american-psycho-business-card",
+    name: "American Psycho Business Card Index",
+    film: "American Psycho",
+    releaseYear: 2000,
+    indexedUnit: "One premium letterpress business-card order",
+    mainQuestion: "How expensive is professional insecurity when printed on premium stock?",
+    dataSource: "Trade printing price lists, paper-stock indices, letterpress studio quotations",
+    feasibility: 3,
+    status: "planned",
+    category: "consumer-goods",
+    remark: "The cards were almost identical. The emotional return was dramatically different.",
+  },
+  {
+    slug: "big-lebowski-white-russian",
+    name: "White Russian Index",
+    film: "The Big Lebowski",
+    releaseYear: 1998,
+    indexedUnit: "One White Russian, home-made against bar-made",
+    mainQuestion: "What has happened to the cost of being The Dude?",
+    dataSource: "Spirits and dairy retail prices, bar menu surveys, restaurant CPI",
+    feasibility: 4,
+    status: "planned",
+    category: "restaurant-inflation",
+    remark: "The Dude abides. The bar tab compounds.",
+  },
+  {
+    slug: "succession-five-million",
+    name: "Succession Five-Million-Dollar Index",
+    film: "Succession",
+    releaseYear: 2018,
+    indexedUnit: "$5 million in investable wealth",
+    mainQuestion: "Is $5 million financial freedom, or the trap Connor says it is?",
+    dataSource:
+      "Safe-withdrawal literature, NYC housing and private-school costs, healthcare premium data",
+    feasibility: 3,
+    status: "planned",
+    category: "wealth",
+    remark: "Too rich to work, too poor to ignore the thermostat.",
+  },
+  {
+    slug: "mia-wallace-powder-spread",
+    name: "Mia Wallace Powder Spread",
+    film: "Pulp Fiction",
+    releaseYear: 1994,
+    indexedUnit: "Purity-adjusted price spread between two substances",
+    mainQuestion:
+      "What was the price spread between the substance expected and the one consumed?",
+    dataSource: "UNODC and DEA published price and purity series",
+    feasibility: 2,
+    status: "planned",
+    category: "illicit-markets",
+    remark: "A product-identification failure with a very unfavourable downside case.",
+  },
+  {
+    slug: "tony-montana-kilo",
+    name: "Tony Montana Kilo Index",
+    film: "Scarface",
+    releaseYear: 1983,
+    indexedUnit: "One kilogram, valued at each step of the supply chain",
+    mainQuestion:
+      "How did wholesale value change through the rise and decline of major trafficking routes?",
+    dataSource: "UNODC World Drug Report historical wholesale estimates, academic literature",
+    feasibility: 2,
+    status: "planned",
+    category: "illicit-markets",
+    remark: "The margins were remarkable. The governance structure was less convincing.",
   },
 ];
+
+/** Everything still to be built, in feasibility order. */
+export const RESEARCH_QUEUE = CATALOGUE.filter((c) => !c.published);
+
 
 /* ==== accessors ======================================================= */
 

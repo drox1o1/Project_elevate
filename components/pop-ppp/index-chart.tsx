@@ -260,22 +260,33 @@ export function IndexChart({
 
   /**
    * Split the line into segments so a gap in the data reads as a gap.
-   * A segment touching an imputed point is dashed (PRD §26).
+   *
+   * Dashing is per-segment and deliberately conservative: a stretch is dashed
+   * only where the series has a real hole, or where both ends are themselves
+   * interpolated. A segment anchored at one end by an observation is as good
+   * as that observation, and dashing it too would render a series with a
+   * two-year survey cadence as entirely unknown — which is both wrong and
+   * useless. Interpolation at the point level is marked on the points instead.
    */
   const segments = React.useMemo(() => {
     const out: { d: string; dashed: boolean }[] = [];
     for (let i = 0; i < points.length - 1; i++) {
       const a = points[i];
       const b = points[i + 1];
-      // A jump of more than one year is a real hole in the series.
-      const gap = b.year - a.year > 1;
+      const hole = b.year - a.year > 1;
       out.push({
         d: `M ${scale.x(a.year)} ${scale.y(a.value)} L ${scale.x(b.year)} ${scale.y(b.value)}`,
-        dashed: gap || a.imputed || b.imputed,
+        dashed: hole || (a.imputed && b.imputed),
       });
     }
     return out;
   }, [points, scale]);
+
+  /** Interpolated observations, marked individually. */
+  const imputedPoints = React.useMemo(
+    () => points.filter((pt) => pt.imputed),
+    [points]
+  );
 
   const areaPath = React.useMemo(() => {
     if (points.length < 2) return "";
@@ -561,6 +572,20 @@ export function IndexChart({
               />
             ))}
 
+            {/* interpolated observations, marked at point level */}
+            {imputedPoints.map((pt) => (
+              <circle
+                key={`imp-${pt.year}`}
+                cx={scale.x(pt.year)}
+                cy={scale.y(pt.value)}
+                r={2.4}
+                fill="var(--background)"
+                stroke="var(--pop-accent)"
+                strokeWidth={1.25}
+                opacity={0.85}
+              />
+            ))}
+
             {/* latest observation — hollow when provisional */}
             {latest ? (
               <circle
@@ -674,7 +699,7 @@ export function IndexChart({
             </span>
           ) : null}
           <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-0 w-4 border-t-2 border-dashed border-[var(--pop-accent)]" />
+            <span className="inline-block size-2 rounded-full border border-[var(--pop-accent)] bg-background" />
             Interpolated
           </span>
           <span className="inline-flex items-center gap-1.5">

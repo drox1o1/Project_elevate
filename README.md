@@ -42,21 +42,40 @@ and biomarker trend explorer. Data in demos is simulated and labelled as such.
 
 `/pop-ppp` is **Pop Culture Purchasing Power Parity** — an editorial data
 section that converts specific objects, dialogues and transactions from film
-into real economic indices. Three indices ship: the Sanju Baba 50 Tola Index
-(commodity), the Raju Ki Mummy Bhindi Index (retail food price) and the
-Moneyball Player Price Index (labour market), chosen so the same system has to
-hold across three different kinds of data.
+into real economic indices. Six ship, chosen so the same system has to hold
+across six different kinds of data:
 
-Each index page carries the PRD's full stack: cold open, headline result,
-multi-mode time-series chart (nominal / inflation-adjusted / relative to
-income / quantity / percentage), the complete equation with per-step source
-citations and raw unrounded values, purchasing-power comparisons, editorial
-drivers, a visible source ledger and an exportable share card.
+| Index | Unit | Economics |
+| --- | --- | --- |
+| Sanju Baba 50 Tola | 50 tolas of gold | Commodity appreciation |
+| Royale With Cheese | One Quarter Pounder | Purchasing-power parity |
+| Raju Ki Mummy Bhindi | 1 kg of okra, Delhi retail | Food inflation |
+| Moneyball Player Price | $ per win above replacement | Labour-market inefficiency |
+| Vincent Vega Five-Dollar Shake | One premium milkshake | Restaurant inflation |
+| Walter White Purity Premium | $ per pure gram | Illicit-market pricing |
+
+A further 19 references sit in the research catalogue with their data sources
+and a feasibility rating.
+
+Each index page carries the full stack: cold open, headline result, multi-mode
+time-series chart (nominal / inflation-adjusted / earning time / quantity /
+percentage), the complete equation with per-step source citations and raw
+unrounded values, purchasing-power comparisons, editorial drivers, a visible
+source ledger and an exportable share card. A persistent index rail — sticky
+sidebar on desktop, scrolling strip on mobile — carries a value and sparkline
+per index so it doubles as navigation and comparison.
+
+**Art direction.** The section alternates two registers: dark full-bleed
+"scene" bands (hero, cold open, cross-country panel, share) that stay dark in
+both themes, and theme-following "analysis" sections for charts, equations and
+ledgers. Each index gets generative artwork drawn from its own series — eight
+motifs in `index-artwork.tsx` — rather than an icon, so no two indices can look
+alike.
 
 ```
 lib/pop-ppp/types.ts     # index, dataset, observation and series schema
 lib/pop-ppp/calc.ts      # calculation framework (base/real/CAGR/affordability)
-lib/pop-ppp/data.ts      # datasets, series snapshot, index catalogue
+lib/pop-ppp/data.ts      # datasets, series snapshot, indices, catalogue
 lib/pop-ppp/present.ts   # one presentation layer shared by every page
 ```
 
@@ -64,8 +83,9 @@ lib/pop-ppp/present.ts   # one presentation layer shared by every page
 compiled from the publications named in each dataset record, not a live feed.
 The scheduled retrieval and validation pipeline is not implemented, so every
 figure needs re-verification against its primary source before the section is
-published publicly. Provisional observations are flagged in the UI, interpolated
-years render dashed, and pages show "last verified" rather than "today".
+published publicly. Provisional and interpolated observations are marked as
+hollow points, real gaps in a series render dashed, and pages show "last
+verified" rather than "today".
 Reference submissions POST to `/api/pop-ppp/submissions`, forwarded to
 `DUKU_POP_PPP_WEBHOOK` when set.
 

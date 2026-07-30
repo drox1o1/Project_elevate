@@ -97,34 +97,52 @@ export function monthsOfIncome(
 }
 
 /**
- * Months is the right unit for a gold chain and a useless one for a kilogram
- * of okra — "0.006 months of income" is arithmetically correct and completely
- * unreadable. The unit therefore follows the magnitude, chosen once from the
- * largest value in view so both ends of a comparison share a scale.
+ * Months is the right unit for a gold chain and a useless one for a milkshake
+ * — "0.0025 months of income" is arithmetically correct and unreadable. The
+ * unit follows the magnitude, chosen once from the largest value in view so
+ * both ends of a comparison share a scale.
+ *
+ * Sub-month units are *working* time, not elapsed time. If a month of earnings
+ * comes from a month of work, then a cost of one-thousandth of monthly income
+ * is one-thousandth of a month's working hours — roughly ten minutes, not
+ * forty-four. Converting on calendar hours would overstate every small figure
+ * by a factor of four, which is exactly the sort of quiet error this section
+ * is supposed to make impossible.
  */
-export type IncomeUnit = "months" | "days" | "hours";
+export type IncomeUnit = "months" | "days" | "hours" | "minutes";
 
-const DAYS_PER_MONTH = 30.44;
+/** A 40-hour week, averaged over a month: 40 × 52 ÷ 12. */
+export const WORK_HOURS_PER_MONTH = 173.33;
+const WORK_DAYS_PER_MONTH = WORK_HOURS_PER_MONTH / 8;
 
 export function incomeUnitFor(maxMonths: number): IncomeUnit {
   if (!Number.isFinite(maxMonths)) return "months";
   if (maxMonths >= 1) return "months";
-  if (maxMonths >= 0.05) return "days";
-  return "hours";
+  if (maxMonths >= 1 / WORK_DAYS_PER_MONTH) return "days";
+  if (maxMonths >= 1 / WORK_HOURS_PER_MONTH) return "hours";
+  return "minutes";
 }
 
 export function convertIncomeTime(months: number, unit: IncomeUnit): number {
   switch (unit) {
     case "days":
-      return months * DAYS_PER_MONTH;
+      return months * WORK_DAYS_PER_MONTH;
     case "hours":
-      return months * DAYS_PER_MONTH * 24;
+      return months * WORK_HOURS_PER_MONTH;
+    case "minutes":
+      return months * WORK_HOURS_PER_MONTH * 60;
     default:
       return months;
   }
 }
 
-/** "177.5 months", "4.2 hours" — value and unit, already converted. */
+/** How the unit is named in a label: "Months of income", "Minutes of work". */
+export function incomeUnitNoun(unit: IncomeUnit): string {
+  const word = unit.charAt(0).toUpperCase() + unit.slice(1);
+  return unit === "months" ? `${word} of income` : `${word} of work`;
+}
+
+/** "177.5 months", "26 minutes" — value and unit, already converted. */
 export function formatIncomeTime(
   months: number,
   unit: IncomeUnit,
@@ -132,9 +150,10 @@ export function formatIncomeTime(
 ): string {
   if (!Number.isFinite(months)) return "—";
   const v = convertIncomeTime(months, unit);
+  const decimals = v < 10 ? 1 : 0;
   return `${v.toLocaleString(locale, {
-    minimumFractionDigits: v < 10 ? 1 : 0,
-    maximumFractionDigits: v < 10 ? 1 : 1,
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
   })} ${unit}`;
 }
 

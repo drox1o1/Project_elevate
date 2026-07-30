@@ -87,6 +87,9 @@ export interface HeadlineResultProps {
   format: MoneyFormat;
   remark: string;
   metrics: Metric[];
+  accent: { light: string; dark: string };
+  /** Stable scope for the dark-mode accent override — the index slug. */
+  scopeId: string;
   className?: string;
 }
 
@@ -99,56 +102,84 @@ export function HeadlineResult({
   format,
   remark,
   metrics,
+  accent,
+  scopeId,
   className,
 }: HeadlineResultProps) {
   return (
-    <div className={cn("w-full", className)}>
-      <p className="text-balance font-mono text-lg text-foreground numeric sm:text-xl">
+    <div
+      data-pop-headline={scopeId}
+      className={cn("w-full", className)}
+      style={{ "--pop-accent": accent.light } as React.CSSProperties}
+    >
+      <style>{`.dark [data-pop-headline="${scopeId}"]{--pop-accent:${accent.dark}}`}</style>
+
+      <p className="max-w-3xl text-balance font-mono text-base text-muted-foreground numeric sm:text-lg">
         {reveal}
       </p>
 
-      <div className="mt-8 grid gap-8 sm:grid-cols-2">
+      <div className="mt-10 flex flex-wrap items-end gap-x-14 gap-y-8">
         <div>
-          <p className="type-overline text-muted-foreground">{baseLabel}</p>
-          <p className="mt-1.5 type-metric text-muted-foreground numeric">
+          <p className="font-mono type-caption uppercase tracking-[0.12em] text-muted-foreground">
+            {baseLabel}
+          </p>
+          <p className="mt-2 font-mono text-2xl text-muted-foreground numeric sm:text-3xl">
             {baseValue}
           </p>
         </div>
+        <span
+          aria-hidden="true"
+          className="mb-3 hidden font-mono text-2xl text-border sm:block"
+        >
+          →
+        </span>
         <div>
-          <p className="type-overline text-muted-foreground">{currentLabel}</p>
+          <p className="font-mono type-caption uppercase tracking-[0.12em] text-muted-foreground">
+            {currentLabel}
+          </p>
           <CountUp
             value={currentValue}
             format={format}
-            className="mt-1.5 block type-display text-foreground numeric"
+            className="mt-2 block font-mono text-[2.75rem] font-semibold leading-none tracking-[-0.03em] text-[var(--pop-accent)] numeric sm:text-6xl"
           />
         </div>
       </div>
 
-      <p className="mt-6 max-w-2xl text-balance type-body italic leading-6 text-muted-foreground">
+      <p className="mt-8 max-w-2xl text-balance text-[0.9375rem] italic leading-7 text-muted-foreground">
         {remark}
       </p>
 
-      <dl className="mt-8 grid gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
+      {/* Padded to a full row: a gap-px grid shows its own background through
+          any empty cell, which reads as a broken card rather than as space. */}
+      <dl className="mt-12 grid gap-px overflow-hidden rounded-2xl border border-border bg-border sm:grid-cols-2 lg:grid-cols-3">
         {metrics.map((m) => (
-          <div key={m.label} className="bg-card p-4">
-            <dt className="type-caption uppercase tracking-[0.06em] text-muted-foreground">
+          <div key={m.label} className="bg-card p-5">
+            <dt className="font-mono type-caption uppercase tracking-[0.08em] text-muted-foreground">
               {m.label}
             </dt>
             <dd
               className={cn(
-                "mt-1 type-title numeric",
+                "mt-2 font-mono text-lg numeric",
                 m.provisional ? "text-warning" : "text-foreground"
               )}
             >
               {m.value}
             </dd>
             {m.note ? (
-              <p className="mt-1 type-caption leading-5 text-muted-foreground">
+              <p className="mt-1.5 type-caption leading-5 text-muted-foreground">
                 {m.note}
               </p>
             ) : null}
           </div>
         ))}
+        {Array.from({
+          length: (3 - (metrics.length % 3)) % 3,
+        }).map((_, i) => (
+          <div key={`pad-${i}`} aria-hidden="true" className="hidden bg-card lg:block" />
+        ))}
+        {metrics.length % 2 === 1 ? (
+          <div aria-hidden="true" className="hidden bg-card sm:block lg:hidden" />
+        ) : null}
       </dl>
     </div>
   );

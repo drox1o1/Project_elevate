@@ -31,12 +31,15 @@ export interface HeroEquationProps {
   className?: string;
   /** Seconds each stage holds before the next. */
   hold?: number;
+  /** Set on the dark scene bands. */
+  invert?: boolean;
 }
 
 export function HeroEquation({
   stages,
   className,
-  hold = 1.9,
+  hold = 2.1,
+  invert = false,
 }: HeroEquationProps) {
   const rootRef = React.useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -85,10 +88,20 @@ export function HeroEquation({
                   : "translate-y-2 opacity-0 blur-[3px]"
             )}
           >
-            <span className="text-balance text-center font-mono text-xl tracking-tight text-foreground numeric sm:text-2xl">
+            <span
+              className={cn(
+                "text-balance text-center font-mono text-xl tracking-tight numeric sm:text-3xl",
+                invert ? "text-white" : "text-foreground"
+              )}
+            >
               {stage.text}
             </span>
-            <span className="text-center font-mono type-caption uppercase tracking-[0.1em] text-muted-foreground">
+            <span
+              className={cn(
+                "text-center font-mono type-caption uppercase tracking-[0.14em]",
+                invert ? "text-white/45" : "text-muted-foreground"
+              )}
+            >
               {stage.caption}
             </span>
           </div>
@@ -96,13 +109,19 @@ export function HeroEquation({
       </div>
 
       {/* Progress rail — reads as a filmstrip of the transformation. */}
-      <div className="mt-4 flex items-center justify-center gap-1.5">
+      <div className="mt-6 flex items-center justify-center gap-1.5">
         {stages.map((stage, i) => (
           <span
             key={stage.text}
             className={cn(
-              "h-0.5 w-6 transition-colors duration-300",
-              i <= active ? "bg-foreground/70" : "bg-border"
+              "h-0.5 w-5 transition-colors duration-300",
+              i <= active
+                ? invert
+                  ? "bg-white/70"
+                  : "bg-foreground/70"
+                : invert
+                  ? "bg-white/15"
+                  : "bg-border"
             )}
           />
         ))}

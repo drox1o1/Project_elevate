@@ -23,12 +23,35 @@ export type Confidence = "verified" | "reconstructed" | "estimated";
 export type EconomicCategory =
   | "commodity"
   | "food-inflation"
-  | "sports-economics"
   | "restaurant-inflation"
+  | "purchasing-power-parity"
+  | "sports-economics"
   | "equity"
   | "real-estate"
   | "returns"
-  | "illicit-markets";
+  | "illicit-markets"
+  | "consumer-goods"
+  | "vehicles"
+  | "wealth"
+  | "agriculture"
+  | "network-economics";
+
+/**
+ * Which generative composition an index draws for its artwork.
+ *
+ * Deliberately separate from `category`: the taxonomy exists to group
+ * economics, the motif exists to make a card look like a specific object.
+ * Tying art to taxonomy would give every food index the same picture.
+ */
+export type Motif =
+  | "rings"
+  | "columns"
+  | "lattice"
+  | "vessel"
+  | "steps"
+  | "spiral"
+  | "spread"
+  | "grid";
 
 export type Frequency = "daily" | "weekly" | "monthly" | "annual" | "seasonal";
 
@@ -184,6 +207,7 @@ export interface PopIndex {
 
   /* --- Layer 6: interpretation --- */
   category: EconomicCategory;
+  motif: Motif;
   confidence: Confidence;
   accent: Accent;
   /** The one dry remark. One per major section is enough. */
@@ -197,16 +221,48 @@ export interface PopIndex {
   datasetIds: string[];
 }
 
-/** A reference on the research queue, not yet an index. */
-export interface UpcomingIndex {
+/**
+ * One country's reading of a standardised product (PRD: Royale with Cheese).
+ *
+ * The product is held fixed and the economy moves around it, which is the
+ * entire point — so everything here except `localName` describes the country,
+ * not the burger.
+ */
+export interface CountryPrice {
+  code: string;
+  country: string;
+  /** What the identical product is called on the local menu. */
+  localName: string;
+  currency: string;
+  symbol: string;
+  /** Menu price in local currency, including local tax treatment. */
+  price: number;
+  /** Median gross hourly wage in local currency. */
+  medianHourlyWage: number;
+  /** Market exchange rate, local currency per US dollar. */
+  fxPerUsd: number;
+  /** Set where the product is not sold at all — itself a finding. */
+  unavailable?: boolean;
+  note?: string;
+}
+
+/** A reference in the research catalogue. */
+export interface CatalogueEntry {
   slug: string;
   name: string;
   film: string;
+  releaseYear: number;
   indexedUnit: string;
+  /** The question the index would answer. */
+  mainQuestion: string;
   /** Where the data would come from. */
   dataSource: string;
   /** 1–5: how tractable the data is. */
   feasibility: number;
   status: IndexStatus;
-  note?: string;
+  category: EconomicCategory;
+  /** The dry line, once the index exists. */
+  remark?: string;
+  /** Present when the index has published — links to its page. */
+  published?: boolean;
 }

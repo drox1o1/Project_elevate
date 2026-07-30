@@ -36,6 +36,8 @@ export interface ShareCardProps {
   remark: string;
   sourceNote: string;
   accent: string;
+  /** Set when the card sits on a dark band, so the controls read against it. */
+  invert?: boolean;
   className?: string;
 }
 
@@ -73,6 +75,7 @@ export function ShareCard({
   remark,
   sourceNote,
   accent,
+  invert = false,
   className,
 }: ShareCardProps) {
   const [ratio, setRatio] = React.useState<RatioKey>("1:1");
@@ -305,7 +308,10 @@ export function ShareCard({
         <div
           role="radiogroup"
           aria-label="Export ratio"
-          className="flex gap-1 rounded-lg border border-border bg-muted/40 p-1"
+          className={cn(
+            "flex gap-1 rounded-lg border p-1",
+            invert ? "border-white/15 bg-white/[0.04]" : "border-border bg-muted/40"
+          )}
         >
           {(Object.keys(RATIOS) as RatioKey[]).map((k) => (
             <button
@@ -316,17 +322,34 @@ export function ShareCard({
               onClick={() => setRatio(k)}
               className={cn(
                 "rounded-md px-2.5 py-1 font-mono type-caption transition-colors duration-200",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                "focus-visible:outline-none focus-visible:ring-2",
+                invert
+                  ? "focus-visible:ring-white/70"
+                  : "focus-visible:ring-ring",
                 k === ratio
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground"
+                  ? invert
+                    ? "bg-white text-black"
+                    : "bg-foreground text-background"
+                  : invert
+                    ? "text-white/55 hover:text-white"
+                    : "text-muted-foreground hover:text-foreground"
               )}
             >
               {RATIOS[k].label}
             </button>
           ))}
         </div>
-        <Button variant="outline" size="sm" loading={busy} onClick={download}>
+        <Button
+          variant="outline"
+          size="sm"
+          loading={busy}
+          onClick={download}
+          className={
+            invert
+              ? "border-white/25 bg-transparent text-white hover:bg-white/10"
+              : undefined
+          }
+        >
           Download PNG
         </Button>
       </div>

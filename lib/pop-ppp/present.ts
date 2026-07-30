@@ -12,6 +12,7 @@ import {
   computeIndex,
   formatIncomeTime,
   formatMoney,
+  incomeUnitNoun,
   formatMultiple,
   formatPercent,
   incomeUnitFor,
@@ -171,6 +172,52 @@ export function presentIndex(index: PopIndex): PresentedIndex {
   };
 }
 
+/* ---- rail, ticker and artwork feeds ---------------------------------- */
+
+/**
+ * Normalised 0–1 series for sparklines and generative artwork. Normalising
+ * here rather than in each component keeps the rail sparkline and the card
+ * artwork drawing the same shape from the same numbers.
+ */
+export function sparkFor(p: PresentedIndex): number[] {
+  const values = p.priceSeries.observations.map((o) => o.value);
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min;
+  if (range === 0) return values.map(() => 0.5);
+  return values.map((v) => (v - min) / range);
+}
+
+/** Raw series values, for artwork that normalises itself. */
+export function seriesValues(p: PresentedIndex): number[] {
+  return p.priceSeries.observations.map((o) => o.value);
+}
+
+export function railEntryFor(p: PresentedIndex) {
+  const { index, result, money } = p;
+  return {
+    slug: index.slug,
+    shortName: index.shortName,
+    film: index.film,
+    indexedUnit: index.indexedUnit,
+    value: money(result.currentValue),
+    change: formatPercent(result.percentChange),
+    changePositive: result.percentChange >= 0,
+    confidence: index.confidence,
+    spark: sparkFor(p),
+    accent: index.accent,
+  };
+}
+
+export function tickerItemFor(p: PresentedIndex) {
+  return {
+    shortName: p.index.shortName,
+    value: p.money(p.result.currentValue),
+    change: formatPercent(p.result.percentChange),
+    changePositive: p.result.percentChange >= 0,
+  };
+}
+
 /* ---- landing-grid card ------------------------------------------------ */
 
 export function cardFor(p: PresentedIndex) {
@@ -179,16 +226,20 @@ export function cardFor(p: PresentedIndex) {
     slug: index.slug,
     shortName: index.shortName,
     film: index.film,
+    releaseYear: index.releaseYear,
+    dialogue: index.dialogue,
     indexedUnit: index.indexedUnit,
     baseYear: result.baseYear,
     latestYear: result.latestYear,
+    baseValue: money(result.baseValue),
     currentValue: money(result.currentValue),
     change: formatPercent(result.percentChange),
     changePositive: result.percentChange >= 0,
     reading: index.remark,
     confidence: index.confidence,
-    category: index.category,
+    motif: index.motif,
     accent: index.accent,
+    values: seriesValues(p),
   };
 }
 
@@ -233,15 +284,15 @@ export function metricsFor(p: PresentedIndex) {
     const unit = incomeUnitFor(
       Math.max(result.monthsOfIncomeThen, result.monthsOfIncomeNow)
     );
-    const noun = unit.charAt(0).toUpperCase() + unit.slice(1);
+    const noun = incomeUnitNoun(unit);
     metrics.push(
       {
-        label: `${noun} of income, ${result.baseYear}`,
+        label: `${noun}, ${result.baseYear}`,
         value: formatIncomeTime(result.monthsOfIncomeThen, unit, p.locale),
-        note: "At per-capita net national income",
+        note: p.incomeSeries?.label,
       },
       {
-        label: `${noun} of income, ${result.latestYear}`,
+        label: `${noun}, ${result.latestYear}`,
         value: formatIncomeTime(result.monthsOfIncomeNow, unit, p.locale),
         note:
           result.affordabilityChange != null
