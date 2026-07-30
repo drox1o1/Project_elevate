@@ -231,7 +231,9 @@ export function tickerItemFor(p: PresentedIndex) {
 export function shareStatsFor(p: PresentedIndex) {
   const { result, locale } = p;
   const stats: { label: string; value: string }[] = [
-    { label: "Per year", value: `${result.cagr.toFixed(1)}%` },
+    // formatPercent, not toFixed: a raw "-10.9%" sets an ASCII hyphen next to
+    // the typographic minus in "−89.2%" on the same row.
+    { label: "Per year", value: formatPercent(result.cagr) },
   ];
 
   if (result.realAppreciation != null) {
@@ -308,7 +310,7 @@ export function metricsFor(p: PresentedIndex) {
     },
     {
       label: "Compound annual growth",
-      value: `${result.cagr.toFixed(1)}% a year`,
+      value: `${formatPercent(result.cagr)} a year`,
       note: `Across ${result.years} years`,
     },
   ];

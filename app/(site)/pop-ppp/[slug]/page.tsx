@@ -352,7 +352,7 @@ export default async function IndexDetailPage({
             lead="A figure that travels without its source is the thing this section exists to avoid, so the export always includes the credit line."
             invert
           />
-          <div className="mt-12 max-w-xl">
+          <div className="mt-12 max-w-lg">
             <ShareCard
               indexName={index.name}
               reference={`${index.character} · ${index.film}, ${index.releaseYear}`}
@@ -369,7 +369,8 @@ export default async function IndexDetailPage({
               baseYear={result.baseYear}
               latestYear={result.latestYear}
               sourceNote={p.sourceNote}
-              accent={index.accent.light}
+              accent={index.accent.dark}
+              confidence={index.confidence}
               imageSrc={imageSrc}
             />
           </div>

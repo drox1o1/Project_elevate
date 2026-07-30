@@ -3,37 +3,36 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/registry/default/ui/button";
+import type { Confidence } from "@/lib/pop-ppp/types";
 
 /**
- * The shareable summary.
+ * The shareable summary — one square poster.
  *
- * A minimal editorial card rather than a poster: a light ground, one hairline
- * rule, one accent and generous space. What fills that space is data — the
- * index's actual series drawn between its two endpoints, and three figures
- * that say something the headline number cannot (how fast, how much of the
- * move was real, how hard it is to afford).
+ * The still fills the frame and the index's own series is drawn across its
+ * horizon, where the image gives way to the panel. That seam is the whole
+ * composition: the scene above it, the economics below it, and the line that
+ * connects them sitting exactly between.
  *
- * Key art is used when the index has it; the composition reflows without it,
- * so a missing file never leaves a hole.
+ * Six very different film stills have to end up looking like one product, so
+ * every image is graded the same way — darkened, tinted toward the index
+ * accent, then faded into the panel. Grain over the whole frame ties it to the
+ * section's noir bands.
  *
- * The source note is not decoration. A figure that travels without its
- * provenance is the failure mode this whole section exists to avoid.
+ * The preview *is* the canvas that downloads, drawn once and scaled by CSS, so
+ * there is no second layout implementation to drift out of sync.
+ *
+ * One ratio. A square posts everywhere, and three ratios meant three layouts
+ * to keep honest for no real gain.
  */
 
-const RATIOS = {
-  "1:1": { w: 1080, h: 1080, label: "1:1" },
-  "4:5": { w: 1080, h: 1350, label: "4:5" },
-  "16:9": { w: 1920, h: 1080, label: "16:9" },
-} as const;
+const SIZE = 1080;
 
-type RatioKey = keyof typeof RATIOS;
-
-const INK = "#0f0f10";
-const MUTED = "#8a8a8f";
-const FAINT = "#e2e1dd";
-const GROUND = "#faf9f7";
-const UP = "#127a52";
-const DOWN = "#b4291f";
+const PANEL = "#0b0b0d";
+const WHITE = "#ffffff";
+const MUTED = "rgba(255,255,255,0.52)";
+const FAINT = "rgba(255,255,255,0.3)";
+const UP = "#34d399";
+const DOWN = "#f87171";
 
 export interface ShareStat {
   label: string;
@@ -51,18 +50,25 @@ export interface ShareCardProps {
   change: string;
   changePositive: boolean;
   remark: string;
-  /** Up to three supporting figures. */
   stats: ShareStat[];
-  /** Normalised 0–1 series — the shape of the answer. */
+  /** Normalised 0–1 series — drawn across the horizon. */
   spark: number[];
   baseYear: number;
   latestYear: number;
   sourceNote: string;
   accent: string;
-  /** Key art, when the index has it. */
+  confidence: Confidence;
   imageSrc?: string | null;
   className?: string;
 }
+
+const CONFIDENCE_LABEL: Record<Confidence, string> = {
+  verified: "VERIFIED",
+  reconstructed: "RECONSTRUCTED",
+  estimated: "ESTIMATED",
+};
+
+const px = (frac: number) => Math.round(SIZE * frac);
 
 function wrap(
   ctx: CanvasRenderingContext2D,
@@ -95,25 +101,33 @@ function loadImage(src: string): Promise<HTMLImageElement | null> {
   });
 }
 
-/** Cover-fit a source image into a rounded destination box. */
-function drawCover(
-  ctx: CanvasRenderingContext2D,
-  img: HTMLImageElement,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  radius: number
-) {
-  ctx.save();
-  ctx.beginPath();
-  ctx.roundRect(x, y, w, h, radius);
-  ctx.clip();
-  const scale = Math.max(w / img.width, h / img.height);
-  const dw = img.width * scale;
-  const dh = img.height * scale;
-  ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
-  ctx.restore();
+/** Letter-spacing is Chromium-only on canvas; set it where it exists. */
+function withTracking(ctx: CanvasRenderingContext2D, value: string, draw: () => void) {
+  const supported = "letterSpacing" in ctx;
+  if (supported) ctx.letterSpacing = value;
+  draw();
+  if (supported) ctx.letterSpacing = "0px";
+}
+
+/** Fine film grain, generated once and tiled. */
+let grainTile: HTMLCanvasElement | null = null;
+function getGrain(): HTMLCanvasElement {
+  if (grainTile) return grainTile;
+  const c = document.createElement("canvas");
+  c.width = 160;
+  c.height = 160;
+  const g = c.getContext("2d");
+  if (g) {
+    const img = g.createImageData(160, 160);
+    for (let i = 0; i < img.data.length; i += 4) {
+      const v = 120 + Math.random() * 135;
+      img.data[i] = img.data[i + 1] = img.data[i + 2] = v;
+      img.data[i + 3] = 255;
+    }
+    g.putImageData(img, 0, 0);
+  }
+  grainTile = c;
+  return c;
 }
 
 export function ShareCard({
@@ -133,230 +147,313 @@ export function ShareCard({
   latestYear,
   sourceNote,
   accent,
+  confidence,
   imageSrc,
   className,
 }: ShareCardProps) {
-  const [ratio, setRatio] = React.useState<RatioKey>("1:1");
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const [busy, setBusy] = React.useState(false);
 
   const draw = React.useCallback(
-    (canvas: HTMLCanvasElement, key: RatioKey, art: HTMLImageElement | null) => {
-      const { w, h } = RATIOS[key];
-      canvas.width = w;
-      canvas.height = h;
+    (canvas: HTMLCanvasElement, art: HTMLImageElement | null) => {
+      canvas.width = SIZE;
+      canvas.height = SIZE;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      ctx.textBaseline = "top";
-      // Type scales off the short edge so a 16:9 export is not a blown-up 1:1.
-      const scale = Math.min(w, h);
-      const px = (frac: number) => Math.round(scale * frac);
-      const pad = px(0.072);
-      const inner = w - pad * 2;
-      const wide = key === "16:9";
+      const pad = px(0.075);
+      const inner = SIZE - pad * 2;
       const sans = "ui-sans-serif, system-ui, sans-serif";
       const mono = "ui-monospace, monospace";
+      ctx.textBaseline = "top";
 
-      ctx.fillStyle = GROUND;
-      ctx.fillRect(0, 0, w, h);
+      /* ---- measure the panel before placing the horizon ---------------
+         The seam is derived from how much the panel actually needs, so a
+         three-line quote pushes the horizon up rather than overflowing. */
 
-      /* --- masthead --- */
-      let y = pad;
-      const mark = px(0.018);
-      ctx.fillStyle = accent;
-      ctx.beginPath();
-      ctx.arc(pad + mark / 2, y + mark * 0.62, mark / 2, 0, Math.PI * 2);
-      ctx.fill();
+      const nameSize = px(0.0175);
+      const refSize = px(0.019);
+      const valueSize = px(0.078);
+      const labelSize = px(0.0185);
+      const statLabelSize = px(0.0155);
+      const statValueSize = px(0.028);
+      const noteSize = px(0.0155);
 
-      ctx.fillStyle = INK;
-      ctx.font = `600 ${px(0.018)}px ${mono}`;
-      ctx.fillText("POP PPP", pad + mark * 2, y);
-
-      ctx.fillStyle = MUTED;
-      ctx.font = `400 ${px(0.018)}px ${mono}`;
-      const site = "DUKU.DESIGN";
-      ctx.fillText(site, w - pad - ctx.measureText(site).width, y);
-
-      y += px(0.042);
-      ctx.strokeStyle = FAINT;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(pad, y);
-      ctx.lineTo(w - pad, y);
-      ctx.stroke();
-
-      /* --- hook, with key art beside it when there is any --- */
-      const hookTop = y + px(0.048);
-      y = hookTop;
-
-      const artSize = art ? px(wide ? 0.19 : 0.22) : 0;
-      const textWidth = art ? inner - artSize - px(0.045) : inner;
-      const artBottom = art ? y + artSize : 0;
-      const artLeft = art ? w - pad - artSize - px(0.03) : Infinity;
-      if (art) drawCover(ctx, art, w - pad - artSize, y, artSize, artSize, px(0.016));
-
-      ctx.fillStyle = MUTED;
-      ctx.font = `500 ${px(0.017)}px ${mono}`;
-      ctx.fillText(indexName.toUpperCase(), pad, y);
-      y += px(0.034);
-
-      const dialogueSize = px(wide ? 0.042 : 0.05);
-      ctx.fillStyle = INK;
-      ctx.font = `600 ${dialogueSize}px ${sans}`;
-      for (const line of wrap(ctx, `“${dialogue}”`, textWidth).slice(
-        0,
-        wide ? 2 : 3
-      )) {
-        ctx.fillText(line, pad, y);
-        y += Math.round(dialogueSize * 1.2);
-      }
-
-      y += px(0.008);
-      ctx.fillStyle = MUTED;
-      ctx.font = `400 ${px(0.019)}px ${sans}`;
-      ctx.fillText(reference, pad, y);
-      // Deliberately not pushed below the art. The art occupies the right
-      // column only, and the value line is usually far narrower than the space
-      // left of it — blanket-clearing the art costs a whole text block of
-      // vertical budget on the tall ratios, which is what squeezed the remark
-      // off the 1:1 card. Overlap is checked for real, below.
-      y += px(0.036);
-
-      /* --- footer, measured from the bottom so the middle can breathe --- */
-      const noteSize = px(0.015);
       ctx.font = `400 ${noteSize}px ${mono}`;
       const noteLines = wrap(ctx, sourceNote, inner).slice(0, 2);
-      const noteBlock = noteLines.length * Math.round(noteSize * 1.55);
-      let ny = h - pad - noteBlock;
-      ctx.fillStyle = MUTED;
-      for (const line of noteLines) {
-        ctx.fillText(line, pad, ny);
-        ny += Math.round(noteSize * 1.55);
+
+      const panelTopPad = px(0.062);
+      const panelBottomPad = px(0.062);
+      const MAX_PANEL = Math.round(SIZE * 0.64);
+      const MAX_LINES = 3;
+
+      const blocks = (lines: number, lead: number) =>
+        Math.round(nameSize * 2.4) +
+        lines * lead +
+        Math.round(refSize * 2.3) +
+        Math.round(valueSize * 1.02) +
+        Math.round(labelSize * 2.5) +
+        Math.round(statLabelSize * 1.8 + statValueSize * 1.15) +
+        px(0.03) +
+        noteLines.length * Math.round(noteSize * 1.55);
+
+      /* A long quote is set smaller, never cut short. Dropping trailing lines
+         to make room leaves a sentence fragment with no ellipsis, which reads
+         as a bug and, worse, misquotes the film. Type size is the elastic
+         dimension; truncation is the last resort and is marked when it
+         happens. */
+      const baseDialogue = px(0.052);
+      let dialogueSize = baseDialogue;
+      let dialogueLead = Math.round(dialogueSize * 1.16);
+      let dialogueLines: string[] = [];
+
+      for (const factor of [1, 0.93, 0.86, 0.79, 0.72]) {
+        dialogueSize = Math.round(baseDialogue * factor);
+        dialogueLead = Math.round(dialogueSize * 1.16);
+        ctx.font = `600 ${dialogueSize}px ${sans}`;
+        dialogueLines = wrap(ctx, `“${dialogue}”`, inner);
+        const fits =
+          dialogueLines.length <= MAX_LINES &&
+          blocks(dialogueLines.length, dialogueLead) +
+            panelTopPad +
+            panelBottomPad <=
+            MAX_PANEL;
+        if (fits) break;
       }
 
-      /* --- supporting figures --- */
-      const statLabel = px(0.015);
-      const statValue = px(0.025);
-      const statBlock = Math.round(statLabel * 1.75 + statValue * 1.1);
-      const sy = h - pad - noteBlock - px(0.04) - statBlock;
-      const shown = stats.slice(0, 3);
-      const colW = inner / Math.max(1, shown.length);
-      shown.forEach((s, i) => {
-        const x = pad + colW * i;
-        ctx.fillStyle = MUTED;
-        ctx.font = `400 ${statLabel}px ${mono}`;
-        ctx.fillText(s.label.toUpperCase(), x, sy);
-        ctx.fillStyle = INK;
-        ctx.font = `500 ${statValue}px ${mono}`;
-        ctx.fillText(s.value, x, sy + Math.round(statLabel * 1.75));
-      });
+      if (dialogueLines.length > MAX_LINES) {
+        ctx.font = `600 ${dialogueSize}px ${sans}`;
+        dialogueLines = dialogueLines.slice(0, MAX_LINES);
+        let last = dialogueLines[MAX_LINES - 1].replace(/”$/, "");
+        while (last && ctx.measureText(`${last}…”`).width > inner) {
+          last = last.slice(0, -1);
+        }
+        dialogueLines[MAX_LINES - 1] = `${last.trimEnd()}…”`;
+      }
 
-      /* --- the series, between its two endpoints --- */
-      const yearSize = px(0.015);
-      const axisY = sy - px(0.05) - Math.round(yearSize * 1.6);
-      const sparkH = px(wide ? 0.095 : 0.11);
+      const panelH = Math.min(
+        MAX_PANEL,
+        Math.max(
+          Math.round(SIZE * 0.46),
+          blocks(dialogueLines.length, dialogueLead) + panelTopPad + panelBottomPad
+        )
+      );
+      const seam = SIZE - panelH;
+
+      /* ---- the scene ------------------------------------------------- */
+
+      ctx.fillStyle = PANEL;
+      ctx.fillRect(0, 0, SIZE, SIZE);
+
+      if (art) {
+        // Everything in the scene half is clipped to it. A cover fit is by
+        // definition larger than its box on one axis, so without this the
+        // still spills straight over the panel and the type below it.
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, SIZE, seam);
+        ctx.clip();
+
+        // Cover-fit, biased slightly upward: faces sit high in most stills.
+        const s = Math.max(SIZE / art.width, seam / art.height);
+        const dw = art.width * s;
+        const dh = art.height * s;
+        ctx.drawImage(art, (SIZE - dw) / 2, (seam - dh) * 0.35, dw, dh);
+
+        // One grade for every still, so six different films read as one product.
+        ctx.fillStyle = "rgba(11,11,13,0.34)";
+        ctx.fillRect(0, 0, SIZE, seam);
+        ctx.globalCompositeOperation = "overlay";
+        ctx.globalAlpha = 0.26;
+        ctx.fillStyle = accent;
+        ctx.fillRect(0, 0, SIZE, seam);
+        ctx.restore();
+      } else {
+        // No key art: an accent field, so the poster still has an image half.
+        const g = ctx.createLinearGradient(0, 0, SIZE, seam);
+        g.addColorStop(0, accent);
+        g.addColorStop(1, PANEL);
+        ctx.save();
+        ctx.globalAlpha = 0.5;
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, SIZE, seam);
+        ctx.restore();
+      }
+
+      // Fade the still into the panel, and darken the top for the masthead.
+      const fade = ctx.createLinearGradient(0, seam - px(0.28), 0, seam);
+      fade.addColorStop(0, "rgba(11,11,13,0)");
+      fade.addColorStop(1, PANEL);
+      ctx.fillStyle = fade;
+      ctx.fillRect(0, seam - px(0.28), SIZE, px(0.28));
+
+      const topScrim = ctx.createLinearGradient(0, 0, 0, px(0.2));
+      topScrim.addColorStop(0, "rgba(11,11,13,0.72)");
+      topScrim.addColorStop(1, "rgba(11,11,13,0)");
+      ctx.fillStyle = topScrim;
+      ctx.fillRect(0, 0, SIZE, px(0.2));
+
+      /* ---- masthead -------------------------------------------------- */
+
+      const mark = px(0.0165);
+      ctx.fillStyle = accent;
+      ctx.beginPath();
+      ctx.arc(pad + mark / 2, pad + mark * 0.62, mark / 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = WHITE;
+      ctx.font = `600 ${px(0.0175)}px ${mono}`;
+      withTracking(ctx, "1.6px", () =>
+        ctx.fillText("POP PPP", pad + mark * 2, pad)
+      );
+
+      ctx.fillStyle = FAINT;
+      ctx.font = `400 ${px(0.0175)}px ${mono}`;
+      const site = "DUKU.DESIGN";
+      withTracking(ctx, "1.6px", () =>
+        ctx.fillText(site, SIZE - pad - ctx.measureText(site).width - 12, pad)
+      );
+
+      /* ---- the series, drawn across the horizon ----------------------- */
 
       if (spark.length > 1) {
-        ctx.strokeStyle = FAINT;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(pad, axisY);
-        ctx.lineTo(w - pad, axisY);
-        ctx.stroke();
+        const band = px(0.15);
+        const top = seam - band - px(0.02);
+        const pts = spark.map((n, i) => ({
+          x: pad + (i / (spark.length - 1)) * inner,
+          y: top + (1 - n) * band,
+        }));
 
+        // A soft fill under the line grounds it against a busy still.
+        // Opacity comes from globalAlpha, not from an alpha suffix: accents
+        // are authored as `hsl(...)` and canvas cannot parse `hsl(...)44`.
+        const under = ctx.createLinearGradient(0, top, 0, seam);
+        under.addColorStop(0, accent);
+        under.addColorStop(1, "transparent");
+        ctx.save();
+        ctx.globalAlpha = 0.28;
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, seam);
+        for (const p of pts) ctx.lineTo(p.x, p.y);
+        ctx.lineTo(pts[pts.length - 1].x, seam);
+        ctx.closePath();
+        ctx.fillStyle = under;
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.shadowColor = "rgba(0,0,0,0.55)";
+        ctx.shadowBlur = px(0.012);
         ctx.strokeStyle = accent;
-        ctx.lineWidth = Math.max(2, px(0.003));
+        ctx.lineWidth = px(0.0042);
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
         ctx.beginPath();
-        spark.forEach((n, i) => {
-          const x = pad + (i / (spark.length - 1)) * inner;
-          const yy = axisY - px(0.012) - n * sparkH;
-          if (i === 0) ctx.moveTo(x, yy);
-          else ctx.lineTo(x, yy);
-        });
+        pts.forEach((p, i) => (i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y)));
         ctx.stroke();
+        ctx.restore();
 
+        const last = pts[pts.length - 1];
         ctx.fillStyle = accent;
         ctx.beginPath();
-        ctx.arc(
-          w - pad,
-          axisY - px(0.012) - spark[spark.length - 1] * sparkH,
-          Math.max(3.5, px(0.006)),
-          0,
-          Math.PI * 2
-        );
+        ctx.arc(last.x, last.y, px(0.0075), 0, Math.PI * 2);
         ctx.fill();
+        ctx.strokeStyle = "rgba(255,255,255,0.85)";
+        ctx.lineWidth = px(0.0022);
+        ctx.beginPath();
+        ctx.arc(last.x, last.y, px(0.0135), 0, Math.PI * 2);
+        ctx.stroke();
 
         ctx.fillStyle = MUTED;
-        ctx.font = `400 ${yearSize}px ${mono}`;
-        ctx.fillText(String(baseYear), pad, axisY + px(0.014));
-        const last = String(latestYear);
-        ctx.fillText(last, w - pad - ctx.measureText(last).width, axisY + px(0.014));
+        ctx.font = `400 ${px(0.0155)}px ${mono}`;
+        ctx.fillText(String(baseYear), pad, seam + px(0.014));
+        const lastYear = String(latestYear);
+        ctx.fillText(
+          lastYear,
+          SIZE - pad - ctx.measureText(lastYear).width,
+          seam + px(0.014)
+        );
       }
 
-      /* --- the result, filling what is left between hook and series ---
-             The remark is the only elastic element here, so the number of
-             lines is derived from the space actually left rather than fixed
-             at two. A tall ratio with key art has materially less room than a
-             wide one, and a hardcoded line count is what makes a canvas
-             layout collide on exactly one aspect ratio. */
-      const valueSize = px(wide ? 0.058 : 0.07);
-      const remarkSize = px(0.02);
-      const remarkLineH = Math.round(remarkSize * 1.45);
-      const valueBlock = Math.round(valueSize * 1.05);
-      const labelBlock = px(0.054);
-      const gap = px(0.06);
-      const sparkTop = axisY - px(0.012) - sparkH;
+      /* ---- the panel --------------------------------------------------- */
 
-      ctx.font = `italic 400 ${remarkSize}px ${sans}`;
-      const roomForRemark = sparkTop - gap - y - valueBlock - labelBlock;
-      const maxRemarkLines = Math.max(
-        0,
-        Math.min(2, Math.floor(roomForRemark / remarkLineH))
+      let y = seam + panelTopPad;
+
+      ctx.fillStyle = accent;
+      ctx.font = `500 ${nameSize}px ${mono}`;
+      withTracking(ctx, "1.5px", () => ctx.fillText(indexName.toUpperCase(), pad, y));
+
+      ctx.fillStyle = FAINT;
+      ctx.font = `400 ${nameSize}px ${mono}`;
+      const conf = CONFIDENCE_LABEL[confidence];
+      withTracking(ctx, "1.5px", () =>
+        ctx.fillText(conf, SIZE - pad - ctx.measureText(conf).width - 10, y)
       );
-      const remarkLines = wrap(ctx, remark, inner).slice(0, maxRemarkLines);
+      y += Math.round(nameSize * 2.4);
 
-      const resultBlock =
-        valueBlock + labelBlock + remarkLines.length * remarkLineH;
-      let ry = Math.max(y, sparkTop - gap - resultBlock);
-
-      // Real collision check: only clear the art when the result block would
-      // actually run under it.
-      const changeSize = px(0.023);
-      ctx.font = `600 ${valueSize}px ${mono}`;
-      const valueWidth = ctx.measureText(currentValue).width;
-      ctx.font = `500 ${changeSize}px ${mono}`;
-      const changeWidth = ctx.measureText(change).width;
-      const resultRight = pad + valueWidth + px(0.022) + changeWidth;
-      if (art && ry < artBottom && resultRight > artLeft) {
-        ry = artBottom + px(0.03);
+      ctx.fillStyle = WHITE;
+      ctx.font = `600 ${dialogueSize}px ${sans}`;
+      for (const line of dialogueLines) {
+        ctx.fillText(line, pad, y);
+        y += dialogueLead;
       }
 
-      ctx.fillStyle = INK;
-      ctx.font = `600 ${valueSize}px ${mono}`;
-      ctx.fillText(currentValue, pad, ry);
+      ctx.fillStyle = MUTED;
+      ctx.font = `400 ${refSize}px ${sans}`;
+      ctx.fillText(reference, pad, y);
+      y += Math.round(refSize * 2.3);
 
+      ctx.fillStyle = WHITE;
+      ctx.font = `600 ${valueSize}px ${mono}`;
+      ctx.fillText(currentValue, pad, y);
+      const valueW = ctx.measureText(currentValue).width;
+
+      const changeSize = px(0.026);
       ctx.fillStyle = changePositive ? UP : DOWN;
       ctx.font = `500 ${changeSize}px ${mono}`;
       ctx.fillText(
         change,
-        pad + valueWidth + px(0.022),
-        ry + Math.round(valueSize - changeSize * 1.1)
+        pad + valueW + px(0.024),
+        y + Math.round(valueSize - changeSize * 1.15)
       );
+      y += Math.round(valueSize * 1.02);
 
-      ry += valueBlock;
       ctx.fillStyle = MUTED;
-      ctx.font = `400 ${px(0.017)}px ${mono}`;
-      ctx.fillText(`${currentLabel}  ·  ${baseLabel} ${baseValue}`, pad, ry);
+      ctx.font = `400 ${labelSize}px ${mono}`;
+      ctx.fillText(`${currentLabel}  ·  ${baseLabel} ${baseValue}`, pad, y);
+      y += Math.round(labelSize * 2.5);
 
-      ry += labelBlock;
-      ctx.fillStyle = MUTED;
-      ctx.font = `italic 400 ${remarkSize}px ${sans}`;
-      for (const line of remarkLines) {
-        ctx.fillText(line, pad, ry);
-        ry += remarkLineH;
+      const shown = stats.slice(0, 3);
+      const colW = inner / Math.max(1, shown.length);
+      shown.forEach((s, i) => {
+        const x = pad + colW * i;
+        ctx.fillStyle = FAINT;
+        ctx.font = `400 ${statLabelSize}px ${mono}`;
+        withTracking(ctx, "1.2px", () => ctx.fillText(s.label.toUpperCase(), x, y));
+        ctx.fillStyle = WHITE;
+        ctx.font = `500 ${statValueSize}px ${mono}`;
+        ctx.fillText(s.value, x, y + Math.round(statLabelSize * 1.8));
+      });
+      y += Math.round(statLabelSize * 1.8 + statValueSize * 1.15) + px(0.03);
+
+      ctx.fillStyle = "rgba(255,255,255,0.34)";
+      ctx.font = `400 ${noteSize}px ${mono}`;
+      for (const line of noteLines) {
+        ctx.fillText(line, pad, y);
+        y += Math.round(noteSize * 1.55);
       }
+
+      /* ---- grain over the whole frame ---------------------------------- */
+
+      ctx.save();
+      ctx.globalAlpha = 0.045;
+      ctx.globalCompositeOperation = "overlay";
+      const pattern = ctx.createPattern(getGrain(), "repeat");
+      if (pattern) {
+        ctx.fillStyle = pattern;
+        ctx.fillRect(0, 0, SIZE, SIZE);
+      }
+      ctx.restore();
     },
     [
       indexName,
@@ -368,22 +465,35 @@ export function ShareCard({
       currentLabel,
       baseLabel,
       baseValue,
-      remark,
       stats,
       spark,
       baseYear,
       latestYear,
       sourceNote,
       accent,
+      confidence,
     ]
   );
 
+  // Draw once into the visible canvas; the download exports the same pixels.
+  React.useEffect(() => {
+    let cancelled = false;
+    const render = async () => {
+      const art = imageSrc ? await loadImage(imageSrc) : null;
+      if (cancelled || !canvasRef.current) return;
+      draw(canvasRef.current, art);
+    };
+    void render();
+    return () => {
+      cancelled = true;
+    };
+  }, [draw, imageSrc]);
+
   const download = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
     setBusy(true);
     try {
-      const art = imageSrc ? await loadImage(imageSrc) : null;
-      const canvas = document.createElement("canvas");
-      draw(canvas, ratio, art);
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob(resolve, "image/png")
       );
@@ -394,7 +504,7 @@ export function ShareCard({
       a.download = `pop-ppp-${indexName
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
-        .replace(/^-|-$/g, "")}-${ratio.replace(":", "x")}.png`;
+        .replace(/^-|-$/g, "")}.png`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -402,182 +512,16 @@ export function ShareCard({
     }
   };
 
-  const sparkPath =
-    spark.length > 1
-      ? spark
-          .map(
-            (n, i) =>
-              `${i === 0 ? "M" : "L"} ${((i / (spark.length - 1)) * 100).toFixed(2)} ${(
-                28 -
-                n * 26
-              ).toFixed(2)}`
-          )
-          .join(" ")
-      : "";
-
   return (
     <div className={cn("w-full", className)}>
-      {/* Live preview of what downloads. */}
-      <div
-        className="overflow-hidden rounded-2xl border p-6 sm:p-8"
-        style={{ background: GROUND, borderColor: FAINT }}
-      >
-        <div className="flex items-center justify-between gap-4">
-          <span className="flex items-center gap-2">
-            <span
-              aria-hidden="true"
-              className="block size-2 rounded-full"
-              style={{ background: accent }}
-            />
-            <span
-              className="font-mono type-caption font-semibold tracking-[0.08em]"
-              style={{ color: INK }}
-            >
-              POP PPP
-            </span>
-          </span>
-          <span
-            className="font-mono type-caption tracking-[0.08em]"
-            style={{ color: MUTED }}
-          >
-            DUKU.DESIGN
-          </span>
-        </div>
-
-        <span
-          aria-hidden="true"
-          className="mt-4 block h-px w-full"
-          style={{ background: FAINT }}
-        />
-
-        <div className="mt-6 flex items-start gap-5">
-          <div className="min-w-0 flex-1">
-            <p
-              className="font-mono type-caption uppercase tracking-[0.1em]"
-              style={{ color: MUTED }}
-            >
-              {indexName}
-            </p>
-            <p
-              className="mt-3 text-balance text-xl font-semibold leading-snug tracking-[-0.02em] sm:text-2xl"
-              style={{ color: INK }}
-            >
-              &ldquo;{dialogue}&rdquo;
-            </p>
-            <p className="mt-2 type-meta" style={{ color: MUTED }}>
-              {reference}
-            </p>
-          </div>
-          {imageSrc ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={imageSrc}
-              alt=""
-              className="size-24 shrink-0 rounded-xl object-cover sm:size-28"
-            />
-          ) : null}
-        </div>
-
-        <div className="mt-7 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <span
-            className="font-mono text-3xl font-semibold tracking-[-0.02em] numeric sm:text-4xl"
-            style={{ color: INK }}
-          >
-            {currentValue}
-          </span>
-          <span
-            className="font-mono type-label numeric"
-            style={{ color: changePositive ? UP : DOWN }}
-          >
-            {change}
-          </span>
-        </div>
-        <p className="mt-1.5 font-mono type-caption numeric" style={{ color: MUTED }}>
-          {currentLabel} · {baseLabel} {baseValue}
-        </p>
-
-        <p
-          className="mt-4 max-w-md type-meta italic leading-6"
-          style={{ color: MUTED }}
-        >
-          {remark}
-        </p>
-
-        {sparkPath ? (
-          <div className="mt-7">
-            <svg
-              viewBox="0 0 100 30"
-              preserveAspectRatio="none"
-              className="block h-14 w-full"
-              aria-hidden="true"
-            >
-              <path
-                d={sparkPath}
-                fill="none"
-                stroke={accent}
-                strokeWidth={1.5}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                vectorEffect="non-scaling-stroke"
-              />
-            </svg>
-            <div
-              className="mt-1 flex items-center justify-between border-t pt-2 font-mono type-caption numeric"
-              style={{ borderColor: FAINT, color: MUTED }}
-            >
-              <span>{baseYear}</span>
-              <span>{latestYear}</span>
-            </div>
-          </div>
-        ) : null}
-
-        <dl className="mt-7 flex flex-wrap gap-x-10 gap-y-4">
-          {stats.slice(0, 3).map((s) => (
-            <div key={s.label}>
-              <dt
-                className="font-mono type-caption uppercase tracking-[0.08em]"
-                style={{ color: MUTED }}
-              >
-                {s.label}
-              </dt>
-              <dd className="mt-1 font-mono type-label numeric" style={{ color: INK }}>
-                {s.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
-
-        <p
-          className="mt-7 max-w-lg font-mono type-caption leading-5"
-          style={{ color: MUTED }}
-        >
-          {sourceNote}
-        </p>
-      </div>
+      <canvas
+        ref={canvasRef}
+        role="img"
+        aria-label={`${indexName}. ${dialogue} ${currentValue}, ${change} since ${baseYear}. ${remark}`}
+        className="block aspect-square w-full rounded-2xl border border-white/10 shadow-overlay"
+      />
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <div
-          role="radiogroup"
-          aria-label="Export ratio"
-          className="flex gap-1 rounded-lg border border-white/15 bg-white/[0.04] p-1"
-        >
-          {(Object.keys(RATIOS) as RatioKey[]).map((k) => (
-            <button
-              key={k}
-              type="button"
-              role="radio"
-              aria-checked={k === ratio}
-              onClick={() => setRatio(k)}
-              className={cn(
-                "rounded-md px-2.5 py-1 font-mono type-caption transition-colors duration-200",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
-                k === ratio ? "bg-white text-black" : "text-white/55 hover:text-white"
-              )}
-            >
-              {RATIOS[k].label}
-            </button>
-          ))}
-        </div>
         <Button
           variant="outline"
           size="sm"
@@ -587,6 +531,9 @@ export function ShareCard({
         >
           Download PNG
         </Button>
+        <span className="font-mono type-caption text-white/40">
+          1080 × 1080 · square posts everywhere
+        </span>
       </div>
     </div>
   );
