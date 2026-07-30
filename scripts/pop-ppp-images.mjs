@@ -42,6 +42,28 @@ const SLUGS = new Set(Object.values(ALIASES));
 
 const normalise = (s) => s.toLowerCase().replace(/[\s._-]+/g, "");
 
+/**
+ * Real format from the file's magic bytes.
+ *
+ * Extensions lie — an export pipeline can hand you AVIF bytes named `.jpeg`,
+ * which some browsers refuse to decode because the server labels it
+ * `image/jpeg`. Writing the destination with the sniffed extension makes the
+ * served Content-Type match the actual bytes.
+ */
+function sniff(buf) {
+  if (buf.length >= 12) {
+    if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return ".jpg";
+    if (buf.subarray(4, 12).toString("latin1") === "ftypavif") return ".avif";
+    if (buf.subarray(0, 8).toString("latin1") === "\x89PNG\r\n\x1a\n") return ".png";
+    if (
+      buf.subarray(0, 4).toString("latin1") === "RIFF" &&
+      buf.subarray(8, 12).toString("latin1") === "WEBP"
+    )
+      return ".webp";
+  }
+  return null;
+}
+
 const sourceDir = path.resolve(process.argv[2] ?? "components/pop-ppp");
 const targetDir = path.resolve("public/pop-ppp");
 
@@ -63,9 +85,11 @@ fs.mkdirSync(targetDir, { recursive: true });
 
 let copied = 0;
 const skipped = [];
+const written = new Map(); // slug -> destination filename
 
 for (const file of found) {
-  const ext = path.extname(file).toLowerCase();
+  const srcPath = path.join(sourceDir, file);
+  const declared = path.extname(file).toLowerCase();
   const base = path.basename(file, path.extname(file));
   const key = normalise(base);
   const slug = ALIASES[key] ?? (SLUGS.has(base) ? base : null);
@@ -75,9 +99,29 @@ for (const file of found) {
     continue;
   }
 
-  const dest = path.join(targetDir, `${slug}${ext}`);
-  fs.copyFileSync(path.join(sourceDir, file), dest);
-  console.log(`  ${file}  ->  public/pop-ppp/${slug}${ext}`);
+  const buf = fs.readFileSync(srcPath);
+  const actual = sniff(buf) ?? declared;
+  const mislabelled = actual !== declared && !(actual === ".jpg" && declared === ".jpeg");
+
+  // One file per index. If two sources map to the same slug, keep the one
+  // whose format we prefer rather than letting copy order decide.
+  const existing = written.get(slug);
+  if (existing) {
+    const rank = (e) => EXTENSIONS.indexOf(e);
+    if (rank(actual) >= rank(path.extname(existing))) {
+      console.log(`  ${file}  ->  skipped, ${existing} already covers ${slug}`);
+      continue;
+    }
+    fs.rmSync(path.join(targetDir, existing), { force: true });
+  }
+
+  const destName = `${slug}${actual}`;
+  fs.writeFileSync(path.join(targetDir, destName), buf);
+  written.set(slug, destName);
+  console.log(
+    `  ${file}  ->  public/pop-ppp/${destName}` +
+      (mislabelled ? `   (was named ${declared}, actually ${actual})` : "")
+  );
   copied++;
 }
 
