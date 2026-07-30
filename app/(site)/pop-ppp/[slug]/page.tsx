@@ -26,7 +26,10 @@ import {
   railEntryFor,
   rawValuesFor,
   seriesValues,
+  shareStatsFor,
+  sparkFor,
 } from "@/lib/pop-ppp/present";
+import { imageFor } from "@/lib/pop-ppp/images";
 
 export function generateStaticParams() {
   return INDICES.filter((i) => i.status === "live").map((i) => ({ slug: i.slug }));
@@ -60,8 +63,12 @@ export default async function IndexDetailPage({
 
   const p = presentIndex(index);
   const { result } = p;
-  const rail = LIVE_INDICES.map((i) => railEntryFor(presentIndex(i)));
+  const rail = LIVE_INDICES.map((i) => ({
+    ...railEntryFor(presentIndex(i)),
+    imageSrc: imageFor(i.slug),
+  }));
   const values = seriesValues(p);
+  const imageSrc = imageFor(index.slug);
 
   return (
     <main>
@@ -80,6 +87,7 @@ export default async function IndexDetailPage({
         accent={index.accent}
         motif={index.motif}
         values={values}
+        imageSrc={imageSrc}
         meta={[
           { label: "Film", value: `${index.film} (${index.releaseYear})` },
           { label: "Base year", value: String(index.baseYear) },
@@ -354,10 +362,15 @@ export default async function IndexDetailPage({
               currentLabel={`${result.latestYear}, last verified`}
               currentValue={p.money(result.currentValue)}
               change={formatPercent(result.percentChange)}
+              changePositive={result.percentChange >= 0}
               remark={index.remark}
+              stats={shareStatsFor(p)}
+              spark={sparkFor(p)}
+              baseYear={result.baseYear}
+              latestYear={result.latestYear}
               sourceNote={p.sourceNote}
-              accent={index.accent.dark}
-              invert
+              accent={index.accent.light}
+              imageSrc={imageSrc}
             />
           </div>
         </div>

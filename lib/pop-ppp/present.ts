@@ -218,6 +218,54 @@ export function tickerItemFor(p: PresentedIndex) {
   };
 }
 
+/* ---- share card ------------------------------------------------------- */
+
+/**
+ * The three supporting figures on the share card.
+ *
+ * Chosen so the card says something the headline number cannot: how fast the
+ * move was, how much of it survived inflation, and how the burden shifted.
+ * Indices without a CPI or income series fall through to the period length
+ * rather than showing a blank — the card is never padded with a dash.
+ */
+export function shareStatsFor(p: PresentedIndex) {
+  const { result, locale } = p;
+  const stats: { label: string; value: string }[] = [
+    { label: "Per year", value: `${result.cagr.toFixed(1)}%` },
+  ];
+
+  if (result.realAppreciation != null) {
+    stats.push({
+      label: "Real change",
+      value: formatPercent(result.realAppreciation),
+    });
+  }
+
+  if (result.affordabilityChange != null) {
+    stats.push({
+      label:
+        result.affordabilityChange >= 1 ? "Harder to afford" : "Easier to afford",
+      value: formatMultiple(result.affordabilityChange),
+    });
+  }
+
+  if (stats.length < 3) {
+    stats.push({
+      label: "Span",
+      value: `${result.years} years`,
+    });
+  }
+
+  if (stats.length < 3 && p.priceSeries.observations.length) {
+    stats.push({
+      label: "Observations",
+      value: p.priceSeries.observations.length.toLocaleString(locale),
+    });
+  }
+
+  return stats.slice(0, 3);
+}
+
 /* ---- landing-grid card ------------------------------------------------ */
 
 export function cardFor(p: PresentedIndex) {

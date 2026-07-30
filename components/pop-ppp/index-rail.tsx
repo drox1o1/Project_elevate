@@ -26,6 +26,8 @@ export interface RailEntry {
   /** Normalised 0–1 series for the sparkline. */
   spark: number[];
   accent: { light: string; dark: string };
+  /** Key art thumbnail, when the index has any. */
+  imageSrc?: string | null;
 }
 
 const SPARK_W = 56;
@@ -122,10 +124,20 @@ export function IndexRail({
                     : "border-border hover:bg-muted/50 lg:border-l-border"
                 )}
               >
-                <div className="flex items-baseline gap-2">
-                  <span className="font-mono type-caption text-muted-foreground numeric">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
+                <div className="flex items-center gap-2">
+                  {e.imageSrc ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={e.imageSrc}
+                      alt=""
+                      loading="lazy"
+                      className="size-5 shrink-0 rounded object-cover"
+                    />
+                  ) : (
+                    <span className="font-mono type-caption text-muted-foreground numeric">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  )}
                   <span
                     className={cn(
                       "min-w-0 flex-1 truncate type-label font-medium",

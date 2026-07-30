@@ -5,15 +5,19 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/registry/default/ui/button";
 
 /**
- * The shareable summary (PRD §H).
+ * The shareable summary.
  *
- * One card, three ratios, drawn to a canvas so what downloads is exactly what
- * the preview shows. The export deliberately commits to a single dark look
- * rather than following the viewer's theme — a card that leaves the site
- * should not change appearance depending on who exported it.
+ * A minimal editorial card rather than a poster: a light ground, one hairline
+ * rule, one accent and generous space. What fills that space is data — the
+ * index's actual series drawn between its two endpoints, and three figures
+ * that say something the headline number cannot (how fast, how much of the
+ * move was real, how hard it is to afford).
  *
- * The source note is not optional decoration. A figure that travels without
- * its provenance is the failure mode this whole section exists to avoid.
+ * Key art is used when the index has it; the composition reflows without it,
+ * so a missing file never leaves a hole.
+ *
+ * The source note is not decoration. A figure that travels without its
+ * provenance is the failure mode this whole section exists to avoid.
  */
 
 const RATIOS = {
@@ -24,6 +28,18 @@ const RATIOS = {
 
 type RatioKey = keyof typeof RATIOS;
 
+const INK = "#0f0f10";
+const MUTED = "#8a8a8f";
+const FAINT = "#e2e1dd";
+const GROUND = "#faf9f7";
+const UP = "#127a52";
+const DOWN = "#b4291f";
+
+export interface ShareStat {
+  label: string;
+  value: string;
+}
+
 export interface ShareCardProps {
   indexName: string;
   reference: string;
@@ -33,15 +49,21 @@ export interface ShareCardProps {
   currentLabel: string;
   currentValue: string;
   change: string;
+  changePositive: boolean;
   remark: string;
+  /** Up to three supporting figures. */
+  stats: ShareStat[];
+  /** Normalised 0–1 series — the shape of the answer. */
+  spark: number[];
+  baseYear: number;
+  latestYear: number;
   sourceNote: string;
   accent: string;
-  /** Set when the card sits on a dark band, so the controls read against it. */
-  invert?: boolean;
+  /** Key art, when the index has it. */
+  imageSrc?: string | null;
   className?: string;
 }
 
-/** Word-wrap `text` into lines that fit `maxWidth` at the current font. */
 function wrap(
   ctx: CanvasRenderingContext2D,
   text: string,
@@ -63,6 +85,37 @@ function wrap(
   return lines;
 }
 
+function loadImage(src: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
+/** Cover-fit a source image into a rounded destination box. */
+function drawCover(
+  ctx: CanvasRenderingContext2D,
+  img: HTMLImageElement,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  radius: number
+) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.roundRect(x, y, w, h, radius);
+  ctx.clip();
+  const scale = Math.max(w / img.width, h / img.height);
+  const dw = img.width * scale;
+  const dh = img.height * scale;
+  ctx.drawImage(img, x + (w - dw) / 2, y + (h - dh) / 2, dw, dh);
+  ctx.restore();
+}
+
 export function ShareCard({
   indexName,
   reference,
@@ -72,153 +125,237 @@ export function ShareCard({
   currentLabel,
   currentValue,
   change,
+  changePositive,
   remark,
+  stats,
+  spark,
+  baseYear,
+  latestYear,
   sourceNote,
   accent,
-  invert = false,
+  imageSrc,
   className,
 }: ShareCardProps) {
   const [ratio, setRatio] = React.useState<RatioKey>("1:1");
   const [busy, setBusy] = React.useState(false);
 
   const draw = React.useCallback(
-    (canvas: HTMLCanvasElement, key: RatioKey) => {
+    (canvas: HTMLCanvasElement, key: RatioKey, art: HTMLImageElement | null) => {
       const { w, h } = RATIOS[key];
       canvas.width = w;
       canvas.height = h;
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
 
-      const pad = Math.round(w * 0.075);
-      const inner = w - pad * 2;
-      const wide = key === "16:9";
-
-      // Every measurement below assumes a top baseline, so an advance is just
-      // "add the line height" — mixing baselines is what makes hand-laid
-      // canvas text overlap.
       ctx.textBaseline = "top";
-
-      // Type scales off the *short* edge. Keying it to width blows the 16:9
-      // card's header past the space its height actually leaves, which is how
-      // a wide export ends up with the dialogue sitting on top of the value.
+      // Type scales off the short edge so a 16:9 export is not a blown-up 1:1.
       const scale = Math.min(w, h);
       const px = (frac: number) => Math.round(scale * frac);
+      const pad = px(0.072);
+      const inner = w - pad * 2;
+      const wide = key === "16:9";
       const sans = "ui-sans-serif, system-ui, sans-serif";
       const mono = "ui-monospace, monospace";
 
-      // Ground
-      ctx.fillStyle = "#0a0a0b";
+      ctx.fillStyle = GROUND;
       ctx.fillRect(0, 0, w, h);
 
-      // Accent bar, top-left — the only chrome the card carries.
+      /* --- masthead --- */
+      let y = pad;
+      const mark = px(0.018);
       ctx.fillStyle = accent;
-      ctx.fillRect(pad, pad, px(0.055), Math.max(4, px(0.005)));
+      ctx.beginPath();
+      ctx.arc(pad + mark / 2, y + mark * 0.62, mark / 2, 0, Math.PI * 2);
+      ctx.fill();
 
-      /* --- header block, laid out downward from the top --- */
+      ctx.fillStyle = INK;
+      ctx.font = `600 ${px(0.018)}px ${mono}`;
+      ctx.fillText("POP PPP", pad + mark * 2, y);
 
-      let y = pad + px(0.03);
+      ctx.fillStyle = MUTED;
+      ctx.font = `400 ${px(0.018)}px ${mono}`;
+      const site = "DUKU.DESIGN";
+      ctx.fillText(site, w - pad - ctx.measureText(site).width, y);
 
-      const nameSize = px(0.021);
-      ctx.fillStyle = "#a1a1aa";
-      ctx.font = `500 ${nameSize}px ${mono}`;
+      y += px(0.042);
+      ctx.strokeStyle = FAINT;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(pad, y);
+      ctx.lineTo(w - pad, y);
+      ctx.stroke();
+
+      /* --- hook, with key art beside it when there is any --- */
+      const hookTop = y + px(0.048);
+      y = hookTop;
+
+      const artSize = art ? px(wide ? 0.19 : 0.22) : 0;
+      const textWidth = art ? inner - artSize - px(0.045) : inner;
+      const artBottom = art ? y + artSize : 0;
+      const artLeft = art ? w - pad - artSize - px(0.03) : Infinity;
+      if (art) drawCover(ctx, art, w - pad - artSize, y, artSize, artSize, px(0.016));
+
+      ctx.fillStyle = MUTED;
+      ctx.font = `500 ${px(0.017)}px ${mono}`;
       ctx.fillText(indexName.toUpperCase(), pad, y);
-      y += Math.round(nameSize * 1.6);
+      y += px(0.034);
 
-      const dialogueSize = px(wide ? 0.058 : 0.072);
-      ctx.fillStyle = "#fafafa";
+      const dialogueSize = px(wide ? 0.042 : 0.05);
+      ctx.fillStyle = INK;
       ctx.font = `600 ${dialogueSize}px ${sans}`;
-      const dialogueLines = wrap(ctx, `\u201c${dialogue}\u201d`, inner).slice(
+      for (const line of wrap(ctx, `“${dialogue}”`, textWidth).slice(
         0,
         wide ? 2 : 3
-      );
-      for (const line of dialogueLines) {
+      )) {
         ctx.fillText(line, pad, y);
-        y += Math.round(dialogueSize * 1.16);
+        y += Math.round(dialogueSize * 1.2);
       }
 
-      y += px(0.012);
-      const refSize = px(0.021);
-      ctx.fillStyle = "#71717a";
-      ctx.font = `400 ${refSize}px ${sans}`;
-      for (const line of wrap(ctx, reference, inner).slice(0, 2)) {
-        ctx.fillText(line, pad, y);
-        y += Math.round(refSize * 1.45);
+      y += px(0.008);
+      ctx.fillStyle = MUTED;
+      ctx.font = `400 ${px(0.019)}px ${sans}`;
+      ctx.fillText(reference, pad, y);
+      // Deliberately not pushed below the art. The art occupies the right
+      // column only, and the value line is usually far narrower than the space
+      // left of it — blanket-clearing the art costs a whole text block of
+      // vertical budget on the tall ratios, which is what squeezed the remark
+      // off the 1:1 card. Overlap is checked for real, below.
+      y += px(0.036);
+
+      /* --- footer, measured from the bottom so the middle can breathe --- */
+      const noteSize = px(0.015);
+      ctx.font = `400 ${noteSize}px ${mono}`;
+      const noteLines = wrap(ctx, sourceNote, inner).slice(0, 2);
+      const noteBlock = noteLines.length * Math.round(noteSize * 1.55);
+      let ny = h - pad - noteBlock;
+      ctx.fillStyle = MUTED;
+      for (const line of noteLines) {
+        ctx.fillText(line, pad, ny);
+        ny += Math.round(noteSize * 1.55);
       }
 
-      /* --- footer block: measured first, then placed against the bottom, so
-             the two halves can never collide whatever the ratio --- */
+      /* --- supporting figures --- */
+      const statLabel = px(0.015);
+      const statValue = px(0.025);
+      const statBlock = Math.round(statLabel * 1.75 + statValue * 1.1);
+      const sy = h - pad - noteBlock - px(0.04) - statBlock;
+      const shown = stats.slice(0, 3);
+      const colW = inner / Math.max(1, shown.length);
+      shown.forEach((s, i) => {
+        const x = pad + colW * i;
+        ctx.fillStyle = MUTED;
+        ctx.font = `400 ${statLabel}px ${mono}`;
+        ctx.fillText(s.label.toUpperCase(), x, sy);
+        ctx.fillStyle = INK;
+        ctx.font = `500 ${statValue}px ${mono}`;
+        ctx.fillText(s.value, x, sy + Math.round(statLabel * 1.75));
+      });
 
-      const valueSize = px(wide ? 0.07 : 0.088);
-      const changeSize = px(0.027);
-      const labelSize = px(0.02);
-      const remarkSize = px(0.024);
-      const attrSize = px(0.019);
-      const noteSize = px(0.018);
+      /* --- the series, between its two endpoints --- */
+      const yearSize = px(0.015);
+      const axisY = sy - px(0.05) - Math.round(yearSize * 1.6);
+      const sparkH = px(wide ? 0.095 : 0.11);
+
+      if (spark.length > 1) {
+        ctx.strokeStyle = FAINT;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(pad, axisY);
+        ctx.lineTo(w - pad, axisY);
+        ctx.stroke();
+
+        ctx.strokeStyle = accent;
+        ctx.lineWidth = Math.max(2, px(0.003));
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        spark.forEach((n, i) => {
+          const x = pad + (i / (spark.length - 1)) * inner;
+          const yy = axisY - px(0.012) - n * sparkH;
+          if (i === 0) ctx.moveTo(x, yy);
+          else ctx.lineTo(x, yy);
+        });
+        ctx.stroke();
+
+        ctx.fillStyle = accent;
+        ctx.beginPath();
+        ctx.arc(
+          w - pad,
+          axisY - px(0.012) - spark[spark.length - 1] * sparkH,
+          Math.max(3.5, px(0.006)),
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+
+        ctx.fillStyle = MUTED;
+        ctx.font = `400 ${yearSize}px ${mono}`;
+        ctx.fillText(String(baseYear), pad, axisY + px(0.014));
+        const last = String(latestYear);
+        ctx.fillText(last, w - pad - ctx.measureText(last).width, axisY + px(0.014));
+      }
+
+      /* --- the result, filling what is left between hook and series ---
+             The remark is the only elastic element here, so the number of
+             lines is derived from the space actually left rather than fixed
+             at two. A tall ratio with key art has materially less room than a
+             wide one, and a hardcoded line count is what makes a canvas
+             layout collide on exactly one aspect ratio. */
+      const valueSize = px(wide ? 0.058 : 0.07);
+      const remarkSize = px(0.02);
+      const remarkLineH = Math.round(remarkSize * 1.45);
+      const valueBlock = Math.round(valueSize * 1.05);
+      const labelBlock = px(0.054);
+      const gap = px(0.06);
+      const sparkTop = axisY - px(0.012) - sparkH;
 
       ctx.font = `italic 400 ${remarkSize}px ${sans}`;
-      const remarkLines = wrap(ctx, remark, inner).slice(0, 3);
-      ctx.font = `400 ${noteSize}px ${mono}`;
-      const noteLines = wrap(ctx, sourceNote, inner).slice(0, 3);
+      const roomForRemark = sparkTop - gap - y - valueBlock - labelBlock;
+      const maxRemarkLines = Math.max(
+        0,
+        Math.min(2, Math.floor(roomForRemark / remarkLineH))
+      );
+      const remarkLines = wrap(ctx, remark, inner).slice(0, maxRemarkLines);
 
-      const gapLg = px(0.03);
-      const gapSm = px(0.014);
-      const footerHeight =
-        Math.round(valueSize * 1.1) +
-        gapSm +
-        Math.round(labelSize * 1.5) +
-        gapLg +
-        remarkLines.length * Math.round(remarkSize * 1.45) +
-        gapLg +
-        Math.round(attrSize * 1.6) +
-        gapSm +
-        noteLines.length * Math.round(noteSize * 1.5);
+      const resultBlock =
+        valueBlock + labelBlock + remarkLines.length * remarkLineH;
+      let ry = Math.max(y, sparkTop - gap - resultBlock);
 
-      // Bottom-anchored, but never allowed to climb into the header. If a long
-      // dialogue and a long remark cannot both have their preferred position,
-      // the footer sits directly below the header instead of overlapping it.
-      let fy = Math.max(h - pad - footerHeight, y + gapLg);
-
-      // Value, with the change riding on its baseline
-      ctx.fillStyle = accent;
+      // Real collision check: only clear the art when the result block would
+      // actually run under it.
+      const changeSize = px(0.023);
       ctx.font = `600 ${valueSize}px ${mono}`;
-      ctx.fillText(currentValue, pad, fy);
       const valueWidth = ctx.measureText(currentValue).width;
-      ctx.fillStyle = "#fafafa";
+      ctx.font = `500 ${changeSize}px ${mono}`;
+      const changeWidth = ctx.measureText(change).width;
+      const resultRight = pad + valueWidth + px(0.022) + changeWidth;
+      if (art && ry < artBottom && resultRight > artLeft) {
+        ry = artBottom + px(0.03);
+      }
+
+      ctx.fillStyle = INK;
+      ctx.font = `600 ${valueSize}px ${mono}`;
+      ctx.fillText(currentValue, pad, ry);
+
+      ctx.fillStyle = changePositive ? UP : DOWN;
       ctx.font = `500 ${changeSize}px ${mono}`;
       ctx.fillText(
         change,
-        pad + valueWidth + px(0.025),
-        fy + Math.round(valueSize - changeSize * 1.15)
+        pad + valueWidth + px(0.022),
+        ry + Math.round(valueSize - changeSize * 1.1)
       );
-      fy += Math.round(valueSize * 1.1) + gapSm;
 
-      // What the value is
-      ctx.fillStyle = "#71717a";
-      ctx.font = `400 ${labelSize}px ${mono}`;
-      ctx.fillText(`${currentLabel} \u00b7 ${baseLabel} ${baseValue}`, pad, fy);
-      fy += Math.round(labelSize * 1.5) + gapLg;
+      ry += valueBlock;
+      ctx.fillStyle = MUTED;
+      ctx.font = `400 ${px(0.017)}px ${mono}`;
+      ctx.fillText(`${currentLabel}  ·  ${baseLabel} ${baseValue}`, pad, ry);
 
-      // The remark
-      ctx.fillStyle = "#a1a1aa";
+      ry += labelBlock;
+      ctx.fillStyle = MUTED;
       ctx.font = `italic 400 ${remarkSize}px ${sans}`;
       for (const line of remarkLines) {
-        ctx.fillText(line, pad, fy);
-        fy += Math.round(remarkSize * 1.45);
-      }
-      fy += gapLg;
-
-      // Attribution
-      ctx.fillStyle = "#a1a1aa";
-      ctx.font = `500 ${attrSize}px ${mono}`;
-      ctx.fillText("DUKU DESIGN \u00b7 POP PPP", pad, fy);
-      fy += Math.round(attrSize * 1.6) + gapSm;
-
-      // Source note — the card does not travel without it
-      ctx.fillStyle = "#52525b";
-      ctx.font = `400 ${noteSize}px ${mono}`;
-      for (const line of noteLines) {
-        ctx.fillText(line, pad, fy);
-        fy += Math.round(noteSize * 1.5);
+        ctx.fillText(line, pad, ry);
+        ry += remarkLineH;
       }
     },
     [
@@ -227,10 +364,15 @@ export function ShareCard({
       reference,
       currentValue,
       change,
+      changePositive,
       currentLabel,
       baseLabel,
       baseValue,
       remark,
+      stats,
+      spark,
+      baseYear,
+      latestYear,
       sourceNote,
       accent,
     ]
@@ -239,8 +381,9 @@ export function ShareCard({
   const download = async () => {
     setBusy(true);
     try {
+      const art = imageSrc ? await loadImage(imageSrc) : null;
       const canvas = document.createElement("canvas");
-      draw(canvas, ratio);
+      draw(canvas, ratio, art);
       const blob = await new Promise<Blob | null>((resolve) =>
         canvas.toBlob(resolve, "image/png")
       );
@@ -259,47 +402,155 @@ export function ShareCard({
     }
   };
 
+  const sparkPath =
+    spark.length > 1
+      ? spark
+          .map(
+            (n, i) =>
+              `${i === 0 ? "M" : "L"} ${((i / (spark.length - 1)) * 100).toFixed(2)} ${(
+                28 -
+                n * 26
+              ).toFixed(2)}`
+          )
+          .join(" ")
+      : "";
+
   return (
     <div className={cn("w-full", className)}>
-      {/* HTML preview of the same content — no canvas needed to see it. */}
+      {/* Live preview of what downloads. */}
       <div
-        className="overflow-hidden rounded-xl border border-border p-5 sm:p-6"
-        style={{ background: "#0a0a0b" }}
+        className="overflow-hidden rounded-2xl border p-6 sm:p-8"
+        style={{ background: GROUND, borderColor: FAINT }}
       >
+        <div className="flex items-center justify-between gap-4">
+          <span className="flex items-center gap-2">
+            <span
+              aria-hidden="true"
+              className="block size-2 rounded-full"
+              style={{ background: accent }}
+            />
+            <span
+              className="font-mono type-caption font-semibold tracking-[0.08em]"
+              style={{ color: INK }}
+            >
+              POP PPP
+            </span>
+          </span>
+          <span
+            className="font-mono type-caption tracking-[0.08em]"
+            style={{ color: MUTED }}
+          >
+            DUKU.DESIGN
+          </span>
+        </div>
+
         <span
           aria-hidden="true"
-          className="block h-1.5 w-10"
-          style={{ background: accent }}
+          className="mt-4 block h-px w-full"
+          style={{ background: FAINT }}
         />
-        <p className="mt-4 font-mono type-caption uppercase tracking-[0.1em] text-zinc-400">
-          {indexName}
-        </p>
-        <p className="mt-3 text-balance text-xl font-semibold leading-tight text-zinc-50 sm:text-2xl">
-          &ldquo;{dialogue}&rdquo;
-        </p>
-        <p className="mt-1.5 type-meta text-zinc-500">{reference}</p>
 
-        <div className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        <div className="mt-6 flex items-start gap-5">
+          <div className="min-w-0 flex-1">
+            <p
+              className="font-mono type-caption uppercase tracking-[0.1em]"
+              style={{ color: MUTED }}
+            >
+              {indexName}
+            </p>
+            <p
+              className="mt-3 text-balance text-xl font-semibold leading-snug tracking-[-0.02em] sm:text-2xl"
+              style={{ color: INK }}
+            >
+              &ldquo;{dialogue}&rdquo;
+            </p>
+            <p className="mt-2 type-meta" style={{ color: MUTED }}>
+              {reference}
+            </p>
+          </div>
+          {imageSrc ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imageSrc}
+              alt=""
+              className="size-24 shrink-0 rounded-xl object-cover sm:size-28"
+            />
+          ) : null}
+        </div>
+
+        <div className="mt-7 flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span
-            className="font-mono text-2xl font-semibold numeric sm:text-3xl"
-            style={{ color: accent }}
+            className="font-mono text-3xl font-semibold tracking-[-0.02em] numeric sm:text-4xl"
+            style={{ color: INK }}
           >
             {currentValue}
           </span>
-          <span className="font-mono type-label text-zinc-50 numeric">{change}</span>
+          <span
+            className="font-mono type-label numeric"
+            style={{ color: changePositive ? UP : DOWN }}
+          >
+            {change}
+          </span>
         </div>
-        <p className="mt-1 font-mono type-caption text-zinc-500 numeric">
+        <p className="mt-1.5 font-mono type-caption numeric" style={{ color: MUTED }}>
           {currentLabel} · {baseLabel} {baseValue}
         </p>
 
-        <p className="mt-5 max-w-md type-meta italic leading-6 text-zinc-400">
+        <p
+          className="mt-4 max-w-md type-meta italic leading-6"
+          style={{ color: MUTED }}
+        >
           {remark}
         </p>
 
-        <p className="mt-5 font-mono type-caption uppercase tracking-[0.1em] text-zinc-400">
-          Duku Design · Pop PPP
-        </p>
-        <p className="mt-1.5 max-w-lg font-mono type-caption leading-5 text-zinc-600">
+        {sparkPath ? (
+          <div className="mt-7">
+            <svg
+              viewBox="0 0 100 30"
+              preserveAspectRatio="none"
+              className="block h-14 w-full"
+              aria-hidden="true"
+            >
+              <path
+                d={sparkPath}
+                fill="none"
+                stroke={accent}
+                strokeWidth={1.5}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
+              />
+            </svg>
+            <div
+              className="mt-1 flex items-center justify-between border-t pt-2 font-mono type-caption numeric"
+              style={{ borderColor: FAINT, color: MUTED }}
+            >
+              <span>{baseYear}</span>
+              <span>{latestYear}</span>
+            </div>
+          </div>
+        ) : null}
+
+        <dl className="mt-7 flex flex-wrap gap-x-10 gap-y-4">
+          {stats.slice(0, 3).map((s) => (
+            <div key={s.label}>
+              <dt
+                className="font-mono type-caption uppercase tracking-[0.08em]"
+                style={{ color: MUTED }}
+              >
+                {s.label}
+              </dt>
+              <dd className="mt-1 font-mono type-label numeric" style={{ color: INK }}>
+                {s.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+
+        <p
+          className="mt-7 max-w-lg font-mono type-caption leading-5"
+          style={{ color: MUTED }}
+        >
           {sourceNote}
         </p>
       </div>
@@ -308,10 +559,7 @@ export function ShareCard({
         <div
           role="radiogroup"
           aria-label="Export ratio"
-          className={cn(
-            "flex gap-1 rounded-lg border p-1",
-            invert ? "border-white/15 bg-white/[0.04]" : "border-border bg-muted/40"
-          )}
+          className="flex gap-1 rounded-lg border border-white/15 bg-white/[0.04] p-1"
         >
           {(Object.keys(RATIOS) as RatioKey[]).map((k) => (
             <button
@@ -322,17 +570,8 @@ export function ShareCard({
               onClick={() => setRatio(k)}
               className={cn(
                 "rounded-md px-2.5 py-1 font-mono type-caption transition-colors duration-200",
-                "focus-visible:outline-none focus-visible:ring-2",
-                invert
-                  ? "focus-visible:ring-white/70"
-                  : "focus-visible:ring-ring",
-                k === ratio
-                  ? invert
-                    ? "bg-white text-black"
-                    : "bg-foreground text-background"
-                  : invert
-                    ? "text-white/55 hover:text-white"
-                    : "text-muted-foreground hover:text-foreground"
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70",
+                k === ratio ? "bg-white text-black" : "text-white/55 hover:text-white"
               )}
             >
               {RATIOS[k].label}
@@ -344,11 +583,7 @@ export function ShareCard({
           size="sm"
           loading={busy}
           onClick={download}
-          className={
-            invert
-              ? "border-white/25 bg-transparent text-white hover:bg-white/10"
-              : undefined
-          }
+          className="border-white/25 bg-transparent text-white hover:bg-white/10"
         >
           Download PNG
         </Button>

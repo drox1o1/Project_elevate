@@ -42,6 +42,8 @@ export interface IndexCardData {
   motif: Motif;
   accent: { light: string; dark: string };
   values: number[];
+  /** Key art. Falls back to the generative artwork when absent. */
+  imageSrc?: string | null;
 }
 
 export function IndexCard({
@@ -77,25 +79,52 @@ export function IndexCard({
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         )}
       >
-        {/* The series, drawn large and cropped — the card's whole image. */}
-        <IndexArtwork
-          values={data.values}
-          motif={data.motif}
-          className={cn(
-            "pointer-events-none absolute -right-14 -top-12 h-56 w-56 opacity-[0.16]",
-            "transition-[opacity,transform] duration-500 ease-out-expo",
-            "group-hover:scale-[1.06] group-hover:opacity-[0.3]",
-            "motion-reduce:transition-none motion-reduce:group-hover:scale-100"
-          )}
-        />
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(120% 80% at 100% 0%, color-mix(in oklab, var(--pop-accent) 9%, transparent) 0%, transparent 60%)",
-          }}
-        />
+        {/* Key art when the index has it; otherwise the series drawn large
+            and cropped. Either way the card has an image. */}
+        {data.imageSrc ? (
+          <div className="relative aspect-[16/10] w-full overflow-hidden bg-muted">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={data.imageSrc}
+              alt=""
+              loading="lazy"
+              className={cn(
+                "size-full object-cover",
+                "transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]",
+                "motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              )}
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(to bottom, transparent 55%, color-mix(in oklab, var(--pop-accent) 22%, transparent) 100%)",
+              }}
+            />
+          </div>
+        ) : (
+          <>
+            <IndexArtwork
+              values={data.values}
+              motif={data.motif}
+              className={cn(
+                "pointer-events-none absolute -right-14 -top-12 h-56 w-56 opacity-[0.16]",
+                "transition-[opacity,transform] duration-500 ease-out-expo",
+                "group-hover:scale-[1.06] group-hover:opacity-[0.3]",
+                "motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              )}
+            />
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background:
+                  "radial-gradient(120% 80% at 100% 0%, color-mix(in oklab, var(--pop-accent) 9%, transparent) 0%, transparent 60%)",
+              }}
+            />
+          </>
+        )}
 
         <div className="relative flex flex-1 flex-col p-5 sm:p-6">
           <div className="flex items-center gap-3">

@@ -11,7 +11,8 @@
     "registry:gen": "node scripts/gen-registry.mjs",
     "cf:build": "node scripts/gen-registry.mjs && next build && opennextjs-cloudflare build",
     "cf:preview": "npm run cf:build && opennextjs-cloudflare preview",
-    "cf:deploy": "npm run cf:build && opennextjs-cloudflare deploy"
+    "cf:deploy": "npm run cf:build && opennextjs-cloudflare deploy",
+    "pop-ppp:images": "node scripts/pop-ppp-images.mjs"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

@@ -3,7 +3,6 @@
 import * as React from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
-import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/registry/default/lib/use-reduced-motion";
 
@@ -20,8 +19,6 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   ref?: React.Ref<HTMLElement>;
 }
 
-const springStandard = { type: "spring", stiffness: 380, damping: 32 } as const;
-
 export function Navbar({
   links,
   activeHref,
@@ -34,7 +31,62 @@ export function Navbar({
   const [scrolled, setScrolled] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
+  const linksRef = React.useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
+
+  /**
+   * The active-link underline.
+   *
+   * Measured against the link row and moved with a transform, rather than
+   * animated as a shared-layout element. A shared-layout indicator measures
+   * viewport boxes, and this header is `position: sticky` — so a route change
+   * made while the page is scrolled captures the old box at one scroll offset
+   * and the new box at another, and the underline flies in from wherever the
+   * old measurement happened to be. Local coordinates cannot drift like that:
+   * offsetLeft is relative to the row and identical at every scroll position.
+   */
+  const [indicator, setIndicator] = React.useState<{
+    left: number;
+    width: number;
+    ready: boolean;
+  }>({ left: 0, width: 0, ready: false });
+
+  React.useLayoutEffect(() => {
+    const row = linksRef.current;
+    if (!row) return;
+
+    const measure = () => {
+      const active = row.querySelector<HTMLElement>('[data-active="true"]');
+      if (!active) {
+        setIndicator((cur) => ({ ...cur, width: 0 }));
+        return;
+      }
+      setIndicator((cur) => ({
+        left: active.offsetLeft,
+        width: active.offsetWidth,
+        // The first measurement lands without a transition, so the underline
+        // does not sweep in from the left edge on initial paint.
+        ready: cur.ready || cur.width > 0,
+      }));
+    };
+
+    measure();
+
+    const ro = new ResizeObserver(measure);
+    ro.observe(row);
+    Array.from(row.children).forEach((child) => ro.observe(child));
+
+    // Web fonts change label widths after first paint.
+    let cancelled = false;
+    document.fonts?.ready.then(() => {
+      if (!cancelled) measure();
+    });
+
+    return () => {
+      cancelled = true;
+      ro.disconnect();
+    };
+  }, [links, activeHref]);
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -103,7 +155,10 @@ export function Navbar({
         <div data-slot="navbar-logo" className="flex items-center gap-2">
           {logo}
         </div>
-        <div className="hidden items-center gap-1 md:flex">
+        <div
+          ref={linksRef}
+          className="relative hidden items-center gap-1 md:flex"
+        >
           {links.map((link) => {
             const active = link.href === activeHref;
             return (
@@ -111,6 +166,7 @@ export function Navbar({
                 key={link.href}
                 href={link.href}
                 data-slot="navbar-link"
+                data-active={active || undefined}
                 aria-current={active ? "page" : undefined}
                 className={cn(
                   "relative rounded-md px-3 py-1.5 text-sm font-medium transition-colors duration-200",
@@ -121,18 +177,25 @@ export function Navbar({
                 )}
               >
                 {link.label}
-                {active ? (
-                  <motion.span
-                    layoutId="nav-underline"
-                    data-slot="navbar-underline"
-                    aria-hidden="true"
-                    className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-foreground"
-                    transition={reduced ? { duration: 0 } : springStandard}
-                  />
-                ) : null}
               </a>
             );
           })}
+          <span
+            data-slot="navbar-underline"
+            aria-hidden="true"
+            className={cn(
+              "pointer-events-none absolute -bottom-px left-0 h-0.5 rounded-full bg-foreground",
+              indicator.ready && !reduced
+                ? "transition-[transform,width,opacity] duration-300 ease-out-expo"
+                : "",
+              "motion-reduce:transition-none"
+            )}
+            style={{
+              width: Math.max(0, indicator.width - 16),
+              transform: `translateX(${indicator.left + 8}px)`,
+              opacity: indicator.width > 0 ? 1 : 0,
+            }}
+          />
         </div>
         <div className="flex items-center gap-2">
           {cta}

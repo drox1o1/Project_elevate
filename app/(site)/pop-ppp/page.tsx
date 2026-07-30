@@ -26,6 +26,7 @@ import {
   tickerItemFor,
 } from "@/lib/pop-ppp/present";
 import { formatPercent } from "@/lib/pop-ppp/calc";
+import { imageFor } from "@/lib/pop-ppp/images";
 
 export const metadata: Metadata = {
   title: "Pop PPP — Pop Culture Purchasing Power Parity | DUKU",
@@ -257,7 +258,11 @@ export default function PopPppPage() {
 
           <ScrollRevealGrid className="mt-12 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
             {presented.map((p, i) => (
-              <IndexCard key={p.index.slug} data={cardFor(p)} ordinal={i + 1} />
+              <IndexCard
+                key={p.index.slug}
+                data={{ ...cardFor(p), imageSrc: imageFor(p.index.slug) }}
+                ordinal={i + 1}
+              />
             ))}
           </ScrollRevealGrid>
         </div>

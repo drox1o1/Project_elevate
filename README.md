@@ -79,6 +79,12 @@ lib/pop-ppp/data.ts      # datasets, series snapshot, indices, catalogue
 lib/pop-ppp/present.ts   # one presentation layer shared by every page
 ```
 
+**Key art.** Index images live in `public/pop-ppp/`, named by index slug or by
+one of the aliases in `lib/pop-ppp/images.ts` (case, spaces and dashes ignored).
+`npm run pop-ppp:images [dir]` copies images in from anywhere and renames them
+to their slugs. Any index without a file falls back to generative artwork drawn
+from its own series, so the section renders complete either way.
+
 **Data status:** the series are a committed snapshot (see `SNAPSHOT_DATE`)
 compiled from the publications named in each dataset record, not a live feed.
 The scheduled retrieval and validation pipeline is not implemented, so every

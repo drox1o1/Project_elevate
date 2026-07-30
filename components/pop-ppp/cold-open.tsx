@@ -38,8 +38,10 @@ export interface ColdOpenProps {
   confidence: Confidence;
   accent: { light: string; dark: string };
   motif: Motif;
-  /** The index's series, drawn as the band's artwork. */
+  /** The index's series, drawn as the band's artwork when there is no key art. */
   values: number[];
+  /** Key art for the index, if it has any. */
+  imageSrc?: string | null;
   className?: string;
 }
 
@@ -54,6 +56,7 @@ export function ColdOpen({
   accent,
   motif,
   values,
+  imageSrc,
   className,
 }: ColdOpenProps) {
   const rootRef = React.useRef<HTMLElement>(null);
@@ -70,10 +73,15 @@ export function ColdOpen({
       const cue = root.querySelector<HTMLElement>("[data-cold-cue]");
       if (!quote || !body) return;
 
+      // A photograph carries more weight than a hairline drawing, so it
+      // resolves brighter. The artwork stays deliberately faint — it is a
+      // texture behind the type, not an image in its own right.
+      const artOpacity = imageSrc ? 0.62 : 0.32;
+
       if (reduced) {
         gsap.set([quote, body], { clearProps: "all" });
         gsap.set(body, { opacity: 1, y: 0 });
-        if (art) gsap.set(art, { opacity: 0.3, scale: 1 });
+        if (art) gsap.set(art, { opacity: artOpacity, scale: 1 });
         if (cue) gsap.set(cue, { opacity: 0 });
         return;
       }
@@ -109,13 +117,13 @@ export function ColdOpen({
         });
         tl.to(quote, { scale: 0.7, yPercent: -26, ease: "none" }, 0);
         if (cue) tl.to(cue, { opacity: 0, duration: 0.15 }, 0);
-        if (art) tl.to(art, { opacity: 0.32, scale: 1, ease: "none" }, 0.1);
+        if (art) tl.to(art, { opacity: artOpacity, scale: 1, ease: "none" }, 0.1);
         tl.to(body, { opacity: 1, y: 0, ease: "none" }, 0.4);
       });
 
       mm.add("(max-width: 767px)", () => {
         gsap.set(body, { opacity: 0, y: 16 });
-        if (art) gsap.set(art, { opacity: 0.24 });
+        if (art) gsap.set(art, { opacity: imageSrc ? 0.4 : 0.24 });
         gsap.to(body, {
           opacity: 1,
           y: 0,
@@ -128,7 +136,7 @@ export function ColdOpen({
 
       return () => mm.revert();
     },
-    { dependencies: [reduced], scope: rootRef }
+    { dependencies: [reduced, imageSrc], scope: rootRef }
   );
 
   return (
@@ -158,14 +166,33 @@ export function ColdOpen({
         }}
       />
 
-      {/* The series as a large graphic, arriving as the quote recedes. */}
-      <IndexArtwork
-        values={values}
-        motif={motif}
-        weight="bold"
-        data-cold-art
-        className="pointer-events-none absolute -right-16 top-1/2 z-0 h-[30rem] w-[30rem] -translate-y-1/2 opacity-0 sm:-right-8 md:right-4 lg:right-16"
-      />
+      {/* Key art, or the series as a large graphic — arriving as the quote
+          recedes, so the scene gives way to the thing being measured. */}
+      {imageSrc ? (
+        <div
+          data-cold-art
+          className="pointer-events-none absolute right-0 top-1/2 z-0 hidden h-[26rem] w-[26rem] -translate-y-1/2 overflow-hidden rounded-3xl opacity-0 md:block lg:right-8 lg:h-[30rem] lg:w-[30rem]"
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={imageSrc} alt="" className="size-full object-cover" />
+          <span
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(to right, #08080a 0%, transparent 45%), linear-gradient(to top, #08080a 0%, transparent 40%)",
+            }}
+          />
+        </div>
+      ) : (
+        <IndexArtwork
+          values={values}
+          motif={motif}
+          weight="bold"
+          data-cold-art
+          className="pointer-events-none absolute -right-16 top-1/2 z-0 h-[30rem] w-[30rem] -translate-y-1/2 opacity-0 sm:-right-8 md:right-4 lg:right-16"
+        />
+      )}
 
       <div className="relative z-10 mx-auto w-full max-w-6xl">
         <blockquote data-cold-quote className="origin-top-left">
