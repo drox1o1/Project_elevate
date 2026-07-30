@@ -23,7 +23,7 @@ import {
   type IndexResult,
   type MoneyFormat,
 } from "./calc";
-import { DATASETS, SNAPSHOT_LABEL, getSeries } from "./data";
+import { DATASETS, SNAPSHOT_LABEL, SNAPSHOT_SHORT, getSeries } from "./data";
 import type { Dataset, PopIndex, Series } from "./types";
 
 export interface BenchmarkComparison {
@@ -57,6 +57,10 @@ export interface PresentedIndex {
   baseLabel: string;
   reveal: string;
   sourceNote: string;
+  /** Short publisher credit for the share poster, e.g. "IBJA / RBI · MoSPI". */
+  credit: string;
+  /** Short snapshot stamp for the share poster, e.g. "Dec 2025". */
+  snapshot: string;
   benchmarkComparisons: BenchmarkComparison[];
 }
 
@@ -168,6 +172,8 @@ export function presentIndex(index: PopIndex): PresentedIndex {
     baseLabel: `Value at ${index.baseYear}`,
     reveal: index.reveal,
     sourceNote: `${creditLine(datasets)}. Snapshot ${SNAPSHOT_LABEL}. Editorial, not investment advice.`,
+    credit: creditLine(datasets),
+    snapshot: SNAPSHOT_SHORT,
     benchmarkComparisons,
   };
 }

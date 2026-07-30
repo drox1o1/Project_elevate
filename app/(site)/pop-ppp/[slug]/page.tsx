@@ -357,9 +357,7 @@ export default async function IndexDetailPage({
               indexName={index.name}
               reference={`${index.character} · ${index.film}, ${index.releaseYear}`}
               dialogue={index.dialogue}
-              baseLabel={String(result.baseYear)}
               baseValue={p.money(result.baseValue)}
-              currentLabel={`${result.latestYear}, last verified`}
               currentValue={p.money(result.currentValue)}
               change={formatPercent(result.percentChange)}
               changePositive={result.percentChange >= 0}
@@ -368,7 +366,8 @@ export default async function IndexDetailPage({
               spark={sparkFor(p)}
               baseYear={result.baseYear}
               latestYear={result.latestYear}
-              sourceNote={p.sourceNote}
+              credit={p.credit}
+              snapshot={p.snapshot}
               accent={index.accent.dark}
               confidence={index.confidence}
               imageSrc={imageSrc}

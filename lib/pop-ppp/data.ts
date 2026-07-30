@@ -28,6 +28,8 @@ import type {
 /** Snapshot date for the whole section. Bump when a series is refreshed. */
 export const SNAPSHOT_DATE = "2025-12-31";
 export const SNAPSHOT_LABEL = "31 December 2025";
+/** Compact stamp for the share poster, where the full date does not fit. */
+export const SNAPSHOT_SHORT = "Dec 2025";
 
 /* ==== datasets ======================================================== */
 

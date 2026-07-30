@@ -86,7 +86,19 @@ function buildMap(): Map<string, string> {
     const ext = path.extname(file);
     const base = path.basename(file, ext);
     const slug = slugForFilename(base) ?? base;
-    if (!map.has(slug)) map.set(slug, `/pop-ppp/${encodeURIComponent(file)}`);
+
+    // Two files claiming one index is always a mistake — usually a
+    // replacement dropped in beside the file it was meant to replace. Picking
+    // one silently means the site keeps serving the old art with no signal,
+    // so this is loud and the first match still wins deterministically.
+    if (map.has(slug)) {
+      console.warn(
+        `[pop-ppp] Two images map to "${slug}": using ${map.get(slug)}, ` +
+          `ignoring /pop-ppp/${file}. Keep one file per index in public/pop-ppp/.`
+      );
+      continue;
+    }
+    map.set(slug, `/pop-ppp/${encodeURIComponent(file)}`);
   }
   return map;
 }

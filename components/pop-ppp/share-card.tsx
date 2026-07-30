@@ -29,10 +29,18 @@ const SIZE = 1080;
 
 const PANEL = "#0b0b0d";
 const WHITE = "#ffffff";
-const MUTED = "rgba(255,255,255,0.52)";
-const FAINT = "rgba(255,255,255,0.3)";
-const UP = "#34d399";
-const DOWN = "#f87171";
+/**
+ * Secondary and tertiary text.
+ *
+ * Both are far brighter than a screen UI would use. This artwork is read at
+ * thumbnail size in a feed, where anything under ~0.5 alpha or ~20px at 1080
+ * disappears — and the provenance line is the one thing on the card that must
+ * survive being shrunk.
+ */
+const MUTED = "rgba(255,255,255,0.68)";
+const FAINT = "rgba(255,255,255,0.55)";
+const UP = "#4ade80";
+const DOWN = "#fb7185";
 
 export interface ShareStat {
   label: string;
@@ -43,9 +51,7 @@ export interface ShareCardProps {
   indexName: string;
   reference: string;
   dialogue: string;
-  baseLabel: string;
   baseValue: string;
-  currentLabel: string;
   currentValue: string;
   change: string;
   changePositive: boolean;
@@ -55,7 +61,10 @@ export interface ShareCardProps {
   spark: number[];
   baseYear: number;
   latestYear: number;
-  sourceNote: string;
+  /** Short publisher credit, e.g. "IBJA / RBI · MoSPI". */
+  credit: string;
+  /** Short snapshot stamp, e.g. "Dec 2025". */
+  snapshot: string;
   accent: string;
   confidence: Confidence;
   imageSrc?: string | null;
@@ -134,9 +143,7 @@ export function ShareCard({
   indexName,
   reference,
   dialogue,
-  baseLabel,
   baseValue,
-  currentLabel,
   currentValue,
   change,
   changePositive,
@@ -145,7 +152,8 @@ export function ShareCard({
   spark,
   baseYear,
   latestYear,
-  sourceNote,
+  credit,
+  snapshot,
   accent,
   confidence,
   imageSrc,
@@ -171,16 +179,53 @@ export function ShareCard({
          The seam is derived from how much the panel actually needs, so a
          three-line quote pushes the horizon up rather than overflowing. */
 
-      const nameSize = px(0.0175);
-      const refSize = px(0.019);
+      const nameSize = px(0.021);
+      const refSize = px(0.024);
       const valueSize = px(0.078);
-      const labelSize = px(0.0185);
-      const statLabelSize = px(0.0155);
-      const statValueSize = px(0.028);
-      const noteSize = px(0.0155);
+      const labelSize = px(0.023);
+      const statLabelSize = px(0.019);
+      const statValueSize = px(0.032);
+      const noteSize = px(0.0185);
 
+      /* Provenance, rebuilt as two short lines rather than one long paragraph.
+         The full sentence wrapped to two dense lines of tiny type that nobody
+         could read once the card was scaled into a feed.
+
+         An index can cite five datasets, and the full credit runs straight off
+         the right margin. Publishers are dropped from the end with a count of
+         what was left out — the complete ledger is on the index page, and a
+         poster that silently overflows its own margin is worse than one that
+         says "+2". */
+      /* Measured with the same tracking it is drawn with. Measuring without
+         it under-counts by ~0.8px a character, which is most of a publisher
+         on a 74-character line — the first version of this trim looked
+         correct and still overflowed. */
+      const FOOTER_TRACK = "0.8px";
+      const hasLetterSpacing = "letterSpacing" in ctx;
       ctx.font = `400 ${noteSize}px ${mono}`;
-      const noteLines = wrap(ctx, sourceNote, inner).slice(0, 2);
+      if (hasLetterSpacing) ctx.letterSpacing = FOOTER_TRACK;
+
+      const creditParts = credit.split(" · ");
+      let creditShown = creditParts.slice();
+      const creditLineFor = (parts: string[]) => {
+        const omitted = creditParts.length - parts.length;
+        return (
+          `${CONFIDENCE_LABEL[confidence]} · ${parts.join(" · ")}` +
+          (omitted > 0 ? ` +${omitted}` : "")
+        );
+      };
+      while (
+        creditShown.length > 1 &&
+        ctx.measureText(creditLineFor(creditShown)).width > inner
+      ) {
+        creditShown = creditShown.slice(0, -1);
+      }
+      const footerLines = [
+        creditLineFor(creditShown),
+        `SNAPSHOT ${snapshot.toUpperCase()} · DUKU.DESIGN · NOT INVESTMENT ADVICE`,
+      ];
+      if (hasLetterSpacing) ctx.letterSpacing = "0px";
+      const noteLines = footerLines;
 
       const panelTopPad = px(0.062);
       const panelBottomPad = px(0.062);
@@ -192,10 +237,10 @@ export function ShareCard({
         lines * lead +
         Math.round(refSize * 2.3) +
         Math.round(valueSize * 1.02) +
-        Math.round(labelSize * 2.5) +
-        Math.round(statLabelSize * 1.8 + statValueSize * 1.15) +
-        px(0.03) +
-        noteLines.length * Math.round(noteSize * 1.55);
+        Math.round(labelSize * 2.4) +
+        Math.round(statLabelSize * 1.9 + statValueSize * 1.15) +
+        px(0.034) +
+        noteLines.length * Math.round(noteSize * 1.7);
 
       /* A long quote is set smaller, never cut short. Dropping trailing lines
          to make room leaves a sentence fragment with no ellipsis, which reads
@@ -207,7 +252,9 @@ export function ShareCard({
       let dialogueLead = Math.round(dialogueSize * 1.16);
       let dialogueLines: string[] = [];
 
-      for (const factor of [1, 0.93, 0.86, 0.79, 0.72]) {
+      // Floor at 0.84: below that the quote stops being the loudest thing on
+      // the card, which is the one job it has.
+      for (const factor of [1, 0.94, 0.89, 0.84]) {
         dialogueSize = Math.round(baseDialogue * factor);
         dialogueLead = Math.round(dialogueSize * 1.16);
         ctx.font = `600 ${dialogueSize}px ${sans}`;
@@ -302,17 +349,8 @@ export function ShareCard({
       ctx.fill();
 
       ctx.fillStyle = WHITE;
-      ctx.font = `600 ${px(0.0175)}px ${mono}`;
-      withTracking(ctx, "1.6px", () =>
-        ctx.fillText("POP PPP", pad + mark * 2, pad)
-      );
-
-      ctx.fillStyle = FAINT;
-      ctx.font = `400 ${px(0.0175)}px ${mono}`;
-      const site = "DUKU.DESIGN";
-      withTracking(ctx, "1.6px", () =>
-        ctx.fillText(site, SIZE - pad - ctx.measureText(site).width - 12, pad)
-      );
+      ctx.font = `600 ${px(0.021)}px ${mono}`;
+      withTracking(ctx, "2px", () => ctx.fillText("POP PPP", pad + mark * 2, pad));
 
       /* ---- the series, drawn across the horizon ----------------------- */
 
@@ -365,13 +403,13 @@ export function ShareCard({
         ctx.stroke();
 
         ctx.fillStyle = MUTED;
-        ctx.font = `400 ${px(0.0155)}px ${mono}`;
-        ctx.fillText(String(baseYear), pad, seam + px(0.014));
+        ctx.font = `400 ${px(0.0195)}px ${mono}`;
+        ctx.fillText(String(baseYear), pad, seam + px(0.016));
         const lastYear = String(latestYear);
         ctx.fillText(
           lastYear,
           SIZE - pad - ctx.measureText(lastYear).width,
-          seam + px(0.014)
+          seam + px(0.016)
         );
       }
 
@@ -380,15 +418,8 @@ export function ShareCard({
       let y = seam + panelTopPad;
 
       ctx.fillStyle = accent;
-      ctx.font = `500 ${nameSize}px ${mono}`;
-      withTracking(ctx, "1.5px", () => ctx.fillText(indexName.toUpperCase(), pad, y));
-
-      ctx.fillStyle = FAINT;
-      ctx.font = `400 ${nameSize}px ${mono}`;
-      const conf = CONFIDENCE_LABEL[confidence];
-      withTracking(ctx, "1.5px", () =>
-        ctx.fillText(conf, SIZE - pad - ctx.measureText(conf).width - 10, y)
-      );
+      ctx.font = `600 ${nameSize}px ${mono}`;
+      withTracking(ctx, "2px", () => ctx.fillText(indexName.toUpperCase(), pad, y));
       y += Math.round(nameSize * 2.4);
 
       ctx.fillStyle = WHITE;
@@ -420,8 +451,8 @@ export function ShareCard({
 
       ctx.fillStyle = MUTED;
       ctx.font = `400 ${labelSize}px ${mono}`;
-      ctx.fillText(`${currentLabel}  ·  ${baseLabel} ${baseValue}`, pad, y);
-      y += Math.round(labelSize * 2.5);
+      ctx.fillText(`Was ${baseValue} in ${baseYear}`, pad, y);
+      y += Math.round(labelSize * 2.4);
 
       const shown = stats.slice(0, 3);
       const colW = inner / Math.max(1, shown.length);
@@ -429,18 +460,18 @@ export function ShareCard({
         const x = pad + colW * i;
         ctx.fillStyle = FAINT;
         ctx.font = `400 ${statLabelSize}px ${mono}`;
-        withTracking(ctx, "1.2px", () => ctx.fillText(s.label.toUpperCase(), x, y));
+        withTracking(ctx, "1.4px", () => ctx.fillText(s.label.toUpperCase(), x, y));
         ctx.fillStyle = WHITE;
-        ctx.font = `500 ${statValueSize}px ${mono}`;
-        ctx.fillText(s.value, x, y + Math.round(statLabelSize * 1.8));
+        ctx.font = `600 ${statValueSize}px ${mono}`;
+        ctx.fillText(s.value, x, y + Math.round(statLabelSize * 1.9));
       });
-      y += Math.round(statLabelSize * 1.8 + statValueSize * 1.15) + px(0.03);
+      y += Math.round(statLabelSize * 1.9 + statValueSize * 1.15) + px(0.034);
 
-      ctx.fillStyle = "rgba(255,255,255,0.34)";
+      ctx.fillStyle = FAINT;
       ctx.font = `400 ${noteSize}px ${mono}`;
-      for (const line of noteLines) {
-        ctx.fillText(line, pad, y);
-        y += Math.round(noteSize * 1.55);
+      for (const line of footerLines) {
+        withTracking(ctx, FOOTER_TRACK, () => ctx.fillText(line, pad, y));
+        y += Math.round(noteSize * 1.7);
       }
 
       /* ---- grain over the whole frame ---------------------------------- */
@@ -462,14 +493,13 @@ export function ShareCard({
       currentValue,
       change,
       changePositive,
-      currentLabel,
-      baseLabel,
       baseValue,
       stats,
       spark,
       baseYear,
       latestYear,
-      sourceNote,
+      credit,
+      snapshot,
       accent,
       confidence,
     ]
