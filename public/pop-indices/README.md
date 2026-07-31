@@ -1,0 +1,26 @@
+# Pop Indices key art
+
+Drop index images in this directory. Next serves `public/` and nothing else, so
+an image anywhere under `components/` or `lib/` is never reachable by URL.
+
+Naming: either the index slug (`sanju-baba.jpg`) or one of the aliases
+in `lib/pop-indices/images.ts` (`sanjubaba.jpg`, `rajukimummy.jpg`, `meth.jpg`,
+`quarterpoundcheese.jpeg`, `5dollarshake.jpeg`, `meth.jpeg`, `moneyball.jpg`,
+`rocketsingh.jpg`, `khoslakaghosla.jpg`, `forrestgump.webp`).
+Case, spaces, dashes and underscores are all ignored when matching.
+
+To bring images across from another folder and rename them to their slugs:
+
+```bash
+npm run pop-indices:images                 # reads components/pop-indices
+npm run pop-indices:images -- path/to/dir  # or anywhere else
+```
+
+Accepted extensions, in preference order: `.webp` `.avif` `.jpg` `.jpeg` `.png`.
+
+Any index without a file here falls back to generative artwork drawn from its
+own price series, so the section is complete with or without images. Images are
+used on index cards, the cold open, the rail thumbnails and the share export.
+
+Suggested source images: at least 1200px on the short edge, square or landscape.
+The card crops to 16:10, the cold open to a square, the share export to a square.

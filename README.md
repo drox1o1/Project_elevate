@@ -38,6 +38,75 @@ option chain (Black-Scholes Greeks via `registry/default/lib/black-scholes.ts`),
 Greeks panel, USDT→ETH swap, agent execution canvas, portfolio risk cockpit
 and biomarker trend explorer. Data in demos is simulated and labelled as such.
 
+## Pop Indices
+
+`/pop-indices` is an editorial data section that converts specific objects,
+dialogues and transactions from film into real economic indices. Nine ship,
+chosen so the same system has to hold across nine different kinds of data:
+
+| Index | Slug | Unit | Economics |
+| --- | --- | --- | --- |
+| Sanju Baba | `sanju-baba` | 50 tolas of gold | Commodity appreciation |
+| Rocket Singh Computing | `rocket-singh` | One business machine, ten constituents | Technology deflation, then the AI memory shock |
+| Khosla Plot | `khosla-plot` | 500 sq yd, Delhi periphery | Land and asset inflation |
+| Raju's Mummy | `rajus-mummy` | 1 kg of okra, Delhi retail | Food inflation |
+| Royale With Cheese | `royale-with-cheese` | One Quarter Pounder | Purchasing-power parity |
+| Fruit Company | `fruit-company` | $1,000 of Apple, held | Equity compounding |
+| Blue Meth | `blue-meth` | $ per pure gram | Illicit-market pricing |
+| Five-Dollar Shake | `five-dollar-shake` | One premium milkshake | Restaurant inflation |
+| Moneyball | `moneyball` | $ per win above replacement | Labour-market inefficiency |
+
+Slugs are short on purpose: the URL is half of what gets shared. Each index
+page carries X, LinkedIn, WhatsApp and copy-link buttons built from plain
+intent URLs — no third-party script loads on a page whose argument is that you
+can see where its numbers came from.
+
+Each index page carries the full stack: cold open, headline result, multi-mode
+time-series chart (nominal / inflation-adjusted / earning time / quantity /
+percentage), the complete equation with per-step source citations and raw
+unrounded values, purchasing-power comparisons, editorial drivers, a visible
+source ledger and an exportable share card. A persistent index rail — sticky
+sidebar on desktop, scrolling strip on mobile — carries a value and sparkline
+per index so it doubles as navigation and comparison.
+
+**The computing index.** `rocket-singh` (the Rocket Singh Computing Index) is the section's largest
+build. A computer is treated as an index and its parts as constituents: ten
+price series, eight capability metrics, three product tiers and six market
+drivers. The weighted index, the capability composite, every share and every
+weight are derived in `computingFor` from the constituent series — nothing is
+hand-entered, so repricing one part moves the whole page and no two figures can
+disagree. `india-desktop-pc` is itself computed as the sum of its ten
+constituents rather than typed out.
+
+The finding: the price index sits at 224 against a 2009 base of 100 while the
+capability index sits at 2,214, so price per unit of capability fell about 90%.
+It fell every year from 2009 to 2024 — and then rose 27%. Memory is up 471% and
+almost all of it arrived in the last two years; graphics costs nothing in the
+business tier because the processor absorbed it, and is 41% of the compute tier.
+
+```
+lib/pop-indices/types.ts     # index, dataset, observation and series schema
+lib/pop-indices/calc.ts      # calculation framework (base/real/CAGR/affordability)
+lib/pop-indices/data.ts      # datasets, series snapshot, indices, catalogue
+lib/pop-indices/present.ts   # one presentation layer shared by every page
+```
+
+**Key art.** Index images live in `public/pop-indices/`, named by index slug or by
+one of the aliases in `lib/pop-indices/images.ts` (case, spaces and dashes ignored).
+`npm run pop-indices:images [dir]` copies images in from anywhere and renames them
+to their slugs. Any index without a file falls back to generative artwork drawn
+from its own series, so the section renders complete either way.
+
+**Data status:** the series are a committed snapshot (see `SNAPSHOT_DATE`)
+compiled from the publications named in each dataset record, not a live feed.
+The scheduled retrieval and validation pipeline is not implemented, so every
+figure needs re-verification against its primary source before the section is
+published publicly. Provisional and interpolated observations are marked as
+hollow points, real gaps in a series render dashed, and pages show "last
+verified" rather than "today".
+Reference submissions POST to `/api/pop-indices/submissions`, forwarded to
+`DUKU_POP_INDICES_WEBHOOK` when set.
+
 ## MCP server
 
 `app/mcp/route.ts` is a stateless read-only MCP server (streamable HTTP,
@@ -88,6 +157,9 @@ items require `Authorization: Bearer <key>`; unset means open dev mode.
 ```
 app/                    # docs site, /mcp MCP server, /r registry endpoint
 app/(site)/connect/     # MCP setup instructions
+app/(site)/pop-indices/     # Pop Indices editorial section (landing, indices, methodology)
+components/pop-indices/     # chart, equation, ledger, cold open, share card
+lib/pop-indices/            # data model, calculation framework, data snapshot
 lib/agent-manifest.ts   # agent-readable component schema (drives /mcp)
 lib/tokens.ts           # token layer documentation
 registry/default/
