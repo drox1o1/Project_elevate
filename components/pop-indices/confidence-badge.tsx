@@ -14,12 +14,18 @@ const COPY: Record<Confidence, { label: string; blurb: string }> = {
     label: "Estimated",
     blurb: "Relies on stated assumptions or incomplete market data.",
   },
+  "current-market": {
+    label: "Current market",
+    blurb:
+      "Read off live retail listings. Accurate at the snapshot date and moving while you read it.",
+  },
 };
 
 const TONE: Record<Confidence, string> = {
   verified: "border-success/35 bg-success/10 text-success",
   reconstructed: "border-info/35 bg-info/10 text-info",
   estimated: "border-warning/40 bg-warning/10 text-warning",
+  "current-market": "border-accent-foreground/35 bg-accent/40 text-accent-foreground",
 };
 
 /**
@@ -34,6 +40,7 @@ const MARK: Record<Confidence, string> = {
   verified: "●",
   reconstructed: "◐",
   estimated: "○",
+  "current-market": "◈",
 };
 
 export function ConfidenceBadge({

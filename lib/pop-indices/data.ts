@@ -227,6 +227,30 @@ export const DATASETS: Record<string, Dataset> = {
     confidence: "reconstructed",
   },
 
+  "india-desktop-capability": {
+    id: "india-desktop-capability",
+    shortPublisher: "Spec sheets / benchmark suites",
+    publisher:
+      "Manufacturer specifications, PassMark and 3DMark score archives, storage review benchmarks",
+    title:
+      "Representative business-machine capability — benchmark and specification metrics",
+    sourceUrl: "https://www.cpubenchmark.net/",
+    retrievedOn: SNAPSHOT_DATE,
+    startDate: "2009-01-01",
+    endDate: "2025-12-31",
+    frequency: "annual",
+    originalUnit: "Benchmark score, GB, GB/s, MB/s, megapixels, Mbit/s",
+    normalisedUnit: "Index, 2009 = 100, weighted composite",
+    currency: "n/a",
+    geography: "Global specifications, Indian retail availability",
+    licence: "Cited with attribution; headline scores only",
+    adjustments:
+      "Each metric is the figure for the representative part in that year, not a measurement of any individual machine. Metrics are rebased to 2009 = 100 and combined with the published weights shown in the capability section. Benchmark suites change between generations, so cross-decade scores are indicative of order of magnitude rather than exact ratios.",
+    missingData:
+      "No gaps. Every year has a representative configuration, because the tier is defined by market position rather than by a specific product.",
+    confidence: "reconstructed",
+  },
+
   "dram-nand-contract": {
     id: "dram-nand-contract",
     shortPublisher: "TrendForce / DRAMeXchange",
@@ -514,6 +538,27 @@ function pcLine(
   );
 }
 
+/**
+ * A capability metric for the computing index. Same span and dataset as the
+ * price lines, but these are specifications and benchmark scores rather than
+ * money, so they carry no currency and never render as a price.
+ */
+function capLine(
+  id: string,
+  label: string,
+  unit: string,
+  values: readonly number[]
+): Series {
+  const START = 2009;
+  return annual(
+    id,
+    "india-desktop-capability",
+    label,
+    unit,
+    values.map((v, i) => [START + i, v] as const)
+  );
+}
+
 export const SERIES: Record<string, Series> = {
   "gold-inr-10g": annual(
     "gold-inr-10g",
@@ -784,78 +829,65 @@ export const SERIES: Record<string, Series> = {
     { currency: "USD", pricedUnit: "wins" }
   ),
 
-  "india-desktop-pc": annual(
-    "india-desktop-pc",
-    "india-desktop-components",
-    "Mid-range desktop build, India",
-    "\u20b9 per complete build",
-    [
-      [2009, 38000],
-      [2010, 36500],
-      [2011, 35000],
-      [2012, 34000],
-      [2013, 35500],
-      [2014, 36500],
-      [2015, 37000],
-      [2016, 38500],
-      [2017, 42000],
-      [2018, 46000],
-      [2019, 44000],
-      [2020, 48000],
-      [2021, 58000],
-      [2022, 56000],
-      [2023, 52000],
-      [2024, 58000],
-      [2025, 62000, "provisional"],
-    ],
-    { currency: "INR", pricedUnit: "builds" }
-  ),
+  // Derived below from the ten constituent series, never hand-entered. A
+  // headline that can disagree with its own parts is the failure mode this
+  // whole section exists to avoid.
+  "india-desktop-pc": null as unknown as Series,
 
-  /* --- the desktop build, line by line ------------------------------------
+  /* --- the business machine, constituent by constituent -------------------
    *
-   * Eight lines, 2009–2025, in the same order they appear on an invoice. They
-   * sum exactly to `india-desktop-pc` in every year — a bill of materials that
-   * did not reconcile with its own total would be worse than no bill at all.
+   * The reference tier: the office and small-business computer Rocket Singh
+   * actually sold. Ten constituents, 2009–2025, each priced on its own market.
+   * `india-desktop-pc` is their sum, so the headline can never disagree with
+   * the parts it is made of.
    *
-   * The 2025 figures are where this stops being a routine technology series.
-   * Memory and storage are 19% of the build and 58% of everything the build
-   * gained between 2023 and 2025.
+   * Graphics reaching zero in 2016 is not missing data. That is the year the
+   * business build stopped buying a discrete card because integrated graphics
+   * became sufficient for the work — the constituent did not get cheaper, it
+   * got absorbed into the processor.
    */
 
-  "pc-cpu": pcLine("pc-cpu", "Processor", [
-    7500, 7300, 7050, 6750, 7050, 7400, 7350, 7650, 7950, 8700, 9150, 9900,
-    11000, 11450, 10850, 11750, 11550,
+  "pc-processor": pcLine("pc-processor", "Processor", [
+    8500, 8200, 8000, 7800, 8000, 8300, 8500, 8800, 9600, 10500, 11000, 11800,
+    13500, 14200, 14500, 16500, 20000,
   ]),
   "pc-motherboard": pcLine("pc-motherboard", "Motherboard", [
-    3600, 3500, 3350, 3200, 3400, 3550, 3600, 3800, 4050, 4500, 4750, 5250,
-    6150, 6500, 6700, 7950, 8100,
+    4300, 4150, 4000, 3900, 4050, 4200, 4350, 4600, 5100, 5700, 6000, 6400,
+    7400, 7900, 8300, 9800, 11000,
   ]),
   "pc-memory": pcLine("pc-memory", "Memory", [
     2100, 1950, 2000, 1700, 1900, 2000, 2550, 2650, 3900, 4700, 3100, 2800,
-    4600, 4050, 2950, 3800, 6650,
-  ]),
-  "pc-graphics": pcLine("pc-graphics", "Graphics", [
-    4500, 4350, 4250, 4050, 4350, 4450, 4500, 4800, 6300, 7400, 6050, 7150,
-    12300, 10100, 8000, 8850, 9000,
+    4600, 4050, 2950, 4200, 12000,
   ]),
   "pc-storage": pcLine("pc-storage", "Storage", [
     2800, 2600, 2400, 3200, 2900, 2700, 2650, 2800, 3050, 3350, 3200, 3500,
-    3800, 3600, 3200, 3900, 5300,
+    3800, 3600, 3200, 3900, 6500,
   ]),
-  "pc-power-case": pcLine("pc-power-case", "Power supply and cabinet", [
-    3000, 2950, 2900, 2850, 3000, 3100, 3100, 3250, 3250, 3350, 3500, 3750,
-    4150, 4300, 4450, 4800, 4700,
+  "pc-graphics": pcLine("pc-graphics", "Graphics", [
+    3200, 3000, 2800, 2600, 2500, 2400, 2200, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  ]),
+  "pc-power": pcLine("pc-power", "Power supply", [
+    2200, 2150, 2100, 2100, 2200, 2300, 2350, 2450, 2600, 2800, 2900, 3100,
+    3600, 3800, 4000, 4800, 5500,
+  ]),
+  "pc-cooling": pcLine("pc-cooling", "Cooling", [
+    400, 400, 400, 420, 440, 460, 480, 520, 580, 650, 700, 780, 950, 1050,
+    1200, 1900, 2500,
+  ]),
+  "pc-cabinet": pcLine("pc-cabinet", "Cabinet", [
+    2000, 1950, 1900, 1900, 1950, 2000, 2050, 2150, 2300, 2450, 2550, 2700,
+    3100, 3300, 3500, 4100, 4500,
   ]),
   "pc-display": pcLine("pc-display", "Display", [
-    8000, 7400, 6750, 6250, 6550, 6750, 6750, 6950, 6900, 7150, 7250, 7900,
-    8100, 7900, 7650, 8300, 8100,
+    10000, 9200, 8400, 7800, 8000, 8300, 8500, 8700, 9000, 9400, 9500, 10200,
+    11000, 10800, 10500, 12000, 15000,
   ]),
-  "pc-os-peripherals": pcLine("pc-os-peripherals", "Operating system and peripherals", [
-    6500, 6450, 6300, 6000, 6350, 6550, 6500, 6600, 6600, 6850, 7000, 7750,
-    7900, 8100, 8200, 8650, 8600,
+  "pc-peripherals": pcLine("pc-peripherals", "Networking and peripherals", [
+    2500, 2450, 2400, 2350, 2450, 2550, 2650, 2800, 3000, 3200, 3400, 4200,
+    4800, 4900, 5000, 6200, 8000,
   ]),
 
-  /* Installed capacity. Price per gigabyte is derived from these and the line
+  /* Installed capacity. Price per unit is derived from these and the line
    * price above, never stored — the module price and the price of a gigabyte
    * are the whole argument here and they must not be able to disagree. */
 
@@ -864,7 +896,7 @@ export const SERIES: Record<string, Series> = {
     "Memory installed",
     [2, 2, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 16, 16, 16, 16, 16],
     "GB",
-    "What a mid-range build shipped with: 2 GB in 2009, 4 GB from 2011, 8 GB from 2015, 16 GB from 2021. Capacity moves in steps, so price per gigabyte drops sharply in a step year for reasons that have nothing to do with the memory market."
+    "What a business build shipped with: 2 GB in 2009, 4 GB from 2011, 8 GB from 2015, 16 GB from 2021. Capacity moves in steps, so price per gigabyte drops sharply in a step year for reasons that have nothing to do with the memory market."
   ),
   "pc-storage-gb": pcLine(
     "pc-storage-gb",
@@ -873,6 +905,55 @@ export const SERIES: Record<string, Series> = {
     "GB",
     "The 2020 drop is a technology substitution, not a shortage: the build moved from a 1 TB spinning disk to a 512 GB solid-state drive, giving up half the capacity for roughly a hundredfold improvement in seek time. Price per gigabyte rises when that happens and the machine still got better."
   ),
+
+  /* --- capability -------------------------------------------------------
+   *
+   * What the money bought, as opposed to what it cost. Eight metrics, each on
+   * its own natural unit, combined into one composite with published weights.
+   * These are specification and benchmark figures for the representative part
+   * in each year, not measurements of any individual machine.
+   */
+
+  "cap-cpu-score": capLine(
+    "cap-cpu-score",
+    "Processor benchmark",
+    "Multi-thread score",
+    [1100, 1400, 1900, 2400, 3000, 3500, 4000, 4800, 7500, 9000, 11000, 13500,
+      17000, 19500, 21000, 24000, 27000]
+  ),
+  "cap-ram-gb": capLine("cap-ram-gb", "Memory installed", "GB", [
+    2, 2, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 16, 16, 16, 16, 16,
+  ]),
+  "cap-ram-bandwidth": capLine(
+    "cap-ram-bandwidth",
+    "Memory bandwidth",
+    "GB/s, dual channel",
+    [12.8, 12.8, 21.3, 21.3, 25.6, 25.6, 25.6, 38.4, 38.4, 41.6, 47.7, 51.2,
+      51.2, 51.2, 83.2, 89.6, 89.6]
+  ),
+  "cap-storage-gb": capLine("cap-storage-gb", "Storage installed", "GB", [
+    500, 500, 500, 500, 500, 1000, 1000, 1000, 1000, 1000, 1000, 512, 512,
+    1000, 1000, 1000, 1000,
+  ]),
+  "cap-storage-read": capLine(
+    "cap-storage-read",
+    "Sequential read",
+    "MB/s",
+    [90, 95, 100, 105, 110, 115, 120, 125, 130, 140, 150, 2200, 3400, 3500,
+      5000, 7000, 7000]
+  ),
+  "cap-gpu-score": capLine("cap-gpu-score", "Graphics benchmark", "Score", [
+    250, 280, 320, 380, 430, 480, 540, 620, 700, 780, 900, 1100, 1400, 1700,
+    2400, 3000, 3500,
+  ]),
+  "cap-display-mp": capLine("cap-display-mp", "Display resolution", "Megapixels", [
+    1.05, 1.05, 1.05, 1.05, 2.07, 2.07, 2.07, 2.07, 2.07, 2.07, 2.07, 2.07,
+    2.07, 2.07, 2.07, 2.07, 3.69,
+  ]),
+  "cap-network-mbps": capLine("cap-network-mbps", "Network throughput", "Mbit/s", [
+    100, 100, 100, 100, 150, 200, 250, 300, 400, 500, 600, 700, 900, 1000,
+    1000, 1000, 1000,
+  ]),
 
   /* Global contract prices, rebased. Context for the retail lines above. */
 
@@ -1308,6 +1389,49 @@ export const SERIES: Record<string, Series> = {
       [2025, 322.1, "provisional"],
     ],
     { currency: "USD" }
+  ),
+};
+
+/**
+ * The ten constituents of the business machine, in invoice order.
+ *
+ * Exported because both the index definition and the derived total need the
+ * same list, and two lists would eventually disagree.
+ */
+export const BUSINESS_CONSTITUENT_SERIES = [
+  "pc-processor",
+  "pc-motherboard",
+  "pc-memory",
+  "pc-storage",
+  "pc-graphics",
+  "pc-power",
+  "pc-cooling",
+  "pc-cabinet",
+  "pc-display",
+  "pc-peripherals",
+] as const;
+
+/* The headline build price is the sum of its constituents, computed once here
+ * rather than typed out. The last year is provisional on every line, so it is
+ * provisional on the total too. */
+SERIES["india-desktop-pc"] = {
+  id: "india-desktop-pc",
+  datasetId: "india-desktop-components",
+  label: "Business machine, India",
+  unit: "₹ per complete build",
+  pricedUnit: "builds",
+  currency: "INR",
+  normalisation:
+    "Sum of the ten constituent series. Not an independently observed price — no retailer sells this exact configuration as a single line item.",
+  observations: SERIES[BUSINESS_CONSTITUENT_SERIES[0]].observations.map(
+    (o, i) => ({
+      year: o.year,
+      value: BUSINESS_CONSTITUENT_SERIES.reduce(
+        (sum, id) => sum + SERIES[id].observations[i].value,
+        0
+      ),
+      ...(o.provisional ? { provisional: true } : {}),
+    })
   ),
 };
 
@@ -2085,9 +2209,9 @@ export const INDICES: PopIndex[] = [
   {
     id: "rocket-singh-pc",
     slug: "rocket-singh-pc",
-    name: "Rocket Singh PC Index",
-    shortName: "Rocket Singh PC",
-    subtitle: "What it costs to build an honest computer business.",
+    name: "Rocket Singh Computing Index",
+    shortName: "Rocket Singh Computing",
+    subtitle: "The changing economics of building a computer.",
     status: "live",
 
     film: "Rocket Singh: Salesman of the Year",
@@ -2098,14 +2222,14 @@ export const INDICES: PopIndex[] = [
     dialogue: "Assembled. Component by component.",
     dialogueVerified: false,
 
-    indexedUnit: "One mid-range desktop PC, assembled from parts",
+    indexedUnit: "One business machine, assembled from ten constituents",
     quantity: 1,
     quantityUnit: "build",
-    reveal: "Eight lines on one invoice. Priced every year since the film.",
+    reveal: "One computer. Ten constituents. Seventeen years of technological disruption.",
 
     baseYear: 2009,
     baseYearNote:
-      "Release year of Rocket Singh. The film never prices a machine, so the base value is the 2009 mid-range build from the component survey.",
+      "Release year of Rocket Singh, and the year the index is based at 100. The film never prices a machine, so the base value is the 2009 business build reconstructed constituent by constituent.",
 
     geography: "India",
     currency: "INR",
@@ -2128,171 +2252,550 @@ export const INDICES: PopIndex[] = [
     ],
     unitFactor: 1,
     unitFactorNote:
-      "One build, one price. \u201cMid-range\u201d is held to a constant market position rather than a constant specification — pricing a 2009 machine in 2025 parts is not a comparison anyone would make.",
+      "One build, one price, summed from ten constituents. \u201cBusiness\u201d is held to a constant market position rather than a constant specification — pricing a 2009 machine in 2025 parts is not a comparison anyone would make. Tiers are never spliced into one series: that would measure the change in ambition, not the change in price.",
     equation: [
       {
-        expression: "processor + motherboard + memory + graphics + storage",
+        expression: "processor + motherboard + memory + storage + graphics",
         result: "the compute half",
-        note: "Five lines that carry most of the price and almost all of the performance.",
+        note: "Five constituents that carry most of the price and almost all of the capability.",
         datasetId: "india-desktop-components",
       },
       {
-        expression: "+ power and cabinet + display + operating system and peripherals",
+        expression: "+ power + cooling + cabinet + display + peripherals",
         result: "the rest of the machine",
-        note: "Three lines a first-time buyer forgets to budget for. In 2009 they were 46% of the bill.",
+        note: "Five more. In 2009 they were 45% of the bill; the display alone was a quarter of it.",
         datasetId: "india-desktop-components",
       },
       {
         expression: "= \u20b938,000",
-        result: "a mid-range build in 2009",
-        note: "Indian retail, assembled rather than branded.",
+        result: "a business machine in 2009 \u2014 index 100",
+        note: "The base year, and the year the film is set in.",
         datasetId: "india-desktop-components",
       },
       {
-        expression: "= \u20b962,000",
-        result: "a mid-range build at the last verified date",
-        note: "2025. Provisional.",
+        expression: "constituent price \u00f7 base price \u00d7 100",
+        result: "each constituent's own index",
+        note: "Every constituent gets its own base-100 series, so they can be compared to each other rather than only to the total.",
         datasetId: "india-desktop-components",
+      },
+      {
+        expression: "\u03a3 (constituent index \u00d7 base-year weight)",
+        result: "the weighted computing index",
+        note: "Base-year weights, so the index measures price movement and not a change of shopping list.",
+        datasetId: "india-desktop-components",
+      },
+      {
+        expression: "\u03a3 (metric \u00f7 base metric \u00d7 100 \u00d7 weight)",
+        result: "the capability index",
+        note: "Eight specification and benchmark metrics with published weights.",
+        datasetId: "india-desktop-capability",
+      },
+      {
+        expression: "price index \u00f7 capability index \u00d7 100",
+        result: "price per unit of capability",
+        note: "The measure that matters. It fell for fifteen straight years and then turned.",
+        datasetId: "india-desktop-capability",
       },
     ],
     events: [
-      { year: 2013, label: "Rupee slides, imports dearer" },
+      { year: 2012, label: "Thailand floods hit disk supply" },
+      { year: 2016, label: "Business build drops the graphics card" },
       { year: 2018, label: "DRAM supercycle peaks" },
       { year: 2021, label: "Shortage: the worst year to build" },
       { year: 2023, label: "Memory bottoms out" },
       { year: 2025, label: "AI takes the memory" },
     ],
 
-    bom: {
-      lead: "The total is the least interesting number here. Eight lines, priced separately, moving in different directions — and for fifteen years they cancelled each other out.",
-      components: [
+    computing: {
+      referenceTierId: "business",
+      headlineTierIds: ["business", "compute"],
+
+      constituents: [
         {
-          id: "cpu",
+          id: "processor",
           label: "Processor",
-          baseSpec: "Dual core, 2.8 GHz",
-          latestSpec: "Six cores, integrated graphics",
-          seriesId: "pc-cpu",
-          note: "The most expensive part in 2009 and still the most expensive part now, which is the only thing about this build that did not change.",
+          role: "Does the work. Sets what the rest of the platform has to be.",
+          seriesId: "pc-processor",
+          baseSpec: "Dual core, 2.8 GHz, 65 W, 45 nm",
+          latestSpec: "Six cores, twelve threads, integrated graphics, 4 nm",
+          drivers: [
+            "Foundry process transitions and the cost of each new node",
+            "Core-count competition between the two x86 vendors",
+            "Integrated graphics absorbing a separate component",
+            "Rupee depreciation on an entirely imported part",
+          ],
+          insight:
+            "Processor throughput rose about twenty-five times while the price rose about two and a third. Per unit of work it is the strongest deflation story in the machine — and it is no longer where the money goes.",
+          remark: "The processor became faster. The expensive part moved elsewhere.",
+          confidence: "reconstructed",
         },
         {
           id: "motherboard",
           label: "Motherboard",
-          baseSpec: "Entry chipset, micro-ATX",
-          latestSpec: "Current-socket B-series, micro-ATX",
+          role: "Connects everything, and decides what everything else can be.",
           seriesId: "pc-motherboard",
-          note: "Quietly the second-fastest riser. Power delivery, storage lanes and a memory generation the 2009 board could not have addressed.",
+          baseSpec: "Entry chipset, 2 DIMM slots, PCIe 2.0, 100 Mbit ethernet",
+          latestSpec: "Current-socket B-series, DDR5, PCIe 4.0, Wi-Fi 6, 2.5 Gbit ethernet",
+          drivers: [
+            "Power-delivery requirements rising with processor draw",
+            "Each PCIe and memory generation adding trace and validation cost",
+            "Networking and storage controllers moving onto the board",
+            "Shorter socket lifespans forcing more frequent platform purchases",
+          ],
+          insight:
+            "The motherboard is the quiet riser: up more than two and a half times, and almost none of it visible to the buyer as a feature. It is also the constituent that locks in the cost of the next two — a board decides which processor and which memory generation you are allowed to buy.",
+          remark:
+            "The motherboard connects everything, which is also why everything can make it more expensive.",
+          confidence: "reconstructed",
         },
         {
           id: "memory",
           label: "Memory",
-          baseSpec: "2 GB DDR2",
-          latestSpec: "16 GB DDR5",
+          role: "Holds what the processor is working on right now.",
           seriesId: "pc-memory",
           capacitySeriesId: "pc-memory-gb",
-          note: "Eight times the capacity for three times the money — and then two years put the gigabyte back above where it sat in 2019.",
-        },
-        {
-          id: "graphics",
-          label: "Graphics",
-          baseSpec: "Entry discrete card",
-          latestSpec: "Entry discrete card",
-          seriesId: "pc-graphics",
-          note: "Two mining cycles and a shortage. The 2021 peak is the single largest one-year move in any line of this build.",
+          capacityUnit: "GB",
+          baseSpec: "2 GB DDR2-800, 12.8 GB/s",
+          latestSpec: "16 GB DDR5-5600, 89.6 GB/s",
+          drivers: [
+            "The DRAM production cycle, which has always overshot in both directions",
+            "High-bandwidth memory for AI accelerators competing for the same wafers",
+            "Server and hyperscale contracts taking priority allocation",
+            "Manufacturers shifting capacity toward higher-margin enterprise parts",
+          ],
+          insight:
+            "Memory fell about eighty per cent per gigabyte between 2009 and 2023, which is roughly what the industry promises. Then it reversed harder than at any point in the series. The reason is not a shortage of factories. It is that personal computers stopped being the most persuasive customer in the room.",
+          remark:
+            "In 2009, memory made the computer faster. In 2026, AI made the memory expensive.",
+          confidence: "current-market",
         },
         {
           id: "storage",
           label: "Storage",
-          baseSpec: "500 GB spinning disk",
-          latestSpec: "1 TB NVMe solid state",
+          role: "Holds everything else. Now also decides how fast the machine feels.",
           seriesId: "pc-storage",
           capacitySeriesId: "pc-storage-gb",
-          note: "A different technology wearing the same line item. Per gigabyte it is 5% cheaper than in 2009 — sixteen years of storage progress spent almost entirely on speed rather than price.",
+          capacityUnit: "GB",
+          baseSpec: "500 GB, 7200 rpm, 90 MB/s, SATA",
+          latestSpec: "1 TB NVMe Gen4, 7,000 MB/s, PCIe",
+          drivers: [
+            "The 2011 Thailand floods, which took out a large share of disk assembly",
+            "NAND oversupply cycles and the periodic production cuts that end them",
+            "The substitution from spinning disk to solid state",
+            "Enterprise and data-centre storage demand for training data",
+          ],
+          insight:
+            "Per gigabyte, storage costs more than it did in 2009. Every bit of the gain went into speed instead: the drive reads about seventy-eight times faster and the gigabyte is 16% dearer. That is a real improvement, and it is not the improvement anyone was promised.",
+          remark: "The disk stopped spinning. The pricing cycle did not.",
+          confidence: "current-market",
         },
         {
-          id: "power-case",
-          label: "Power supply and cabinet",
-          baseSpec: "450 W, steel case",
-          latestSpec: "550 W 80+, steel case",
-          seriesId: "pc-power-case",
-          note: "The dullest line on the invoice and the closest thing here to ordinary inflation.",
+          id: "graphics",
+          label: "Graphics",
+          role: "Drew the interface. Now runs the workload.",
+          seriesId: "pc-graphics",
+          baseSpec: "Entry discrete card, 512 MB, display output",
+          latestSpec: "Integrated in the processor — no separate purchase",
+          drivers: [
+            "Integrated graphics becoming sufficient for office work",
+            "Two mining cycles distorting consumer pricing",
+            "AI accelerator demand reshaping the entire product stack",
+            "Enterprise pricing setting the ceiling for consumer parts",
+          ],
+          insight:
+            "In a business machine this line went to zero: from 2016 the processor did the job and the card stopped being bought. In a compute machine it went the other way entirely and is now the largest single constituent. The same component became free in one tier and dominant in another.",
+          remark:
+            "The component that drew the spreadsheet now costs more than the spreadsheet machine.",
+          confidence: "reconstructed",
+        },
+        {
+          id: "power",
+          label: "Power supply",
+          role: "Feeds everything, and has to be sized for the worst part in the box.",
+          seriesId: "pc-power",
+          baseSpec: "400 W, unrated",
+          latestSpec: "550 W, 80 Plus Bronze",
+          drivers: [
+            "Processor and graphics power draw setting the required headroom",
+            "Efficiency certification becoming a purchase requirement",
+            "Copper and capacitor input costs",
+            "Electricity tariffs making efficiency worth paying for",
+          ],
+          insight:
+            "The business machine barely needs more power than it did — this tier draws under 150 W. The compute machine needs four times that, and the power supply is sized for the graphics card rather than for the work.",
+          remark: "Compute became faster. The electricity meter noticed.",
+          confidence: "reconstructed",
+        },
+        {
+          id: "cooling",
+          label: "Cooling",
+          role: "Removes the heat that performance creates.",
+          seriesId: "pc-cooling",
+          baseSpec: "Stock cooler, one case fan",
+          latestSpec: "Stock cooler, three case fans",
+          drivers: [
+            "Thermal output rising with sustained boost behaviour",
+            "Cooling becoming a design decision rather than an afterthought",
+            "An entire product category forming around the problem",
+          ],
+          insight:
+            "The largest percentage rise of any constituent in this tier, from the smallest base. Cooling went from a part that came in the processor box to a line that gets specified. It is still under three per cent of the machine.",
+          remark: "Performance created heat. Heat created another product category.",
+          confidence: "estimated",
+        },
+        {
+          id: "cabinet",
+          label: "Cabinet",
+          role: "Holds it together. The one part with no supply chain drama.",
+          seriesId: "pc-cabinet",
+          baseSpec: "Steel micro-ATX, one fan mount",
+          latestSpec: "Steel mid-tower, mesh front, cable routing",
+          drivers: [
+            "Steel and shipping costs",
+            "Airflow becoming a design requirement",
+            "Nothing else, which is the point",
+          ],
+          insight:
+            "The control group. The cabinet tracks ordinary manufacturing inflation and almost nothing else, which makes it the best available measure of how much of every other line is a supply story rather than a cost story.",
+          remark: "Every index needs one constituent that just gets slightly more expensive.",
+          confidence: "reconstructed",
         },
         {
           id: "display",
           label: "Display",
-          baseSpec: "18.5-inch TN, 1366 × 768",
-          latestSpec: "24-inch IPS, 1920 × 1080",
+          role: "The part the user actually looks at.",
           seriesId: "pc-display",
-          note: "Flat in rupees across sixteen years while the panel got larger, sharper and better in every measurable way. The deflation everybody assumes happened to computers actually happened here.",
+          baseSpec: "18.5-inch TN, 1366 × 768, 1.05 megapixels",
+          latestSpec: "27-inch IPS, 2560 × 1440, 3.69 megapixels",
+          drivers: [
+            "Panel fabrication capacity, which has been in surplus for most of the period",
+            "Panel technology moving from TN to IPS as the default",
+            "Size and resolution expectations rising faster than price",
+          ],
+          insight:
+            "Display is the counterweight to everything else on this page. Half again the price for three and a half times the pixels, a better panel type and a larger screen. The deflation people assume happened to computers did happen — it happened to the monitor.",
+          remark: "The monitor became flatter. The pricing story became more complicated.",
+          confidence: "reconstructed",
         },
         {
-          id: "os-peripherals",
-          label: "Operating system and peripherals",
-          baseSpec: "OEM licence, keyboard, mouse",
-          latestSpec: "OEM licence, keyboard, mouse",
-          seriesId: "pc-os-peripherals",
-          note: "Software is the one line with no supply chain, and it still went up by a third.",
+          id: "peripherals",
+          label: "Networking and peripherals",
+          role: "Connects the machine to the work, which is increasingly not on the machine.",
+          seriesId: "pc-peripherals",
+          baseSpec: "100 Mbit ethernet, keyboard, mouse",
+          latestSpec: "Wi-Fi 6, gigabit ethernet, keyboard, mouse, webcam",
+          drivers: [
+            "Remote work making a camera and a microphone mandatory",
+            "Wi-Fi generations turning a free port into a purchased radio",
+            "Cloud and SaaS moving the real cost outside the cabinet entirely",
+          ],
+          insight:
+            "This line more than tripled, and it still understates the change. A 2009 machine worked without a network. A 2025 one is a client: the files, the software and increasingly the compute are somewhere else, on a subscription that never appears on this invoice.",
+          remark:
+            "The computer became more connected. The monthly costs moved outside the cabinet.",
+          confidence: "estimated",
         },
       ],
-      shockWindow: [2023, 2025],
-      shockNote:
-        "Memory and storage are 19% of the build. Between 2023 and 2025 they were 58% of everything it gained.",
+
+      capability: [
+        { id: "cpu", label: "Processor", unit: "Multi-thread score", seriesId: "cap-cpu-score", weight: 0.25, constituentId: "processor" },
+        { id: "gpu", label: "Graphics", unit: "Benchmark score", seriesId: "cap-gpu-score", weight: 0.18, constituentId: "graphics" },
+        { id: "storage-read", label: "Storage speed", unit: "MB/s read", seriesId: "cap-storage-read", weight: 0.14, constituentId: "storage" },
+        { id: "ram-gb", label: "Memory capacity", unit: "GB", seriesId: "cap-ram-gb", weight: 0.12, constituentId: "memory" },
+        { id: "display", label: "Display resolution", unit: "Megapixels", seriesId: "cap-display-mp", weight: 0.09, constituentId: "display" },
+        { id: "ram-bandwidth", label: "Memory bandwidth", unit: "GB/s", seriesId: "cap-ram-bandwidth", weight: 0.08, constituentId: "memory" },
+        { id: "storage-gb", label: "Storage capacity", unit: "GB", seriesId: "cap-storage-gb", weight: 0.08, constituentId: "storage" },
+        { id: "network", label: "Network", unit: "Mbit/s", seriesId: "cap-network-mbps", weight: 0.06, constituentId: "peripherals" },
+      ],
+
+      tiers: [
+        {
+          id: "business",
+          label: "Business",
+          purpose:
+            "The modern equivalent of the machine Rocket Singh sold to a small office. Documents, spreadsheets, browser tabs, video calls.",
+          scope: "Complete machine, including display and peripherals.",
+          confidence: "current-market",
+          lines: [
+            { constituentId: "processor", price: 20000, spec: "Six-core APU with integrated graphics" },
+            { constituentId: "motherboard", price: 11000, spec: "Entry current-socket, DDR5, Wi-Fi 6" },
+            { constituentId: "memory", price: 12000, spec: "16 GB DDR5-5600, two modules", note: "The single most volatile line on this page." },
+            { constituentId: "storage", price: 6500, spec: "1 TB NVMe Gen4" },
+            { constituentId: "graphics", price: 0, spec: "Integrated in the processor", note: "No separate purchase. In 2009 this tier bought a ₹3,200 card." },
+            { constituentId: "power", price: 5500, spec: "550 W, 80 Plus Bronze" },
+            { constituentId: "cooling", price: 2500, spec: "Stock cooler, three case fans" },
+            { constituentId: "cabinet", price: 4500, spec: "Steel mid-tower, mesh front" },
+            { constituentId: "display", price: 15000, spec: "27-inch IPS, 2560 × 1440" },
+            { constituentId: "peripherals", price: 8000, spec: "Wi-Fi 6, keyboard, mouse, webcam" },
+          ],
+        },
+        {
+          id: "performance",
+          label: "Performance",
+          purpose:
+            "Gaming, design and technical productivity. Where a discrete graphics card starts being the reason to build at all.",
+          scope: "Complete machine, including display and peripherals.",
+          confidence: "current-market",
+          lines: [
+            { constituentId: "processor", price: 18000, spec: "Six-core, no integrated graphics" },
+            { constituentId: "motherboard", price: 11000, spec: "B-series, DDR5, PCIe 4.0" },
+            { constituentId: "memory", price: 13000, spec: "16 GB DDR5-6000" },
+            { constituentId: "storage", price: 9000, spec: "1 TB NVMe Gen4, higher endurance" },
+            { constituentId: "graphics", price: 34000, spec: "8 GB mid-range discrete card" },
+            { constituentId: "power", price: 6000, spec: "650 W, 80 Plus Bronze" },
+            { constituentId: "cooling", price: 3000, spec: "Air tower cooler" },
+            { constituentId: "cabinet", price: 5500, spec: "Mid-tower, airflow-oriented" },
+            { constituentId: "display", price: 12000, spec: "27-inch IPS, 1920 × 1080, high refresh" },
+            { constituentId: "peripherals", price: 4500, spec: "Wi-Fi 6, keyboard, mouse" },
+          ],
+        },
+        {
+          id: "compute",
+          label: "Compute",
+          purpose:
+            "Rendering, local model work and anything that treats the graphics card as the processor. The machine most people now mean when they say compute.",
+          scope: "Complete machine, including display and peripherals.",
+          confidence: "current-market",
+          lines: [
+            { constituentId: "processor", price: 20500, spec: "Six-core, no integrated graphics" },
+            { constituentId: "motherboard", price: 13000, spec: "B650-class, DDR5, PCIe 4.0" },
+            { constituentId: "memory", price: 34000, spec: "32 GB DDR5-6000", note: "Twice the capacity of the business tier at nearly three times the price." },
+            { constituentId: "storage", price: 15000, spec: "1 TB NVMe Gen4, high endurance" },
+            { constituentId: "graphics", price: 80000, spec: "16 GB discrete accelerator", note: "The largest single constituent, by a wide margin." },
+            { constituentId: "power", price: 7500, spec: "750 W, 80 Plus Gold" },
+            { constituentId: "cooling", price: 3500, spec: "Large air tower cooler" },
+            { constituentId: "cabinet", price: 6000, spec: "Mid-tower, high airflow" },
+            { constituentId: "display", price: 12500, spec: "27-inch IPS, 2560 × 1440" },
+            { constituentId: "peripherals", price: 4000, spec: "Wi-Fi 6, keyboard, mouse" },
+          ],
+        },
+      ],
+
+      drivers: [
+        {
+          id: "semiconductor",
+          label: "Semiconductor manufacturing",
+          period: "Throughout",
+          summary:
+            "Every part in the machine except the cabinet ultimately comes off a wafer. As nodes shrank, the cost of building a fab and the cost of each new process step rose faster than the transistors got smaller — and the number of companies able to build one fell to three.",
+          topics: [
+            "Process-node transitions",
+            "Foundry capacity and yield",
+            "Advanced packaging",
+            "Geographic concentration",
+            "Export restrictions",
+          ],
+          effects: [
+            { constituentId: "processor", direction: "up", note: "Each node costs more to develop and amortise." },
+            { constituentId: "graphics", direction: "up", note: "Largest dies, so most exposed to yield." },
+            { constituentId: "memory", direction: "up", note: "Capacity decisions made years ahead of demand." },
+            { constituentId: "cabinet", direction: "flat", note: "Steel is not a semiconductor." },
+          ],
+        },
+        {
+          id: "memory-cycle",
+          label: "Memory cycles",
+          period: "2009 onward, repeatedly",
+          summary:
+            "DRAM has always overshot. Three manufacturers add capacity together, prices collapse, they cut production together, prices spike. The 2017–18 supercycle and the 2019–20 collapse are both visible in this index. What is different now is who the marginal buyer is.",
+          topics: [
+            "Oversupply and coordinated production cuts",
+            "Server versus consumer allocation",
+            "High-bandwidth memory demand",
+            "Contract versus spot pricing",
+          ],
+          effects: [
+            { constituentId: "memory", direction: "up", note: "The constituent this driver is about." },
+            { constituentId: "motherboard", direction: "up", note: "Each memory generation raises board cost." },
+            { constituentId: "storage", direction: "up", note: "NAND follows a similar cycle on its own clock." },
+          ],
+        },
+        {
+          id: "data-centres",
+          label: "Data centres",
+          period: "2020 onward",
+          summary:
+            "Hyperscale build-out changed which customer matters. A cloud operator signs multi-year contracts for memory and storage at volumes no consumer market can match, and takes priority allocation when supply tightens. The desktop buyer is now the residual claimant.",
+          topics: [
+            "Hyperscale cloud expansion",
+            "Enterprise SSD demand",
+            "Server-memory contracts",
+            "Nearline drive shortages",
+            "Power infrastructure",
+          ],
+          effects: [
+            { constituentId: "memory", direction: "up", note: "Server DIMMs outbid consumer modules." },
+            { constituentId: "storage", direction: "up", note: "Nearline and enterprise drives sold out ahead." },
+            { constituentId: "peripherals", direction: "up", note: "The work moved to the network, so the network became a purchase." },
+          ],
+        },
+        {
+          id: "ai",
+          label: "Artificial intelligence",
+          period: "2023 onward",
+          summary:
+            "Training and inference demand turned the graphics card into strategic infrastructure and high-bandwidth memory into the scarcest thing in the supply chain. Both are made on capacity that used to serve desktops. This is the largest single reason the 2025 column looks the way it does.",
+          topics: [
+            "Accelerator scarcity",
+            "High-bandwidth memory allocation",
+            "Local model workstations",
+            "AI-capable consumer hardware",
+          ],
+          effects: [
+            { constituentId: "graphics", direction: "up", note: "Consumer cards priced against enterprise demand." },
+            { constituentId: "memory", direction: "up", note: "HBM competes for the same fabrication capacity." },
+            { constituentId: "storage", direction: "up", note: "Training data has to live somewhere." },
+            { constituentId: "power", direction: "up", note: "Higher draw needs more headroom." },
+            { constituentId: "cabinet", direction: "flat", note: "Unmoved, as always." },
+          ],
+        },
+        {
+          id: "crypto",
+          label: "Crypto",
+          period: "2017–18 and 2020–21",
+          summary:
+            "Two mining cycles bid consumer graphics cards away from the people they were designed for, then returned them to the second-hand market at once when mining stopped being profitable. A rehearsal for what AI demand would do at a much larger scale.",
+          topics: [
+            "Mining profitability",
+            "Secondary-market pricing",
+            "Post-mining resale supply",
+          ],
+          effects: [
+            { constituentId: "graphics", direction: "up", note: "Two visible spikes, both fully reversed." },
+            { constituentId: "power", direction: "up", note: "Mining rigs pulled high-wattage units out of stock." },
+          ],
+        },
+        {
+          id: "disruption",
+          label: "Global disruptions",
+          period: "2011, 2020–22",
+          summary:
+            "The Thailand floods took out disk assembly for a year. The pandemic did the same to logistics, then added a demand shock on top of it. Neither had anything to do with the technology, and both are clearly visible in the series.",
+          topics: [
+            "Natural disasters",
+            "Pandemic demand and logistics",
+            "Factory shutdowns",
+            "Trade restrictions",
+            "Currency movement",
+          ],
+          effects: [
+            { constituentId: "storage", direction: "up", note: "The 2012 spike is the Thailand floods." },
+            { constituentId: "peripherals", direction: "up", note: "A webcam became mandatory in 2020." },
+            { constituentId: "display", direction: "up", note: "Everyone bought a second monitor at once." },
+          ],
+        },
+      ],
+
+      sameMoney: [
+        {
+          amount: 25000,
+          label: "₹25,000",
+          rows: [
+            { year: 2006, processor: "Single core, 2.6 GHz", memory: "512 MB DDR", storage: "80 GB disk", graphics: "Integrated", display: "17-inch CRT", capability: 42, confidence: "estimated", note: "Before the index begins. Reconstructed from period retail advertising." },
+            { year: 2009, processor: "Dual core, 2.5 GHz", memory: "1 GB DDR2", storage: "250 GB disk", graphics: "Integrated", display: "15.6-inch LCD", capability: 66, confidence: "reconstructed" },
+            { year: 2016, processor: "Dual core, 3.7 GHz", memory: "4 GB DDR3", storage: "1 TB disk", graphics: "Integrated", display: "19-inch LED", capability: 196, confidence: "reconstructed" },
+            { year: 2020, processor: "Quad core, 3.6 GHz", memory: "8 GB DDR4", storage: "512 GB NVMe", graphics: "Integrated", display: "None — tower only", capability: 611, confidence: "reconstructed" },
+            { year: 2023, processor: "Quad core, 4.0 GHz", memory: "8 GB DDR4", storage: "512 GB NVMe", graphics: "Integrated", display: "None — tower only", capability: 934, confidence: "reconstructed" },
+            { year: 2025, processor: "Quad core APU", memory: "8 GB DDR5", storage: "512 GB NVMe", graphics: "Integrated", display: "None — tower only", capability: 880, confidence: "current-market", note: "The first year in the series where this budget buys less than it did two years earlier." },
+          ],
+        },
+        {
+          amount: 50000,
+          label: "₹50,000",
+          rows: [
+            { year: 2006, processor: "Dual core, 2.8 GHz", memory: "1 GB DDR2", storage: "160 GB disk", graphics: "Entry discrete", display: "17-inch LCD", capability: 78, confidence: "estimated", note: "Before the index begins." },
+            { year: 2009, processor: "Dual core, 3.0 GHz", memory: "4 GB DDR2", storage: "640 GB disk", graphics: "Entry discrete", display: "20-inch LCD", capability: 128, confidence: "reconstructed" },
+            { year: 2016, processor: "Quad core, 3.5 GHz", memory: "8 GB DDR3", storage: "1 TB disk + 120 GB SSD", graphics: "Entry discrete", display: "22-inch LED", capability: 372, confidence: "reconstructed" },
+            { year: 2020, processor: "Six core, 3.6 GHz", memory: "16 GB DDR4", storage: "1 TB NVMe", graphics: "Integrated", display: "24-inch IPS", capability: 1052, confidence: "reconstructed" },
+            { year: 2023, processor: "Six core, 4.2 GHz", memory: "16 GB DDR4", storage: "1 TB NVMe", graphics: "Integrated", display: "24-inch IPS", capability: 1583, confidence: "reconstructed" },
+            { year: 2025, processor: "Six core APU", memory: "16 GB DDR5", storage: "512 GB NVMe", graphics: "Integrated", display: "None — tower only", capability: 1497, confidence: "current-market" },
+          ],
+        },
+        {
+          amount: 85000,
+          label: "₹85,000",
+          rows: [
+            { year: 2006, processor: "Dual core, 3.0 GHz", memory: "2 GB DDR2", storage: "250 GB disk", graphics: "Mid discrete", display: "19-inch LCD", capability: 96, confidence: "estimated", note: "Before the index begins." },
+            { year: 2009, processor: "Quad core, 2.8 GHz", memory: "4 GB DDR2", storage: "1 TB disk", graphics: "Mid discrete", display: "22-inch LCD", capability: 178, confidence: "reconstructed" },
+            { year: 2016, processor: "Quad core, 4.0 GHz", memory: "16 GB DDR4", storage: "2 TB disk + 250 GB SSD", graphics: "Mid discrete", display: "24-inch LED", capability: 546, confidence: "reconstructed" },
+            { year: 2020, processor: "Six core, 3.7 GHz", memory: "16 GB DDR4", storage: "1 TB NVMe", graphics: "Mid discrete", display: "27-inch IPS", capability: 1394, confidence: "reconstructed" },
+            { year: 2023, processor: "Eight core, 4.5 GHz", memory: "32 GB DDR5", storage: "2 TB NVMe", graphics: "Mid discrete", display: "27-inch QHD", capability: 2318, confidence: "reconstructed" },
+            { year: 2025, processor: "Six core APU", memory: "16 GB DDR5", storage: "1 TB NVMe", graphics: "Integrated", display: "27-inch QHD", capability: 2214, confidence: "current-market", note: "This is the Business tier. The same money that bought a discrete card in 2023 does not this year." },
+          ],
+        },
+        {
+          amount: 200000,
+          label: "₹2 lakh",
+          rows: [
+            { year: 2006, processor: "Dual core workstation", memory: "4 GB DDR2", storage: "2 × 250 GB disk", graphics: "Workstation card", display: "Two 19-inch LCD", capability: 142, confidence: "estimated", note: "Before the index begins." },
+            { year: 2009, processor: "Quad core, 3.2 GHz", memory: "8 GB DDR3", storage: "2 TB disk", graphics: "High-end discrete", display: "Two 22-inch LCD", capability: 268, confidence: "reconstructed" },
+            { year: 2016, processor: "Six core, 3.5 GHz", memory: "32 GB DDR4", storage: "4 TB disk + 500 GB SSD", graphics: "High-end discrete", display: "27-inch QHD", capability: 892, confidence: "reconstructed" },
+            { year: 2020, processor: "Eight core, 3.8 GHz", memory: "32 GB DDR4", storage: "2 TB NVMe", graphics: "High-end discrete", display: "27-inch QHD", capability: 2410, confidence: "reconstructed" },
+            { year: 2023, processor: "Twelve core, 4.7 GHz", memory: "64 GB DDR5", storage: "4 TB NVMe", graphics: "High-end discrete", display: "32-inch 4K", capability: 4180, confidence: "reconstructed" },
+            { year: 2025, processor: "Six core", memory: "32 GB DDR5", storage: "1 TB NVMe", graphics: "16 GB discrete", display: "27-inch QHD", capability: 3520, confidence: "current-market", note: "Roughly the Compute tier. Two lakh buys meaningfully less machine than it did in 2023." },
+          ],
+        },
+      ],
     },
 
     category: "consumer-goods",
     motif: "steps",
     confidence: "reconstructed",
     accent: { light: "hsl(215 68% 42%)", dark: "hsl(212 85% 64%)" },
-    remark: "Harpreet sold computers. Moore's Law did the discounting.",
+    remark: "Rocket Singh removed the corporate markup. AI moved it into memory and silicon.",
     interpretation: [
-      "The price of a machine rose about two thirds in sixteen years. Indian prices rose about two and a half times over the same period. Deflate the build and it costs roughly a third less than it did — the only index here that gets cheaper in real terms while staying visibly more expensive on the shelf.",
-      "Nothing about that figure captures what actually changed. A 2009 mid-range build had two cores, two gigabytes of memory and a spinning disk. The 2025 machine at the same market position has six cores, sixteen gigabytes and a solid-state drive that is roughly a hundred times faster to seek. The price held. The product did not.",
-      "Take the total apart and it stops holding still. The display is flat in rupees across sixteen years while the panel got larger and sharper \u2014 that is the deflation everyone assumes happened to computers, and it happened to the monitor. The processor rose about half. The motherboard more than doubled. Memory tripled. Eight lines, eight directions, and for fifteen years they cancelled each other out.",
-      "Then they stopped cancelling. Memory fell 82% per gigabyte between 2009 and 2023 and rose 125% in the two years after it. Storage did a smaller version of the same thing. Together they are 19% of this build and 58% of everything it gained since 2023. The part that spent a decade as the cheap decision is now the reason the machine costs more.",
-      "The cause is not in the PC market at all. High-bandwidth memory for AI accelerators is made on the same wafers as the memory in a desktop and earns far more per wafer, so the manufacturers allocated accordingly. Nearline drives went the same way as data centres built out storage for training data. Harpreet's business was exposed to a market it had no visibility into and no way to hedge. That has not changed. The buyer at the other end is just much larger now.",
+      "The index sits at 224 against a base of 100. Indian consumer prices rose faster, so in real terms the machine is about 15% cheaper than it was — which is the least interesting true thing that can be said about it.",
+      "The capability index sits at 2,214. The same tier of machine is about twenty-two times more capable than the one Rocket Singh sold: twenty-five times the processor throughput, eight times the memory, seventy-five times the storage read speed, three and a half times the pixels. Price per unit of capability fell about ninety per cent.",
+      "It fell every single year from 2009 to 2024. Then it rose. That reversal is the finding on this page, and it is small in absolute terms and very large in what it implies — a fifteen-year trend in the price of computing stopped, and not because computing got harder to make.",
+      "Take the machine apart and the reason is legible. The display is up 50% for three and a half times the pixels. The processor is up 135% for twenty-five times the work. The cabinet tracks ordinary inflation, as it always has. Memory is up 471%, and almost all of that arrived in the last two years.",
+      "Memory and storage are made on capacity that a data centre also wants, and a data centre signs multi-year contracts at volumes a desktop buyer cannot approach. High-bandwidth memory for accelerators competes for the same wafers as the module in this machine and earns considerably more of them. The graphics card, meanwhile, became the machine: in the business tier it costs nothing because the processor absorbed it, and in the compute tier it is 41% of the entire bill.",
+      "The structural change is not that computers got expensive. It is that the value inside a computer moved — from the processor to the graphics card, from local storage to somebody else's infrastructure, from consumer memory to server memory. Personal computers are no longer the most persuasive customer in the markets that supply them.",
     ],
     drivers: [
       {
-        title: "Falling cost per unit of performance",
+        title: "Semiconductor manufacturing",
         detail:
-          "The steady force underneath everything for most of the period. Transistor cost fell, which is why a roughly flat rupee price bought a very different machine each time.",
+          "Every constituent except the cabinet comes off a wafer. Nodes got smaller and the cost of each new one got larger, while the number of firms able to build a leading-edge fab fell to three.",
       },
       {
-        title: "AI demand for memory",
+        title: "Memory cycles",
         detail:
-          "High-bandwidth memory for accelerators competes for the same fabrication capacity as desktop DRAM and earns far more of it. Conventional supply tightened through 2025 and the module in a mid-range build more than doubled in two years.",
+          "DRAM overshoots in both directions and always has. The 2017–18 supercycle and the 2019–20 collapse are both in this series. What changed is who the marginal buyer is.",
       },
       {
-        title: "Data-centre demand for storage",
+        title: "Data centres",
         detail:
-          "Nearline drives and enterprise solid-state bought for training data pulled supply away from retail. Storage in this build rose two thirds between 2023 and 2025 — the largest two-year rise in the line that was not caused by a change of technology.",
+          "Hyperscale build-out made cloud operators the priority customer for memory and enterprise storage. The desktop buyer became the residual claimant when supply tightens.",
       },
       {
-        title: "Graphics repricing",
+        title: "Artificial intelligence",
         detail:
-          "Two mining cycles and one shortage. The 2021 peak is the largest single-year move in any line of this build, and it also arrived from outside the computer market.",
+          "Accelerator demand turned the graphics card into strategic infrastructure and high-bandwidth memory into the scarcest thing in the chain. Both are built on capacity that used to serve desktops.",
       },
       {
-        title: "Storage substitution",
+        title: "Crypto",
         detail:
-          "Solid-state drives went from a luxury to the default. The price per gigabyte rose when the technology changed in 2020; the price per second of waiting collapsed.",
+          "Two mining cycles bid consumer graphics away from consumers and then returned it all at once. A rehearsal for what AI demand would do at a far larger scale.",
       },
       {
-        title: "Import exposure",
+        title: "Global disruptions",
         detail:
-          "Almost every part is imported. A weaker rupee raises the shelf price with no change in the underlying component market, and it compounds every shock above.",
+          "The 2011 Thailand floods took out disk assembly for a year. The pandemic did it to logistics and added a demand shock on top. Neither had anything to do with the technology.",
       },
     ],
     caveats: [
       "The line is a paraphrase of the film's premise, not a verified quote.",
-      "\u201cMid-range\u201d is a judgement about market position, not a fixed specification. It is the honest way to price technology across sixteen years and it is still a judgement.",
-      "The component lines are a reconstruction. They reconcile exactly with the build total in every year, which makes them internally consistent \u2014 it does not make each line an observed retail price. The shape and the shares are the finding, not the individual rupee figures.",
-      "The 2025 memory and storage figures are provisional and were moving fast at the snapshot date. An annual average understates where the year ended.",
-      "The index prices the parts, not the labour, the warranty or the shop. Rocket Singh's business sold all three.",
-      "Indian listings before 2012 are reconstructed from US retail with a customs and margin uplift.",
-      "Performance is discussed in the text but is not in the series. A price-per-benchmark index would need a benchmark suite held constant for sixteen years, which does not exist.",
+      "The constituent prices are a reconstruction. They are internally consistent — the ten lines sum to the headline in every year, and the index is computed from them rather than typed in — but each line is a representative retail price for its tier, not a specific quotation from a specific shop on a specific day.",
+      "\u201cBusiness\u201d, \u201cPerformance\u201d and \u201cCompute\u201d are judgements about market position, not fixed specifications. Holding market position constant is the only honest way to price technology across seventeen years, and it is still a judgement.",
+      "The capability index is a weighted composite of eight metrics whose weights are published on the page and are a defensible choice rather than a derived one. Benchmark suites change between hardware generations, so a twenty-two-fold capability gain is an order of magnitude, not a precise multiple.",
+      "The 2025 memory, storage and graphics figures are current-market rather than settled. They were moving fast at the snapshot date and an annual figure understates where the year ended.",
+      "The three tiers are priced at the snapshot only. There is no seventeen-year history for Performance or Compute, because those categories did not mean the same thing in 2009 and splicing them would measure ambition rather than price.",
+      "The index prices the parts, not the labour, the warranty or the shop. Rocket Singh's business sold all three, and its margin lived in exactly the place this index cannot see.",
+      "Cloud, SaaS and connectivity costs are named in the peripherals constituent but are not in the series. A recurring monthly cost is not a component price and putting it in one would make the index dishonest in a different direction.",
     ],
     datasetIds: [
       "india-desktop-components",
+      "india-desktop-capability",
       "dram-nand-contract",
       "india-cpi-spliced",
       "mospi-nni-percapita",
@@ -2783,7 +3286,7 @@ export const CATALOGUE: CatalogueEntry[] = [
     status: "live",
     category: "consumer-goods",
     published: true,
-    remark: "Harpreet sold computers. Moore's Law did the discounting.",
+    remark: "Rocket Singh removed the corporate markup. AI moved it into memory and silicon.",
   },
   {
     slug: "phir-hera-pheri-25-din",

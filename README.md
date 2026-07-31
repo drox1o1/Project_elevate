@@ -52,7 +52,7 @@ chosen so the same system has to hold across nine different kinds of data:
 | Moneyball Player Price | $ per win above replacement | Labour-market inefficiency |
 | Vincent Vega Five-Dollar Shake | One premium milkshake | Restaurant inflation |
 | Walter White Purity Premium | $ per pure gram | Illicit-market pricing |
-| Rocket Singh PC | One mid-range desktop, eight priced lines | Technology deflation, then the AI memory shock |
+| Rocket Singh Computing | One business machine, ten constituents | Technology deflation, then the AI memory shock |
 | Khosla Plot | 500 sq yd, Delhi periphery | Land and asset inflation |
 | Fruit Company | $1,000 of Apple, held | Equity compounding |
 
@@ -64,21 +64,20 @@ source ledger and an exportable share card. A persistent index rail — sticky
 sidebar on desktop, scrolling strip on mobile — carries a value and sparkline
 per index so it doubles as navigation and comparison.
 
-**Assembled units.** Where the indexed unit is a build rather than a single
-object, the index carries a `bom` — every part priced separately in every year,
-reconciled to sum exactly to the headline total. Rocket Singh PC is the first:
-eight lines that spent fifteen years cancelling each other out, until AI demand
-for high-bandwidth memory and data-centre storage made memory and storage 58%
-of everything the build gained between 2023 and 2025. Price per gigabyte is
-derived from installed capacity at render time rather than stored, so the module
-price and the per-gigabyte price cannot drift apart.
+**The computing index.** `rocket-singh-computing` is the section's largest
+build. A computer is treated as an index and its parts as constituents: ten
+price series, eight capability metrics, three product tiers and six market
+drivers. The weighted index, the capability composite, every share and every
+weight are derived in `computingFor` from the constituent series — nothing is
+hand-entered, so repricing one part moves the whole page and no two figures can
+disagree. `india-desktop-pc` is itself computed as the sum of its ten
+constituents rather than typed out.
 
-**Art direction.** The section alternates two registers: dark full-bleed
-"scene" bands (hero, cold open, cross-country panel, share) that stay dark in
-both themes, and theme-following "analysis" sections for charts, equations and
-ledgers. Each index gets generative artwork drawn from its own series — nine
-motifs in `index-artwork.tsx` — rather than an icon, so no two indices can look
-alike.
+The finding: the price index sits at 224 against a 2009 base of 100 while the
+capability index sits at 2,214, so price per unit of capability fell about 90%.
+It fell every year from 2009 to 2024 — and then rose 27%. Memory is up 471% and
+almost all of it arrived in the last two years; graphics costs nothing in the
+business tier because the processor absorbed it, and is 41% of the compute tier.
 
 ```
 lib/pop-indices/types.ts     # index, dataset, observation and series schema

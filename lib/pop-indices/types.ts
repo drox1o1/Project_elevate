@@ -14,11 +14,16 @@
  * How much the data behind an index can be trusted. Rendered next to the
  * headline result, never in the footer.
  *
- * verified      — authoritative series covers the whole period
- * reconstructed — assembled from credible archives, mandi records, menus
- * estimated     — relies on stated assumptions or incomplete market data
+ * verified       — authoritative series covers the whole period
+ * reconstructed  — assembled from credible archives, mandi records, menus
+ * estimated      — relies on stated assumptions or incomplete market data
+ * current-market — read off live retail listings, and moving while you read it
  */
-export type Confidence = "verified" | "reconstructed" | "estimated";
+export type Confidence =
+  | "verified"
+  | "reconstructed"
+  | "estimated"
+  | "current-market";
 
 export type EconomicCategory =
   | "commodity"
@@ -145,47 +150,129 @@ export interface Accent {
   dark: string;
 }
 
-/**
- * One priced line of a build.
+/* ---- assembled units: the computing index model ------------------------
  *
- * Exists because a single total hides the only interesting thing about a
- * computer: the parts move in opposite directions and the total sits still.
+ * Most indices price one object. A computer is ten markets in a steel box, and
+ * the interesting thing about it is that they move in opposite directions
+ * while the total sits still. So it gets a constituent model rather than a
+ * single series: each part carries its own price history, its own capability
+ * history and its own set of markets that set the price.
  */
-export interface BuildComponent {
+
+/** One constituent of an assembled machine. */
+export interface Constituent {
   id: string;
   label: string;
-  /** The part as it actually was, in the base year and the latest year. */
-  baseSpec: string;
-  latestSpec: string;
+  /** What this part does for the machine, in one line. */
+  role: string;
+  /** Price history for the reference tier. */
   seriesId: string;
   /**
-   * Optional installed-capacity series, in gigabytes. Only meaningful for
-   * parts sold by capacity — memory and storage — where the module price and
-   * the price of a gigabyte tell opposite stories.
-   *
-   * Capacity is the observed fact; price per gigabyte is derived from it and
-   * the line price at render time. Storing the division instead would let the
-   * two drift apart by a rounding error, which is exactly the kind of small
-   * inconsistency this section cannot afford.
+   * Optional installed-capacity series. Present for parts sold by capacity,
+   * where price per unit is derived at render time rather than stored so the
+   * module price and the per-unit price cannot drift apart.
    */
   capacitySeriesId?: string;
-  /** One line on what moved this part. */
-  note: string;
+  /** Unit for the capacity series, e.g. "GB". */
+  capacityUnit?: string;
+  /** What the buyer actually received, base year and latest. */
+  baseSpec: string;
+  latestSpec: string;
+  /** The markets that set this price. */
+  drivers: string[];
+  /** The economic reading. */
+  insight: string;
+  /** The one dry line. */
+  remark: string;
+  confidence: Confidence;
 }
 
 /**
- * The bill of materials behind an index whose unit is an assembly rather than
- * a single object. Optional on PopIndex: most indices price one thing.
+ * One metric feeding the capability index.
+ *
+ * Weights are published rather than tuned: a capability index nobody can
+ * audit is a number with a shrug attached.
  */
-export interface BillOfMaterials {
-  lead: string;
-  components: BuildComponent[];
-  /**
-   * The recent window the panel calls out separately, e.g. [2023, 2025] for
-   * the memory shock. Absent means no window is highlighted.
-   */
-  shockWindow?: [number, number];
-  shockNote?: string;
+export interface CapabilityMetric {
+  id: string;
+  label: string;
+  unit: string;
+  seriesId: string;
+  /** Share of the composite. The set must sum to 1. */
+  weight: number;
+  /** Which constituent supplies it. */
+  constituentId: string;
+}
+
+/** One line of a tier's bill of materials, priced at the snapshot. */
+export interface TierLine {
+  constituentId: string;
+  /** Zero is a legitimate answer — an integrated GPU costs nothing extra. */
+  price: number;
+  spec: string;
+  note?: string;
+}
+
+/**
+ * A fixed product tier. Tiers are never spliced into one historical series:
+ * comparing a 2009 office machine with a 2025 workstation would measure the
+ * change in ambition, not the change in price.
+ */
+export interface BuildTier {
+  id: string;
+  label: string;
+  purpose: string;
+  /** Whether the tier includes a display and peripherals or is a tower only. */
+  scope: string;
+  lines: TierLine[];
+  confidence: Confidence;
+}
+
+/** A macro force that moved constituent prices, and which ones it moved. */
+export interface MarketDriver {
+  id: string;
+  label: string;
+  period: string;
+  summary: string;
+  topics: string[];
+  effects: {
+    constituentId: string;
+    direction: "up" | "down" | "flat";
+    note: string;
+  }[];
+}
+
+/** What one fixed sum of money bought in a given year. */
+export interface SameMoneyRow {
+  year: number;
+  processor: string;
+  memory: string;
+  storage: string;
+  graphics: string;
+  display: string;
+  /** Composite capability of the machine that sum bought, base year = 100. */
+  capability: number;
+  note?: string;
+  confidence: Confidence;
+}
+
+export interface SameMoneyBand {
+  amount: number;
+  label: string;
+  rows: SameMoneyRow[];
+}
+
+/** The whole constituent model hung off one index. */
+export interface ComputingIndex {
+  /** Tier whose series carries the historical index. */
+  referenceTierId: string;
+  constituents: Constituent[];
+  capability: CapabilityMetric[];
+  tiers: BuildTier[];
+  drivers: MarketDriver[];
+  sameMoney: SameMoneyBand[];
+  /** The two figures the hero leads on. */
+  headlineTierIds: [string, string];
 }
 
 /** The comparison an index makes against a broader benchmark. */
@@ -248,8 +335,8 @@ export interface PopIndex {
   unitFactorNote: string;
   equation: EquationStep[];
   events?: ChartEvent[];
-  /** Present when the indexed unit is assembled from separately priced parts. */
-  bom?: BillOfMaterials;
+  /** Present when the indexed unit is an assembly of separately priced markets. */
+  computing?: ComputingIndex;
 
   /* --- Layer 6: interpretation --- */
   category: EconomicCategory;

@@ -69,6 +69,7 @@ const CONFIDENCE_MARK: Record<Confidence, string> = {
   verified: "●",
   reconstructed: "◐",
   estimated: "○",
+  "current-market": "◈",
 };
 
 export function IndexRail({

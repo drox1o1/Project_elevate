@@ -113,7 +113,7 @@ const SECTIONS: Section[] = [
     id: "confidence",
     title: "Data-confidence levels",
     body: [
-      "Not every index is equally well sourced. Hiding that would be the fastest way to make the whole section worthless. Each index and each dataset carries one of three levels, printed next to the headline result — not in a footer.",
+      "Not every index is equally well sourced. Hiding that would be the fastest way to make the whole section worthless. Each index and each dataset carries one of four levels, printed next to the headline result — not in a footer.",
     ],
   },
   {
@@ -164,7 +164,12 @@ const SECTIONS: Section[] = [
   },
 ];
 
-const LEVELS: Confidence[] = ["verified", "reconstructed", "estimated"];
+const LEVELS: Confidence[] = [
+  "verified",
+  "reconstructed",
+  "estimated",
+  "current-market",
+];
 
 const LEVEL_EXAMPLES: Record<Confidence, string> = {
   verified:
@@ -173,6 +178,8 @@ const LEVEL_EXAMPLES: Record<Confidence, string> = {
     "Menu-archive prices for shakes and burgers, paneer and okra retail, desktop PC price points, $/WAR estimates, back-cast CPI.",
   estimated:
     "Illicit-market price and purity reporting, Delhi plot rates, fictional object weights.",
+  "current-market":
+    "Computer components. Memory and graphics moved fast enough through 2025 that a settled annual figure would be a fiction.",
 };
 
 export default function MethodologyPage() {

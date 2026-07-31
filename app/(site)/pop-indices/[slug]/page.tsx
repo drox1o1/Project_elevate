@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AffordabilityPanel } from "@/components/pop-indices/affordability-panel";
-import { BillOfMaterials } from "@/components/pop-indices/bill-of-materials";
+import {
+  CapabilityPanel,
+  CompositionBars,
+  ConstituentGrid,
+  DriverTimeline,
+  IndexOverview,
+  TierComparison,
+} from "@/components/pop-indices/computing-index";
+import { SameMoney } from "@/components/pop-indices/same-money";
 import { ColdOpen } from "@/components/pop-indices/cold-open";
 import { CountryPanel } from "@/components/pop-indices/country-panel";
 import { NoirBand, SectionHeading } from "@/components/pop-indices/editorial";
@@ -21,7 +29,7 @@ import {
 } from "@/lib/pop-indices/data";
 import {
   affordabilityFor,
-  bomFor,
+  computingFor,
   equationStepsFor,
   metricsFor,
   presentIndex,
@@ -71,7 +79,7 @@ export default async function IndexDetailPage({
   }));
   const values = seriesValues(p);
   const imageSrc = imageFor(index.slug);
-  const bom = bomFor(p);
+  const computing = computingFor(p);
 
   /**
    * Section numbers are derived, not written down. Two sections are
@@ -79,9 +87,12 @@ export default async function IndexDetailPage({
    * sections called 03.
    */
   const order = [
+    ...(computing ? ["overview"] : []),
     "chart",
     ...(index.slug === "royale-with-cheese" ? ["countries"] : []),
-    ...(bom ? ["bom"] : []),
+    ...(computing
+      ? ["tiers", "constituents", "capability", "drivers", "same-money"]
+      : []),
     "equation",
     "affordability",
     "interpretation",
@@ -149,6 +160,28 @@ export default async function IndexDetailPage({
                 {index.baseYearNote}
               </p>
             </section>
+
+            {/* ── B2 · Index overview — constituent indices only ──── */}
+            {computing ? (
+              <section
+                id="overview"
+                className="scroll-mt-20 border-t border-border py-16 sm:py-20"
+              >
+                <SectionHeading
+                  ordinal={ord("overview")}
+                  eyebrow="Index overview"
+                  title="The machine as an index"
+                  lead={`Ten constituents, weighted at their ${computing.baseYear} shares. Every figure below is computed from the constituent series — none of it is typed in, so repricing one part moves the whole page.`}
+                />
+                <IndexOverview data={computing} className="mt-10" />
+                <p className="mt-6 max-w-3xl type-caption leading-5 text-muted-foreground">
+                  The index level is derived, not published. It has not been
+                  validated against an independent historical dataset, and the
+                  confidence label on each constituent is the honest read on how
+                  much weight any one of these figures can carry.
+                </p>
+              </section>
+            ) : null}
 
             {/* ── C · Primary historical chart ────────────────────── */}
             <section className="border-t border-border py-16 sm:py-20">
@@ -247,25 +280,109 @@ export default async function IndexDetailPage({
         <div className="lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-14 xl:gap-20">
           <div aria-hidden="true" className="hidden lg:block" />
           <div className="min-w-0">
-            {/* ── C2 · Bill of materials — only for assembled units ── */}
-            {bom ? (
-              <section
-                id="bill-of-materials"
-                className="scroll-mt-20 border-t border-border py-16 sm:py-20"
-              >
-                <SectionHeading
-                  ordinal={ord("bom")}
-                  eyebrow="Composition"
-                  title="The build, line by line"
-                  lead={`Every part of the indexed unit, priced separately in every year from ${index.baseYear}.`}
-                />
-                <BillOfMaterials
-                  id={index.slug}
-                  bom={bom}
-                  accent={index.accent}
-                  className="mt-10"
-                />
-              </section>
+            {computing ? (
+              <>
+                {/* ── C2 · Two machines ─────────────────────────────── */}
+                <section
+                  id="tiers"
+                  className="scroll-mt-20 border-t border-border py-16 sm:py-20"
+                >
+                  <SectionHeading
+                    ordinal={ord("tiers")}
+                    eyebrow="Two machines"
+                    title="Same job, and what people now mean by compute"
+                    lead="Two reconstructions, priced at the snapshot. The first does the work Rocket Singh's customers actually did. The second is the machine the phrase has come to describe."
+                  />
+                  <TierComparison
+                    id={index.slug}
+                    data={computing}
+                    accent={index.accent}
+                    className="mt-10"
+                  />
+
+                  <div className="mt-14">
+                    <h3 className="text-xl font-semibold tracking-[-0.02em] text-foreground">
+                      Where the money sits, by tier
+                    </h3>
+                    <p className="mt-2 max-w-2xl type-meta leading-6 text-muted-foreground">
+                      Shares are computed from the prices, so they move whenever a
+                      constituent is repriced. Nothing here is a fixed weight.
+                    </p>
+                    <CompositionBars data={computing} className="mt-6" />
+                  </div>
+                </section>
+
+                {/* ── C3 · Constituents ─────────────────────────────── */}
+                <section
+                  id="constituents"
+                  className="scroll-mt-20 border-t border-border py-16 sm:py-20"
+                >
+                  <SectionHeading
+                    ordinal={ord("constituents")}
+                    eyebrow="Constituents"
+                    title="Ten markets in a steel box"
+                    lead="Each constituent has its own price history, its own capability history and its own set of markets that decide it. Open one to see what set the price."
+                  />
+                  <ConstituentGrid
+                    id={index.slug}
+                    data={computing}
+                    accent={index.accent}
+                    className="mt-10"
+                  />
+                </section>
+
+                {/* ── C4 · Price versus capability ──────────────────── */}
+                <section
+                  id="capability"
+                  className="scroll-mt-20 border-t border-border py-16 sm:py-20"
+                >
+                  <SectionHeading
+                    ordinal={ord("capability")}
+                    eyebrow="Price versus capability"
+                    title="What it costs against what it can do"
+                    lead="A price index on its own says nothing about a technology product. Two indices on the same base, and the ratio between them, say almost everything."
+                  />
+                  <CapabilityPanel
+                    id={index.slug}
+                    data={computing}
+                    accent={index.accent}
+                    className="mt-10"
+                  />
+                </section>
+
+                {/* ── C5 · Why the index moved ──────────────────────── */}
+                <section
+                  id="drivers"
+                  className="scroll-mt-20 border-t border-border py-16 sm:py-20"
+                >
+                  <SectionHeading
+                    ordinal={ord("drivers")}
+                    eyebrow="Why the index moved"
+                    title="Six markets, none of them the computer market"
+                    lead="Every force below sets prices somewhere else and arrives here as a consequence. The cabinet is in most of these lists precisely because nothing touches it."
+                  />
+                  <DriverTimeline data={computing} className="mt-10" />
+                </section>
+
+                {/* ── C6 · Same money ───────────────────────────────── */}
+                <section
+                  id="same-money"
+                  className="scroll-mt-20 border-t border-border py-16 sm:py-20"
+                >
+                  <SectionHeading
+                    ordinal={ord("same-money")}
+                    eyebrow="Same money"
+                    title="What could Rocket Singh build with the same money?"
+                    lead="Hold the rupees still and let the year move. For fifteen years this table only ever got better."
+                  />
+                  <SameMoney
+                    id={index.slug}
+                    data={computing}
+                    accent={index.accent}
+                    className="mt-10"
+                  />
+                </section>
+              </>
             ) : null}
 
             {/* ── D · The complete equation ───────────────────────── */}
@@ -382,6 +499,60 @@ export default async function IndexDetailPage({
           </div>
         </div>
       </div>
+
+      {/* ── G2 · Closing — scene register, computing index only ───── */}
+      {computing ? (
+        <NoirBand
+          accent={index.accent}
+          scopeId={`${index.slug}-close`}
+          glow={false}
+        >
+          <div className="mx-auto max-w-6xl px-4 py-20 sm:py-24">
+            <p className="max-w-4xl text-balance text-3xl font-semibold leading-[1.05] tracking-[-0.03em] text-white sm:text-5xl">
+              The computer became more powerful.
+              <span className="block text-white/45">
+                The market around it became more concentrated.
+              </span>
+            </p>
+            <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+              <div className="flex flex-col gap-5">
+                <p className="type-body leading-7 text-white/60">
+                  This is not a measure of computer inflation. It is a record of
+                  where the value inside a computer went.
+                </p>
+                <ul className="flex flex-col gap-3">
+                  {[
+                    "From the processor to the graphics card",
+                    "From local storage to somebody else's infrastructure",
+                    "From consumer memory to server memory",
+                    "From personal productivity to artificial intelligence",
+                  ].map((line) => (
+                    <li
+                      key={line}
+                      className="flex gap-3 type-body leading-6 text-white/75"
+                    >
+                      <span aria-hidden="true" className="text-white/35">
+                        →
+                      </span>
+                      <span>{line}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex flex-col justify-end gap-6">
+                <p className="text-balance text-xl font-medium leading-snug text-white sm:text-2xl">
+                  In 2009, Rocket Singh had to understand the customer. In 2026
+                  he would also need to understand the data centre.
+                </p>
+                <p className="type-caption leading-5 text-white/45">
+                  A Duku Design experiment in cultural memory, product economics
+                  and the changing price of compute.
+                </p>
+              </div>
+            </div>
+          </div>
+        </NoirBand>
+      ) : null}
 
       {/* ── H · Shareable summary — scene register ─────────────────── */}
       <NoirBand accent={index.accent} scopeId={`${index.slug}-share`} glow={false}>

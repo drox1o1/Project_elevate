@@ -75,6 +75,7 @@ const CONFIDENCE_LABEL: Record<Confidence, string> = {
   verified: "VERIFIED",
   reconstructed: "RECONSTRUCTED",
   estimated: "ESTIMATED",
+  "current-market": "CURRENT MARKET",
 };
 
 const px = (frac: number) => Math.round(SIZE * frac);

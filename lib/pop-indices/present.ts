@@ -24,7 +24,14 @@ import {
   type MoneyFormat,
 } from "./calc";
 import { DATASETS, SNAPSHOT_LABEL, SNAPSHOT_SHORT, getSeries } from "./data";
-import type { Dataset, PopIndex, Series } from "./types";
+import type {
+  Confidence,
+  Dataset,
+  MarketDriver,
+  PopIndex,
+  SameMoneyRow,
+  Series,
+} from "./types";
 
 export interface BenchmarkComparison {
   label: string;
@@ -557,138 +564,236 @@ export function rawValuesFor(p: PresentedIndex) {
   return raw;
 }
 
-/* ---- bill of materials ------------------------------------------------- */
+/* ---- the computing index ----------------------------------------------
+ *
+ * Everything below derives from the constituent series. Nothing is typed in:
+ * weights, shares, the index level, the capability composite and the
+ * price-per-capability reading are all computed here, so refreshing a
+ * component price moves every figure on the page at once.
+ */
 
-export interface PresentedComponentLine {
+export interface PresentedCapacity {
+  unit: string;
+  baseCapacity: string;
+  latestCapacity: string;
+  basePerUnit: string;
+  latestPerUnit: string;
+  changePerUnit: string;
+  perUnitRose: boolean;
+  lowPerUnit: string;
+  lowYear: number;
+  fallToLow: string;
+  riseSinceLow: string;
+  note?: string;
+}
+
+export interface PresentedConstituent {
   id: string;
   label: string;
+  role: string;
   baseSpec: string;
   latestSpec: string;
-  note: string;
-  /** Formatted prices in the base and latest year. */
+  drivers: string[];
+  insight: string;
+  remark: string;
+  confidence: Confidence;
+  /** Formatted prices. */
   base: string;
   latest: string;
-  /** Signed change across the whole period, e.g. "+216.7%". */
+  /** True when the constituent is no longer bought separately. */
+  absorbed: boolean;
   change: string;
   rose: boolean;
-  /** Share of the total build, 0–1, in each year. */
-  baseShare: number;
-  latestShare: number;
+  /** Own index, base year = 100. Absent when the base price was zero. */
+  indexNow?: string;
+  baseWeight: number;
+  latestWeight: number;
   /** Normalised 0–1 series for the inline sparkline. */
   spark: number[];
-  /** Set only for parts sold by capacity. */
-  capacity?: {
-    /** Installed capacity, formatted, in the base and latest year. */
-    baseCapacity: string;
-    latestCapacity: string;
-    /** Derived price per gigabyte, formatted. */
-    basePerUnit: string;
-    latestPerUnit: string;
-    /** Change in price per gigabyte across the whole period. */
-    changePerUnit: string;
-    perUnitRose: boolean;
-    /** The cheapest gigabyte on record, and when. */
-    lowPerUnit: string;
-    lowYear: number;
-    fallToLow: string;
-    riseSinceLow: string;
-    note?: string;
-  };
-  /** Set when the index declares a shock window. */
-  shock?: { change: string; rose: boolean };
+  years: number[];
+  values: number[];
+  capacity?: PresentedCapacity;
+  /** Capability metrics this constituent supplies, with their growth. */
+  capability: { label: string; base: string; latest: string; multiple: string }[];
 }
 
-export interface PresentedBom {
-  lead: string;
+export interface PresentedTierLine {
+  constituentId: string;
+  label: string;
+  price: string;
+  rawPrice: number;
+  spec: string;
+  note?: string;
+  shareOfBuild: number;
+  shareOfTower: number;
+  included: boolean;
+}
+
+export interface PresentedTier {
+  id: string;
+  label: string;
+  purpose: string;
+  scope: string;
+  confidence: Confidence;
+  total: string;
+  rawTotal: number;
+  tower: string;
+  lines: PresentedTierLine[];
+  /** The single largest constituent, for the headline callout. */
+  largest: { label: string; price: string; shareOfBuild: string; shareOfTower: string };
+}
+
+export interface PresentedComputing {
   baseYear: number;
   latestYear: number;
-  baseTotal: string;
-  latestTotal: string;
-  lines: PresentedComponentLine[];
-  shock?: {
-    fromYear: number;
-    toYear: number;
-    /** How much the whole build moved over the window. */
-    buildChange: string;
-    /** Share of that rupee move contributed by capacity-priced parts. */
-    contributionShare: string;
-    contributors: string[];
-    note: string;
-  };
+  /** Weighted price index, base year = 100. */
+  indexNow: string;
+  indexSeries: { year: number; value: number }[];
+  indexChange: string;
+  /** Capability composite, base year = 100. */
+  capabilityNow: string;
+  capabilitySeries: { year: number; value: number }[];
+  capabilityMultiple: string;
+  /** Price per unit of capability, base year = 100. */
+  perCapabilitySeries: { year: number; value: number }[];
+  perCapabilityNow: string;
+  perCapabilityChange: string;
+  /** The year price-per-capability bottomed, and what happened after. */
+  troughYear: number;
+  riseSinceTrough: string;
+  realChange?: string;
+  constituents: PresentedConstituent[];
+  capabilityMetrics: {
+    label: string;
+    unit: string;
+    weight: string;
+    base: string;
+    latest: string;
+    multiple: string;
+    constituentLabel: string;
+  }[];
+  tiers: PresentedTier[];
+  headlineTiers: PresentedTier[];
+  drivers: MarketDriver[];
+  constituentLabels: Record<string, string>;
+  sameMoney: {
+    amount: number;
+    label: string;
+    rows: (SameMoneyRow & { capabilityLabel: string; barWidth: number })[];
+  }[];
+  /** Superlatives for the overview strip. */
+  mostExpensive: string;
+  fastestGrowing: string;
+  largestDeflation: string;
 }
 
-function normalise(values: number[]): number[] {
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const range = max - min;
-  if (range === 0) return values.map(() => 0.5);
-  return values.map((v) => (v - min) / range);
+function seriesAt(s: Series, year: number): number {
+  return observationAt(s, year)?.value ?? 0;
 }
 
 /**
- * Turns the bill of materials into rendered rows.
+ * The weighted price index.
  *
- * Shares are computed against the sum of the lines rather than the headline
- * total, so a table that does not add up shows it rather than hiding it behind
- * a number taken from somewhere else.
+ * Base-year weights, so the index measures price movement rather than a change
+ * of shopping list. A constituent that starts at zero cannot have a base-100
+ * series of its own, so it is carried at its rupee contribution instead — which
+ * is what happens to graphics in the compute tier if that tier ever gets a
+ * history.
  */
-export function bomFor(p: PresentedIndex): PresentedBom | undefined {
-  const { bom } = p.index;
-  if (!bom) return undefined;
+function weightedIndex(
+  lines: Series[],
+  years: number[],
+  baseYear: number
+): { year: number; value: number }[] {
+  const baseTotal = lines.reduce((s, l) => s + seriesAt(l, baseYear), 0);
+  return years.map((y) => ({
+    year: y,
+    value:
+      (lines.reduce((s, l) => s + seriesAt(l, y), 0) / baseTotal) * 100,
+  }));
+}
 
-  const baseYear = p.index.baseYear;
-  const latest = latestYear(p.priceSeries);
+export function computingFor(p: PresentedIndex): PresentedComputing | undefined {
+  const c = p.index.computing;
+  if (!c) return undefined;
+
   const locale = p.locale;
   const money = p.money;
+  const baseYear = p.index.baseYear;
+  const priceLines = c.constituents.map((k) => getSeries(k.seriesId));
+  const years = priceLines[0].observations.map((o) => o.year);
+  const latest = years[years.length - 1];
 
-  const series = bom.components.map((c) => getSeries(c.seriesId));
-  const at = (s: Series, y: number) => observationAt(s, y)?.value ?? 0;
-  const baseTotal = series.reduce((sum, s) => sum + at(s, baseYear), 0);
-  const latestTotal = series.reduce((sum, s) => sum + at(s, latest), 0);
+  const totalAt = (y: number) =>
+    priceLines.reduce((s, l) => s + seriesAt(l, y), 0);
+  const baseTotal = totalAt(baseYear);
+  const latestTotal = totalAt(latest);
 
-  const lines: PresentedComponentLine[] = bom.components.map((c, i) => {
-    const s = series[i];
-    const b = at(s, baseYear);
-    const l = at(s, latest);
-    const pct = percentChange(b, l);
+  /* ---- price index ------------------------------------------------- */
+  const indexSeries = weightedIndex(priceLines, years, baseYear);
+  const indexNow = indexSeries[indexSeries.length - 1].value;
 
-    let capacity: PresentedComponentLine["capacity"];
-    if (c.capacitySeriesId) {
-      const cs = getSeries(c.capacitySeriesId);
+  /* ---- capability composite ---------------------------------------- */
+  const capSeries = c.capability.map((m) => getSeries(m.seriesId));
+  const capabilitySeries = years.map((y) => ({
+    year: y,
+    value: c.capability.reduce((s, m, i) => {
+      const base = seriesAt(capSeries[i], baseYear);
+      if (base === 0) return s;
+      return s + (seriesAt(capSeries[i], y) / base) * 100 * m.weight;
+    }, 0),
+  }));
+  const capabilityNow = capabilitySeries[capabilitySeries.length - 1].value;
 
-      /* Price per gigabyte is derived here rather than stored, so it can never
-       * disagree with the line price it is divided from. */
+  /* ---- price per unit of capability -------------------------------- */
+  const perCapabilitySeries = years.map((y, i) => ({
+    year: y,
+    value: (indexSeries[i].value / capabilitySeries[i].value) * 100,
+  }));
+  const trough = perCapabilitySeries.reduce((min, o) =>
+    o.value < min.value ? o : min
+  );
+  const perCapNow = perCapabilitySeries[perCapabilitySeries.length - 1].value;
+
+  /* ---- per-constituent -------------------------------------------- */
+  const constituents: PresentedConstituent[] = c.constituents.map((k, i) => {
+    const s = priceLines[i];
+    const values = years.map((y) => seriesAt(s, y));
+    const b = seriesAt(s, baseYear);
+    const l = seriesAt(s, latest);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min;
+
+    let capacity: PresentedCapacity | undefined;
+    if (k.capacitySeriesId) {
+      const cs = getSeries(k.capacitySeriesId);
       const perUnit = (y: number) => {
-        const gb = at(cs, y);
-        return gb > 0 ? at(s, y) / gb : 0;
+        const cap = seriesAt(cs, y);
+        return cap > 0 ? seriesAt(s, y) / cap : 0;
       };
-      const years = s.observations
-        .map((o) => o.year)
-        .filter((y) => y >= baseYear && y <= latest && at(cs, y) > 0);
-      const low = years.reduce(
-        (best, y) => (perUnit(y) < perUnit(best) ? y : best),
-        years[0]
+      const inRange = years.filter((y) => seriesAt(cs, y) > 0);
+      const low = inRange.reduce((best, y) =>
+        perUnit(y) < perUnit(best) ? y : best
       );
-
       const pb = perUnit(baseYear);
       const pl = perUnit(latest);
-      // Sub-₹100 figures are the interesting ones for storage; rounding those
-      // to whole rupees would flatten the entire series to "5" and "3".
       const decimals = Math.max(pb, pl) < 100 ? 2 : 0;
       const rupee = (v: number) =>
         `${p.index.currencySymbol}${v.toLocaleString(locale, {
           minimumFractionDigits: decimals,
           maximumFractionDigits: decimals,
         })}`;
-      // Drives are sold in decimal terabytes, so 1000 GB is "1 TB" on the box
-      // and on the invoice. Memory in this build never reaches the threshold.
-      const gb = (v: number) =>
-        v >= 1000 ? `${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)} TB` : `${v} GB`;
+      // Drives are sold in decimal terabytes; memory never reaches the bound.
+      const cap = (v: number) =>
+        v >= 1000
+          ? `${(v / 1000).toFixed(v % 1000 === 0 ? 0 : 1)} TB`
+          : `${v} ${k.capacityUnit ?? "GB"}`;
       const perUnitChange = percentChange(pb, pl);
-
       capacity = {
-        baseCapacity: gb(at(cs, baseYear)),
-        latestCapacity: gb(at(cs, latest)),
+        unit: `${p.index.currencySymbol} per ${k.capacityUnit ?? "GB"}`,
+        baseCapacity: cap(seriesAt(cs, baseYear)),
+        latestCapacity: cap(seriesAt(cs, latest)),
         basePerUnit: rupee(pb),
         latestPerUnit: rupee(pl),
         changePerUnit: formatPercent(perUnitChange, locale),
@@ -701,68 +806,180 @@ export function bomFor(p: PresentedIndex): PresentedBom | undefined {
       };
     }
 
-    let shock: PresentedComponentLine["shock"];
-    if (bom.shockWindow) {
-      const [from, to] = bom.shockWindow;
-      const a = at(s, from);
-      const z = at(s, to);
-      if (a > 0) {
-        const d = percentChange(a, z);
-        shock = { change: formatPercent(d, locale), rose: d >= 0 };
-      }
-    }
+    const capability = c.capability
+      .filter((m) => m.constituentId === k.id)
+      .map((m) => {
+        const ms = getSeries(m.seriesId);
+        const mb = seriesAt(ms, baseYear);
+        const ml = seriesAt(ms, latest);
+        const fmt = (v: number) =>
+          `${v.toLocaleString(locale, { maximumFractionDigits: v < 10 ? 2 : 0 })} ${m.unit}`;
+        return {
+          label: m.label,
+          base: fmt(mb),
+          latest: fmt(ml),
+          multiple: mb > 0 ? `${(ml / mb).toFixed(1)}×` : "—",
+        };
+      });
 
+    const pct = b > 0 ? percentChange(b, l) : 0;
     return {
-      id: c.id,
-      label: c.label,
-      baseSpec: c.baseSpec,
-      latestSpec: c.latestSpec,
-      note: c.note,
+      id: k.id,
+      label: k.label,
+      role: k.role,
+      baseSpec: k.baseSpec,
+      latestSpec: k.latestSpec,
+      drivers: k.drivers,
+      insight: k.insight,
+      remark: k.remark,
+      confidence: k.confidence,
       base: money(b),
-      latest: money(l),
-      change: formatPercent(pct, locale),
+      latest: l === 0 ? "Included" : money(l),
+      absorbed: l === 0,
+      change: b > 0 ? formatPercent(pct, locale) : "—",
       rose: pct >= 0,
-      baseShare: baseTotal > 0 ? b / baseTotal : 0,
-      latestShare: latestTotal > 0 ? l / latestTotal : 0,
-      spark: normalise(s.observations.map((o) => o.value)),
+      indexNow: b > 0 ? ((l / b) * 100).toFixed(0) : undefined,
+      baseWeight: baseTotal > 0 ? b / baseTotal : 0,
+      latestWeight: latestTotal > 0 ? l / latestTotal : 0,
+      spark: range === 0 ? values.map(() => 0.5) : values.map((v) => (v - min) / range),
+      years,
+      values,
       capacity,
-      shock,
+      capability,
     };
   });
 
-  let shock: PresentedBom["shock"];
-  if (bom.shockWindow) {
-    const [from, to] = bom.shockWindow;
-    const buildFrom = series.reduce((sum, s) => sum + at(s, from), 0);
-    const buildTo = series.reduce((sum, s) => sum + at(s, to), 0);
-    const moved = buildTo - buildFrom;
-    const capacityLines = bom.components
-      .map((c, i) => ({ c, s: series[i] }))
-      .filter(({ c }) => Boolean(c.capacitySeriesId));
-    const contributed = capacityLines.reduce(
-      (sum, { s }) => sum + (at(s, to) - at(s, from)),
-      0
-    );
-    if (moved !== 0) {
-      shock = {
-        fromYear: from,
-        toYear: to,
-        buildChange: formatPercent(percentChange(buildFrom, buildTo), locale),
-        contributionShare: `${Math.round((contributed / moved) * 100)}%`,
-        contributors: capacityLines.map(({ c }) => c.label),
-        note: bom.shockNote ?? "",
-      };
+  /* ---- tiers -------------------------------------------------------- */
+  const labels: Record<string, string> = Object.fromEntries(
+    c.constituents.map((k) => [k.id, k.label])
+  );
+  const displayish = new Set(["display", "peripherals"]);
+  const tiers: PresentedTier[] = c.tiers.map((t) => {
+    const total = t.lines.reduce((s, l) => s + l.price, 0);
+    const tower = t.lines
+      .filter((l) => !displayish.has(l.constituentId))
+      .reduce((s, l) => s + l.price, 0);
+    const lines: PresentedTierLine[] = t.lines.map((l) => ({
+      constituentId: l.constituentId,
+      label: labels[l.constituentId] ?? l.constituentId,
+      price: l.price === 0 ? "Included" : money(l.price),
+      rawPrice: l.price,
+      spec: l.spec,
+      note: l.note,
+      shareOfBuild: total > 0 ? l.price / total : 0,
+      shareOfTower: displayish.has(l.constituentId)
+        ? 0
+        : tower > 0
+          ? l.price / tower
+          : 0,
+      included: l.price === 0,
+    }));
+    const top = [...lines].sort((a, b) => b.rawPrice - a.rawPrice)[0];
+    return {
+      id: t.id,
+      label: t.label,
+      purpose: t.purpose,
+      scope: t.scope,
+      confidence: t.confidence,
+      total: money(total),
+      rawTotal: total,
+      tower: money(tower),
+      lines,
+      largest: {
+        label: top.label,
+        price: top.price,
+        shareOfBuild: `${(top.shareOfBuild * 100).toFixed(1)}%`,
+        shareOfTower: `${(top.shareOfTower * 100).toFixed(1)}%`,
+      },
+    };
+  });
+
+  /* ---- superlatives -------------------------------------------------- */
+  const priced = constituents.filter((k) => !k.absorbed);
+  const mostExpensive = [...constituents].sort(
+    (a, b) => b.latestWeight - a.latestWeight
+  )[0];
+  const fastest = [...priced].sort((a, b) => {
+    const av = Number(a.indexNow ?? 0);
+    const bv = Number(b.indexNow ?? 0);
+    return bv - av;
+  })[0];
+  const deflation = [...constituents].sort((a, b) => {
+    const av = a.absorbed ? -1 : Number(a.indexNow ?? Infinity);
+    const bv = b.absorbed ? -1 : Number(b.indexNow ?? Infinity);
+    return av - bv;
+  })[0];
+
+  /* ---- same money ---------------------------------------------------- */
+  const maxCapability = Math.max(
+    ...c.sameMoney.flatMap((band) => band.rows.map((r) => r.capability))
+  );
+  const sameMoney = c.sameMoney.map((band) => ({
+    amount: band.amount,
+    label: band.label,
+    rows: band.rows.map((r) => ({
+      ...r,
+      capabilityLabel: r.capability.toLocaleString(locale, {
+        maximumFractionDigits: 0,
+      }),
+      barWidth: (r.capability / maxCapability) * 100,
+    })),
+  }));
+
+  /* ---- real terms, where a CPI series exists ------------------------- */
+  let realChange: string | undefined;
+  if (p.cpiSeries) {
+    const cpiBase = seriesAt(p.cpiSeries, baseYear);
+    const cpiNow = seriesAt(p.cpiSeries, latest);
+    if (cpiBase > 0 && cpiNow > 0) {
+      const deflated = (latestTotal / (cpiNow / cpiBase) / baseTotal) * 100;
+      realChange = formatPercent(deflated - 100, locale);
     }
   }
 
   return {
-    lead: bom.lead,
     baseYear,
     latestYear: latest,
-    baseTotal: money(baseTotal),
-    latestTotal: money(latestTotal),
-    lines,
-    shock,
+    indexNow: indexNow.toFixed(1),
+    indexSeries,
+    indexChange: formatPercent(indexNow - 100, locale),
+    capabilityNow: capabilityNow.toLocaleString(locale, {
+      maximumFractionDigits: 0,
+    }),
+    capabilitySeries,
+    capabilityMultiple: `${(capabilityNow / 100).toFixed(1)}×`,
+    perCapabilitySeries,
+    perCapabilityNow: perCapNow.toFixed(1),
+    perCapabilityChange: formatPercent(perCapNow - 100, locale),
+    troughYear: trough.year,
+    riseSinceTrough: formatPercent(percentChange(trough.value, perCapNow), locale),
+    realChange,
+    constituents,
+    capabilityMetrics: c.capability.map((m, i) => {
+      const mb = seriesAt(capSeries[i], baseYear);
+      const ml = seriesAt(capSeries[i], latest);
+      const fmt = (v: number) =>
+        v.toLocaleString(locale, { maximumFractionDigits: v < 10 ? 2 : 0 });
+      return {
+        label: m.label,
+        unit: m.unit,
+        weight: `${(m.weight * 100).toFixed(0)}%`,
+        base: fmt(mb),
+        latest: fmt(ml),
+        multiple: mb > 0 ? `${(ml / mb).toFixed(1)}×` : "—",
+        constituentLabel: labels[m.constituentId] ?? m.constituentId,
+      };
+    }),
+    tiers,
+    headlineTiers: c.headlineTierIds
+      .map((id) => tiers.find((t) => t.id === id))
+      .filter((t): t is PresentedTier => Boolean(t)),
+    drivers: c.drivers,
+    constituentLabels: labels,
+    sameMoney,
+    mostExpensive: mostExpensive.label,
+    fastestGrowing: fastest.label,
+    largestDeflation: deflation.label,
   };
 }
 
