@@ -3555,7 +3555,43 @@ export function getDataset(id: string): Dataset {
   return d;
 }
 
-export const LIVE_INDICES = INDICES.filter((i) => i.status === "live");
+/**
+ * The order the section presents indices in.
+ *
+ * Not the order they were built and not alphabetical. It opens on the largest
+ * result, puts the two richest pages second and third, and alternates
+ * geography and category so no two neighbours make the same point twice.
+ *
+ * Kept as an explicit list rather than as the order of the INDICES array
+ * because those definitions are hundreds of lines each, and reordering the
+ * presentation should never mean moving them.
+ */
+const DISPLAY_ORDER = [
+  "sanju-baba-50-tola",
+  "rocket-singh-pc",
+  "khosla-plot",
+  "raju-ki-mummy-bhindi",
+  "royale-with-cheese",
+  "fruit-company",
+  "walter-white-purity-premium",
+  "vincent-vega-five-dollar-shake",
+  "moneyball-player-value",
+] as const;
+
+/**
+ * Live indices, in presentation order. Anything not named above sorts to the
+ * end rather than disappearing — a new index should show up somewhere obvious
+ * instead of silently vanishing from the grid.
+ */
+export const LIVE_INDICES = INDICES.filter((i) => i.status === "live").sort(
+  (a, b) => {
+    const rank = (slug: string) => {
+      const i = DISPLAY_ORDER.indexOf(slug as (typeof DISPLAY_ORDER)[number]);
+      return i === -1 ? DISPLAY_ORDER.length : i;
+    };
+    return rank(a.slug) - rank(b.slug);
+  }
+);
 
 /** Distinct datasets cited across the live indices — the trust counter. */
 export const SOURCE_COUNT = new Set(

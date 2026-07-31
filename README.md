@@ -64,7 +64,7 @@ source ledger and an exportable share card. A persistent index rail — sticky
 sidebar on desktop, scrolling strip on mobile — carries a value and sparkline
 per index so it doubles as navigation and comparison.
 
-**The computing index.** `rocket-singh-computing` is the section's largest
+**The computing index.** `rocket-singh-pc` (the Rocket Singh Computing Index) is the section's largest
 build. A computer is treated as an index and its parts as constituents: ten
 price series, eight capability metrics, three product tiers and six market
 drivers. The weighted index, the capability composite, every share and every
