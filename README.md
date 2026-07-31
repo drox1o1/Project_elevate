@@ -44,17 +44,22 @@ and biomarker trend explorer. Data in demos is simulated and labelled as such.
 dialogues and transactions from film into real economic indices. Nine ship,
 chosen so the same system has to hold across nine different kinds of data:
 
-| Index | Unit | Economics |
-| --- | --- | --- |
-| Sanju Baba 50 Tola | 50 tolas of gold | Commodity appreciation |
-| Royale With Cheese | One Quarter Pounder | Purchasing-power parity |
-| Raju Ki Mummy Bhindi | 1 kg of okra, Delhi retail | Food inflation |
-| Moneyball Player Price | $ per win above replacement | Labour-market inefficiency |
-| Vincent Vega Five-Dollar Shake | One premium milkshake | Restaurant inflation |
-| Walter White Purity Premium | $ per pure gram | Illicit-market pricing |
-| Rocket Singh Computing | One business machine, ten constituents | Technology deflation, then the AI memory shock |
-| Khosla Plot | 500 sq yd, Delhi periphery | Land and asset inflation |
-| Fruit Company | $1,000 of Apple, held | Equity compounding |
+| Index | Slug | Unit | Economics |
+| --- | --- | --- | --- |
+| Sanju Baba | `sanju-baba` | 50 tolas of gold | Commodity appreciation |
+| Rocket Singh Computing | `rocket-singh` | One business machine, ten constituents | Technology deflation, then the AI memory shock |
+| Khosla Plot | `khosla-plot` | 500 sq yd, Delhi periphery | Land and asset inflation |
+| Raju's Mummy | `rajus-mummy` | 1 kg of okra, Delhi retail | Food inflation |
+| Royale With Cheese | `royale-with-cheese` | One Quarter Pounder | Purchasing-power parity |
+| Fruit Company | `fruit-company` | $1,000 of Apple, held | Equity compounding |
+| Blue Meth | `blue-meth` | $ per pure gram | Illicit-market pricing |
+| Five-Dollar Shake | `five-dollar-shake` | One premium milkshake | Restaurant inflation |
+| Moneyball | `moneyball` | $ per win above replacement | Labour-market inefficiency |
+
+Slugs are short on purpose: the URL is half of what gets shared. Each index
+page carries X, LinkedIn, WhatsApp and copy-link buttons built from plain
+intent URLs — no third-party script loads on a page whose argument is that you
+can see where its numbers came from.
 
 Each index page carries the full stack: cold open, headline result, multi-mode
 time-series chart (nominal / inflation-adjusted / earning time / quantity /
@@ -64,7 +69,7 @@ source ledger and an exportable share card. A persistent index rail — sticky
 sidebar on desktop, scrolling strip on mobile — carries a value and sparkline
 per index so it doubles as navigation and comparison.
 
-**The computing index.** `rocket-singh-pc` (the Rocket Singh Computing Index) is the section's largest
+**The computing index.** `rocket-singh` (the Rocket Singh Computing Index) is the section's largest
 build. A computer is treated as an index and its parts as constituents: ten
 price series, eight capability metrics, three product tiers and six market
 drivers. The weighted index, the capability composite, every share and every

@@ -1442,10 +1442,10 @@ export const GRAMS_PER_TOLA = 11.6638;
 
 export const INDICES: PopIndex[] = [
   {
-    id: "sanju-baba-50-tola",
-    slug: "sanju-baba-50-tola",
-    name: "Sanju Baba 50 Tola Index",
-    shortName: "Sanju Baba Index",
+    id: "sanju-baba",
+    slug: "sanju-baba",
+    name: "Sanju Baba Index",
+    shortName: "Sanju Baba",
     subtitle: "The market value of the most famous gold chain in Hindi cinema.",
     status: "live",
 
@@ -1567,10 +1567,10 @@ export const INDICES: PopIndex[] = [
   },
 
   {
-    id: "raju-ki-mummy-bhindi",
-    slug: "raju-ki-mummy-bhindi",
-    name: "Raju Ki Mummy Bhindi Index",
-    shortName: "Raju Ki Mummy Index",
+    id: "rajus-mummy",
+    slug: "rajus-mummy",
+    name: "Raju's Mummy Bhindi Index",
+    shortName: "Raju's Mummy",
     subtitle:
       "The price history of one kilogram of the vegetable that briefly summarised household economics.",
     status: "live",
@@ -1700,10 +1700,10 @@ export const INDICES: PopIndex[] = [
   },
 
   {
-    id: "moneyball-player-value",
-    slug: "moneyball-player-value",
-    name: "Moneyball Player Price Index",
-    shortName: "Moneyball Index",
+    id: "moneyball",
+    slug: "moneyball",
+    name: "Moneyball Price of a Win Index",
+    shortName: "Moneyball",
     subtitle: "What baseball pays for measurable performance.",
     status: "live",
 
@@ -1823,7 +1823,7 @@ export const INDICES: PopIndex[] = [
     id: "royale-with-cheese",
     slug: "royale-with-cheese",
     name: "Royale With Cheese Index",
-    shortName: "Royale Index",
+    shortName: "Royale With Cheese",
     subtitle: "What one identical burger costs when the economy around it changes.",
     status: "live",
 
@@ -1960,9 +1960,9 @@ export const INDICES: PopIndex[] = [
   },
 
   {
-    id: "vincent-vega-five-dollar-shake",
-    slug: "vincent-vega-five-dollar-shake",
-    name: "Vincent Vega Five-Dollar Shake Index",
+    id: "five-dollar-shake",
+    slug: "five-dollar-shake",
+    name: "Five-Dollar Shake Index",
     shortName: "Five-Dollar Shake",
     subtitle: "Whether the most famously overpriced milkshake in cinema is still overpriced.",
     status: "live",
@@ -2089,10 +2089,10 @@ export const INDICES: PopIndex[] = [
   },
 
   {
-    id: "walter-white-purity-premium",
-    slug: "walter-white-purity-premium",
-    name: "Walter White Purity Premium Index",
-    shortName: "Purity Premium",
+    id: "blue-meth",
+    slug: "blue-meth",
+    name: "Blue Meth Purity Index",
+    shortName: "Blue Meth",
     subtitle:
       "What happened to the price of purity once an industrial supply chain arrived. Crime economics, from published enforcement data.",
     status: "live",
@@ -2207,8 +2207,8 @@ export const INDICES: PopIndex[] = [
   },
 
   {
-    id: "rocket-singh-pc",
-    slug: "rocket-singh-pc",
+    id: "rocket-singh",
+    slug: "rocket-singh",
     name: "Rocket Singh Computing Index",
     shortName: "Rocket Singh Computing",
     subtitle: "The changing economics of building a computer.",
@@ -3169,8 +3169,8 @@ export const ROYALE_COUNTRIES: CountryPrice[] = [
  */
 export const CATALOGUE: CatalogueEntry[] = [
   {
-    slug: "sanju-baba-50-tola",
-    name: "Sanju Baba 50 Tola Index",
+    slug: "sanju-baba",
+    name: "Sanju Baba Index",
     film: "Vaastav",
     releaseYear: 1999,
     indexedUnit: "50 Indian tolas of gold",
@@ -3199,8 +3199,8 @@ export const CATALOGUE: CatalogueEntry[] = [
     remark: "Same burger. Different currency. Surprisingly ambitious economics.",
   },
   {
-    slug: "raju-ki-mummy-bhindi",
-    name: "Raju Ki Mummy Bhindi Index",
+    slug: "rajus-mummy",
+    name: "Raju's Mummy Bhindi Index",
     film: "3 Idiots",
     releaseYear: 2009,
     indexedUnit: "One kilogram of bhindi",
@@ -3215,8 +3215,8 @@ export const CATALOGUE: CatalogueEntry[] = [
     remark: "She was presented as comic relief. The vegetable market may owe her an apology.",
   },
   {
-    slug: "moneyball-player-value",
-    name: "Moneyball Player Price Index",
+    slug: "moneyball",
+    name: "Moneyball Price of a Win Index",
     film: "Moneyball",
     releaseYear: 2011,
     indexedUnit: "Player salary per unit of measurable performance",
@@ -3230,8 +3230,8 @@ export const CATALOGUE: CatalogueEntry[] = [
     remark: "Moneyball found the undervalued metric. Baseball responded by correctly pricing it.",
   },
   {
-    slug: "vincent-vega-five-dollar-shake",
-    name: "Vincent Vega Five-Dollar Shake Index",
+    slug: "five-dollar-shake",
+    name: "Five-Dollar Shake Index",
     film: "Pulp Fiction",
     releaseYear: 1994,
     indexedUnit: "One premium restaurant milkshake",
@@ -3244,8 +3244,8 @@ export const CATALOGUE: CatalogueEntry[] = [
     remark: "No bourbon. No gold leaf. Just thirty-one years of restaurant inflation.",
   },
   {
-    slug: "walter-white-purity-premium",
-    name: "Walter White Purity Premium Index",
+    slug: "blue-meth",
+    name: "Blue Meth Purity Index",
     film: "Breaking Bad",
     releaseYear: 2008,
     indexedUnit: "Price per pure gram at reported purity",
@@ -3275,7 +3275,7 @@ export const CATALOGUE: CatalogueEntry[] = [
     remark: "Holding for thirty-one years turned out to be the harder skill.",
   },
   {
-    slug: "rocket-singh-pc",
+    slug: "rocket-singh",
     name: "Rocket Singh PC Index",
     film: "Rocket Singh: Salesman of the Year",
     releaseYear: 2009,
@@ -3567,15 +3567,15 @@ export function getDataset(id: string): Dataset {
  * presentation should never mean moving them.
  */
 const DISPLAY_ORDER = [
-  "sanju-baba-50-tola",
-  "rocket-singh-pc",
+  "sanju-baba",
+  "rocket-singh",
   "khosla-plot",
-  "raju-ki-mummy-bhindi",
+  "rajus-mummy",
   "royale-with-cheese",
   "fruit-company",
-  "walter-white-purity-premium",
-  "vincent-vega-five-dollar-shake",
-  "moneyball-player-value",
+  "blue-meth",
+  "five-dollar-shake",
+  "moneyball",
 ] as const;
 
 /**

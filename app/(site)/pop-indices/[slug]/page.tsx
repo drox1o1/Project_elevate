@@ -18,6 +18,7 @@ import { HeadlineResult } from "@/components/pop-indices/headline-result";
 import { IndexChart } from "@/components/pop-indices/index-chart";
 import { IndexRail } from "@/components/pop-indices/index-rail";
 import { ShareCard } from "@/components/pop-indices/share-card";
+import { ShareLinks } from "@/components/pop-indices/share-links";
 import { SourceLedger } from "@/components/pop-indices/source-ledger";
 import { formatMultiple, formatPercent } from "@/lib/pop-indices/calc";
 import {
@@ -80,6 +81,11 @@ export default async function IndexDetailPage({
   const values = seriesValues(p);
   const imageSrc = imageFor(index.slug);
   const computing = computingFor(p);
+
+  /* One line a person can paste anywhere: what it was, what it is, how far. */
+  const shareHeadline = `${p.money(result.baseValue)} in ${result.baseYear} → ${p.money(
+    result.currentValue
+  )} in ${result.latestYear}, ${formatPercent(result.percentChange, p.locale)}.`;
 
   /**
    * Section numbers are derived, not written down. Two sections are
@@ -563,6 +569,14 @@ export default async function IndexDetailPage({
             lead="A figure that travels without its source is the thing this section exists to avoid, so the export always includes the credit line."
             invert
           />
+          <ShareLinks
+            className="mt-10"
+            invert
+            indexName={index.name}
+            headline={shareHeadline}
+            path={`/pop-indices/${index.slug}`}
+          />
+
           <div className="mt-12 max-w-lg">
             <ShareCard
               indexName={index.name}

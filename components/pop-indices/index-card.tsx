@@ -139,14 +139,20 @@ export function IndexCard({
             </span>
           </div>
 
+          {/* The name people will actually say out loud. It leads, because a
+              card someone shares has to be identifiable without the quote. */}
+          <h3 className="mt-5 text-xl font-semibold leading-tight tracking-[-0.025em] text-foreground">
+            {data.shortName} Index
+          </h3>
+
           {/* The hook, in the register it deserves. */}
-          <blockquote className="mt-5">
-            <p className="text-balance text-lg font-semibold leading-snug tracking-[-0.02em] text-foreground sm:text-xl">
+          <blockquote className="mt-3">
+            <p className="text-balance type-body font-medium leading-snug text-muted-foreground">
               &ldquo;{data.dialogue}&rdquo;
             </p>
           </blockquote>
 
-          <p className="mt-4 type-meta text-muted-foreground">{data.indexedUnit}</p>
+          <p className="mt-3 type-meta text-muted-foreground">{data.indexedUnit}</p>
 
           {/* Result as display type, not as a dashboard stat. */}
           <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">

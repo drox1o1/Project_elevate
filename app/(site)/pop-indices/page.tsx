@@ -65,7 +65,7 @@ const NOT_THIS = [
 
 export default function PopIndicesPage() {
   const presented = LIVE_INDICES.map(presentIndex);
-  const gold = presentIndex(getIndex("sanju-baba-50-tola")!);
+  const gold = presentIndex(getIndex("sanju-baba")!);
   const ticker = presented.map(tickerItemFor);
 
   return (

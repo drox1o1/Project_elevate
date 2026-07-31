@@ -35,28 +35,33 @@ const EXTENSIONS = [".webp", ".avif", ".jpg", ".jpeg", ".png"];
  * once and then silently breaks a card.
  */
 export const IMAGE_ALIASES: Record<string, string> = {
-  sanjubaba: "sanju-baba-50-tola",
-  sanjubaba50tola: "sanju-baba-50-tola",
-  rajukimummy: "raju-ki-mummy-bhindi",
-  rajukimummybhindi: "raju-ki-mummy-bhindi",
-  bhindi: "raju-ki-mummy-bhindi",
-  moneyball: "moneyball-player-value",
+  sanjubaba: "sanju-baba",
+  sanjubaba50tola: "sanju-baba",
+  rajukimummy: "rajus-mummy",
+  rajukimummybhindi: "rajus-mummy",
+  bhindi: "rajus-mummy",
+  moneyball: "moneyball",
   quarterpoundcheese: "royale-with-cheese",
   quarterpounderwithcheese: "royale-with-cheese",
   royalewithcheese: "royale-with-cheese",
-  "5dollarshake": "vincent-vega-five-dollar-shake",
-  fivedollarshake: "vincent-vega-five-dollar-shake",
-  vincentvega: "vincent-vega-five-dollar-shake",
-  rocketsingh: "rocket-singh-pc",
-  rocketsinghpc: "rocket-singh-pc",
+  "5dollarshake": "five-dollar-shake",
+  fivedollarshake: "five-dollar-shake",
+  vincentvega: "five-dollar-shake",
+  rocketsingh: "rocket-singh",
+  rocketsinghpc: "rocket-singh",
   khoslakaghosla: "khosla-plot",
   khoslaplot: "khosla-plot",
   forrestgump: "fruit-company",
   fruitcompany: "fruit-company",
   apple: "fruit-company",
-  meth: "walter-white-purity-premium",
-  walterwhite: "walter-white-purity-premium",
-  puritypremium: "walter-white-purity-premium",
+  meth: "blue-meth",
+  walterwhite: "blue-meth",
+  puritypremium: "blue-meth",
+  // Previous slugs. Kept so a file named the old way still resolves rather
+  // than silently falling back to generative artwork.
+  vincentvegafivedollarshake: "five-dollar-shake",
+  walterwhitepuritypremium: "blue-meth",
+  moneyballplayervalue: "moneyball",
 };
 
 /** Lowercase and strip everything that varies between naming habits. */

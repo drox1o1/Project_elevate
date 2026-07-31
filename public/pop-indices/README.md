@@ -3,8 +3,8 @@
 Drop index images in this directory. Next serves `public/` and nothing else, so
 an image anywhere under `components/` or `lib/` is never reachable by URL.
 
-Naming: either the index slug (`sanju-baba-50-tola.jpg`) or one of the aliases
-in `lib/pop-indices/images.ts` (`sanjubaba.jpg`, `rajuki-mummy.jpg`,
+Naming: either the index slug (`sanju-baba.jpg`) or one of the aliases
+in `lib/pop-indices/images.ts` (`sanjubaba.jpg`, `rajukimummy.jpg`, `meth.jpg`,
 `quarterpoundcheese.jpeg`, `5dollarshake.jpeg`, `meth.jpeg`, `moneyball.jpg`,
 `rocketsingh.jpg`, `khoslakaghosla.jpg`, `forrestgump.webp`).
 Case, spaces, dashes and underscores are all ignored when matching.
