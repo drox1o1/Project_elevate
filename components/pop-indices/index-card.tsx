@@ -12,10 +12,14 @@ import type { Confidence, Motif } from "@/lib/pop-indices/types";
 /**
  * An index card.
  *
- * Composed as a piece of editorial rather than as a dashboard tile: the
- * dialogue leads, the artwork is the index's own series drawn large and
- * bleeding out of the frame, and the current value is set as display type
- * rather than as a metric label. The ordinal is furniture.
+ * Deliberately thin. Name, quote, result, provenance — and nothing else. The
+ * unit and the editorial remark used to sit here too, which made every card a
+ * different height and buried the one figure a reader came for. Both live on
+ * the index page, which is where someone who wants them is already going.
+ *
+ * Composed as editorial rather than as a dashboard tile: the current value is
+ * set as display type rather than as a metric label, and the artwork is the
+ * index's own series drawn large and cropped. The ordinal is furniture.
  *
  * The artwork sits behind the text at low opacity and lifts on hover, which
  * is the only decorative motion here — everything else in the card is
@@ -30,14 +34,12 @@ export interface IndexCardData {
   film: string;
   releaseYear: number;
   dialogue: string;
-  indexedUnit: string;
   baseYear: number;
   latestYear: number;
   baseValue: string;
   currentValue: string;
   change: string;
   changePositive: boolean;
-  reading: string;
   confidence: Confidence;
   motif: Motif;
   accent: { light: string; dark: string };
@@ -127,7 +129,10 @@ export function IndexCard({
         )}
 
         <div className="relative flex flex-1 flex-col p-5 sm:p-6">
-          <div className="flex items-center gap-3">
+          {/* Two lines are reserved whether or not they are used: one long film
+              title would otherwise push a single card's name and result out of
+              alignment with the rest of its row. */}
+          <div className="flex min-h-[2.5rem] items-center gap-3">
             {ordinal != null ? (
               <span className="font-mono type-caption text-muted-foreground numeric">
                 {String(ordinal).padStart(2, "0")}
@@ -152,10 +157,8 @@ export function IndexCard({
             </p>
           </blockquote>
 
-          <p className="mt-3 type-meta text-muted-foreground">{data.indexedUnit}</p>
-
           {/* Result as display type, not as a dashboard stat. */}
-          <div className="mt-5 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <div className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-1">
             <span className="font-mono text-[1.75rem] font-semibold leading-none tracking-[-0.02em] text-foreground numeric sm:text-3xl">
               {data.currentValue}
             </span>
@@ -172,11 +175,7 @@ export function IndexCard({
             from {data.baseValue} in {data.baseYear} · verified to {data.latestYear}
           </p>
 
-          <p className="mt-5 flex-1 type-meta italic leading-6 text-muted-foreground">
-            {data.reading}
-          </p>
-
-          <div className="mt-6 flex items-center justify-between gap-2 border-t border-border pt-4">
+          <div className="mt-6 flex flex-1 items-end justify-between gap-2 border-t border-border pt-4">
             <ConfidenceBadge level={data.confidence} />
             <span className="font-mono type-caption uppercase tracking-[0.1em] text-muted-foreground transition-transform duration-300 ease-out-expo group-hover:translate-x-1">
               Open →
